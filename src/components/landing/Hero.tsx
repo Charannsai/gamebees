@@ -9,38 +9,38 @@ interface HeroProps {
 
 export default function Hero({ onRentClick }: HeroProps) {
   return (
-    <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32 lg:pb-40">
+    <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32 lg:pb-40 bg-gamebees-bg">
       {/* Background Mesh Gradients */}
-      <div className="absolute top-1/4 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gradient-to-br from-gamebees-pink-highlight/20 to-gamebees-purple-accent/30 blur-3xl md:h-[600px] md:w-[600px]"></div>
-      <div className="absolute top-0 right-10 -z-10 h-[300px] w-[300px] rounded-full bg-gamebees-purple-deep/15 blur-3xl"></div>
+      <div className="absolute top-1/4 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full mesh-glow-pink pointer-events-none md:h-[600px] md:w-[600px]"></div>
+      <div className="absolute top-0 right-10 -z-10 h-[300px] w-[300px] rounded-full bg-gamebees-pink-highlight/5 blur-3xl pointer-events-none"></div>
       
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Hero Left Content */}
           <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gamebees-pink-accent/20 bg-gamebees-pink-accent/5 px-4 py-1.5 text-xs font-semibold text-gamebees-pink-accent md:text-sm animate-pulse-slow">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gamebees-pink-accent/30 bg-gamebees-pink-accent/10 px-4 py-1.5 text-xs font-semibold text-gamebees-pink-accent md:text-sm animate-pulse-slow">
               <Sparkles className="h-4 w-4" />
               <span>Free Delivery & Same-Day Setup Included</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.1]">
               Dive into the <br />
-              <span className="bg-gradient-to-r from-gamebees-pink-accent via-gamebees-pink-highlight to-gamebees-purple-accent bg-clip-text text-transparent glow-pink">
+              <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">
                 future of gaming
               </span> <br />
               right now.
             </h1>
 
             <p className="max-w-xl mx-auto lg:mx-0 text-base sm:text-lg text-white/70 leading-relaxed">
-              Why buy when you can rent? Experience the raw power of the PS5 Pro, Xbox Series X, and Nintendo Switch starting from <span className="text-white font-bold underline decoration-gamebees-pink-accent">$9/day</span>. Loaded with premium games, ready to play.
+              Why buy when you can rent? Experience the raw power of the PS5 Pro, Xbox Series X, and Nintendo Switch starting from <span className="text-white font-bold underline decoration-gamebees-pink-accent decoration-2">$9/day</span>. Loaded with premium games, ready to play.
             </p>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <button
                 onClick={onRentClick}
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-purple-accent font-bold text-white shadow-lg box-glow-pink hover:scale-105 hover:brightness-110 active:scale-95 transition-all duration-300"
+                className="w-full sm:w-auto px-8 py-4 rounded-full btn-shiny-pink font-bold text-white transition-all duration-300"
               >
                 Rent Your Console
               </button>
@@ -92,7 +92,7 @@ export default function Hero({ onRentClick }: HeroProps) {
           <div className="lg:col-span-5 relative flex justify-center items-center">
             
             {/* Main Interactive Floating Screen/Card */}
-            <div className="relative w-full max-w-sm rounded-[32px] glass-panel p-6 box-glow-purple border-white/10 animate-float">
+            <div className="relative w-full max-w-sm rounded-[32px] card-glow-pink p-6 border-gamebees-pink-accent/40 shadow-[0_0_30px_rgba(232,62,140,0.15)] animate-float">
               
               {/* Top Banner inside card */}
               <div className="flex justify-between items-center mb-6">
@@ -103,10 +103,10 @@ export default function Hero({ onRentClick }: HeroProps) {
               </div>
 
               {/* Glowing Console Graphic Representation */}
-              <div className="relative aspect-square w-full rounded-2xl bg-gradient-to-br from-gamebees-purple-deep/40 to-black overflow-hidden flex items-center justify-center border border-white/5 group">
+              <div className="relative aspect-square w-full rounded-2xl bg-gradient-to-br from-gamebees-bg-sec to-black overflow-hidden flex items-center justify-center border border-white/5 group">
                 
                 {/* Radial glow */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(232,62,140,0.15)_0%,transparent_70%)] group-hover:scale-110 transition-transform duration-500"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(232,62,140,0.25)_0%,transparent_70%)] group-hover:scale-110 transition-transform duration-500"></div>
 
                 {/* Cyberpunk grid overlay */}
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-40"></div>
@@ -114,29 +114,29 @@ export default function Hero({ onRentClick }: HeroProps) {
                 {/* CSS Drawn Stylized PS5 Console */}
                 <div className="relative w-32 h-44 flex justify-center items-center group-hover:scale-105 transition-transform duration-500">
                   {/* Left wing (White/Neon) */}
-                  <div className="absolute left-0 w-8 h-full bg-gradient-to-t from-white via-white/90 to-white/40 rounded-tl-full rounded-bl-3xl border-r border-gamebees-pink-accent/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]"></div>
+                  <div className="absolute left-0 w-8 h-full bg-gradient-to-t from-white via-white/90 to-white/40 rounded-tl-full rounded-bl-3xl border-r border-gamebees-pink-accent/40 shadow-[0_0_20px_rgba(255,255,255,0.25)]"></div>
                   
                   {/* Middle core (Black) */}
                   <div className="absolute w-12 h-[92%] bg-gradient-to-b from-zinc-800 to-black rounded-xl border-x border-white/5 flex flex-col items-center justify-between py-6 z-10">
                     <div className="w-2 h-2 rounded-full bg-gamebees-pink-accent animate-ping"></div>
-                    <div className="w-1 h-12 bg-gamebees-pink-accent/80 rounded-full box-glow-pink"></div>
+                    <div className="w-1 h-12 bg-gamebees-pink-accent/80 rounded-full shadow-[0_0_10px_#E83E8C]"></div>
                   </div>
 
                   {/* Right wing (White/Neon) */}
-                  <div className="absolute right-0 w-8 h-full bg-gradient-to-t from-white via-white/90 to-white/40 rounded-tr-full rounded-br-3xl border-l border-gamebees-pink-accent/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]"></div>
+                  <div className="absolute right-0 w-8 h-full bg-gradient-to-t from-white via-white/90 to-white/40 rounded-tr-full rounded-br-3xl border-l border-gamebees-pink-accent/40 shadow-[0_0_20px_rgba(255,255,255,0.25)]"></div>
 
-                  {/* Blue/Magenta LED interior strip */}
-                  <div className="absolute w-[44px] h-[95%] bg-gradient-to-b from-gamebees-pink-accent via-gamebees-purple-accent to-transparent opacity-60 blur-[3px] z-0"></div>
+                  {/* Glowing pink interior strip */}
+                  <div className="absolute w-[44px] h-[95%] bg-gamebees-pink-accent opacity-75 blur-[4px] z-0 shadow-[0_0_15px_#E83E8C]"></div>
                 </div>
 
                 {/* Floating Game Badges */}
-                <div className="absolute top-4 left-4 glass-panel px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-white/10 shadow-lg">
+                <div className="absolute top-4 left-4 card-glow-pink px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-gamebees-pink-accent/30 shadow-lg">
                   🎮 GTA VI
                 </div>
-                <div className="absolute bottom-6 right-4 glass-panel px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-white/10 shadow-lg">
+                <div className="absolute bottom-6 right-4 card-glow-pink px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-gamebees-pink-accent/30 shadow-lg">
                   ⚽ EA FC 26
                 </div>
-                <div className="absolute top-1/2 right-4 glass-panel px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-white/10 shadow-lg">
+                <div className="absolute top-1/2 right-4 card-glow-pink px-2.5 py-1 rounded-lg text-[10px] font-semibold text-white border-gamebees-pink-accent/30 shadow-lg">
                   🕷️ Spiderman 2
                 </div>
               </div>
@@ -145,11 +145,11 @@ export default function Hero({ onRentClick }: HeroProps) {
               <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
                 <div>
                   <span className="text-xs text-white/50 block">PLAYSTATION 5 PRO</span>
-                  <span className="text-lg font-bold text-white">Starting at <span className="text-gamebees-pink-accent">$12</span>/day</span>
+                  <span className="text-lg font-bold text-white">Starting at <span className="text-gamebees-pink-accent glow-pink-intense font-extrabold">$12</span>/day</span>
                 </div>
                 <button
                   onClick={onRentClick}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-purple-accent text-xs font-bold text-white hover:brightness-110 active:scale-95 transition-all shadow-md"
+                  className="px-4 py-2 rounded-xl btn-shiny-pink text-xs font-bold text-white transition-all shadow-md"
                 >
                   Order
                 </button>
@@ -158,7 +158,7 @@ export default function Hero({ onRentClick }: HeroProps) {
             </div>
 
             {/* Small absolute info card next to hero image */}
-            <div className="absolute -bottom-6 -left-6 glass-panel py-3 px-4 rounded-2xl border-white/10 hidden md:block max-w-[180px] box-glow-pink">
+            <div className="absolute -bottom-6 -left-6 card-glow-pink py-3 px-4 rounded-2xl border-gamebees-pink-accent/30 hidden md:block max-w-[180px] shadow-[0_0_15px_rgba(232,62,140,0.2)]">
               <span className="text-[10px] uppercase font-bold text-gamebees-pink-accent tracking-widest block mb-1">Super Deal</span>
               <p className="text-xs text-white font-bold">Get $100 security deposit waiver on 7+ days rental</p>
             </div>

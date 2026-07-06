@@ -29,40 +29,109 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom glowing effects */
-.glow-pink {
-  text-shadow: 0 0 10px rgba(232, 62, 140, 0.6), 0 0 20px rgba(232, 62, 140, 0.3);
+/* ----------------------------------------------------
+   INTENSE SHINY NEON DEEP PINK EFFECTS
+   ---------------------------------------------------- */
+
+/* Intense Glowing Text */
+.glow-pink-intense {
+  color: #FFFFFF;
+  text-shadow: 
+    0 0 7px rgba(232, 62, 140, 0.8),
+    0 0 15px rgba(232, 62, 140, 0.6),
+    0 0 30px rgba(232, 62, 140, 0.4),
+    0 0 50px rgba(194, 31, 115, 0.3);
 }
 
-.glow-purple {
-  text-shadow: 0 0 10px rgba(106, 27, 122, 0.6), 0 0 20px rgba(106, 27, 122, 0.3);
+.text-pink-shiny {
+  background: linear-gradient(to right, #FFFFFF, #E83E8C 40%, #C21F73 70%, #FFFFFF);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine-text 5s linear infinite;
 }
 
-.box-glow-pink {
-  box-shadow: 0 0 15px rgba(232, 62, 140, 0.35), 0 0 30px rgba(232, 62, 140, 0.15);
+@keyframes shine-text {
+  to {
+    background-position: 200% center;
+  }
 }
 
-.box-glow-purple {
-  box-shadow: 0 0 15px rgba(106, 27, 122, 0.35), 0 0 30px rgba(106, 27, 122, 0.15);
+/* Shiny Button with Reflection Sweep and Glow */
+.btn-shiny-pink {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #C21F73 0%, #E83E8C 50%, #C21F73 100%);
+  background-size: 200% auto;
+  box-shadow: 
+    0 0 15px rgba(232, 62, 140, 0.5),
+    0 0 5px rgba(232, 62, 140, 0.3);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: rgba(26, 22, 34, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(232, 62, 140, 0.12);
+.btn-shiny-pink::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  transition: none;
 }
 
-.glass-panel-hover {
+.btn-shiny-pink:hover::after {
+  left: 150%;
+  transition: left 0.7s ease-in-out;
+}
+
+.btn-shiny-pink:hover {
+  box-shadow: 
+    0 0 25px rgba(232, 62, 140, 0.8),
+    0 0 10px rgba(232, 62, 140, 0.5);
+  transform: translateY(-2px);
+  background-position: right center;
+}
+
+.btn-shiny-pink:active {
+  transform: translateY(1px);
+}
+
+/* Glowing Border and Shadows for Cards */
+.card-glow-pink {
+  background: rgba(21, 17, 26, 0.8);
+  border: 1px solid rgba(232, 62, 140, 0.3);
+  box-shadow: 
+    0 0 15px rgba(232, 62, 140, 0.08),
+    inset 0 0 12px rgba(232, 62, 140, 0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(26, 22, 34, 0.85);
-  border-color: rgba(232, 62, 140, 0.35);
-  box-shadow: 0 0 25px rgba(232, 62, 140, 0.2);
+.card-glow-pink:hover {
+  border-color: rgba(232, 62, 140, 0.75);
+  box-shadow: 
+    0 0 25px rgba(232, 62, 140, 0.25),
+    inset 0 0 15px rgba(232, 62, 140, 0.08);
   transform: translateY(-4px);
+}
+
+/* Neon Divider Line */
+.neon-line-pink {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #E83E8C, #C21F73, #E83E8C, transparent);
+  box-shadow: 0 0 10px rgba(232, 62, 140, 0.5);
+}
+
+/* Pulse Glow Background Mesh */
+.mesh-glow-pink {
+  background: radial-gradient(circle, rgba(232, 62, 140, 0.25) 0%, transparent 70%);
+  filter: blur(40px);
 }
 
 /* Hide scrollbar but keep functional */

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Menu, X, ShieldAlert, Cpu } from "lucide-react";
+import { Menu, X, Cpu } from "lucide-react";
 
 interface NavbarProps {
   onRentClick: () => void;
@@ -23,11 +23,10 @@ export default function Navbar({ onRentClick }: NavbarProps) {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gamebees-pink-highlight to-gamebees-purple-accent box-glow-pink">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gamebees-pink-highlight to-gamebees-pink-accent shadow-[0_0_15px_rgba(232,62,140,0.7)]">
               <Cpu className="h-6 w-6 text-white" />
-              <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 hover:opacity-100 transition-opacity"></div>
             </div>
-            <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-white via-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent">
+            <span className="text-2xl font-black tracking-wider text-pink-shiny select-none">
               GAME<span className="text-white">BEES</span>
             </span>
           </div>
@@ -49,12 +48,9 @@ export default function Navbar({ onRentClick }: NavbarProps) {
           <div className="hidden md:block">
             <button
               onClick={onRentClick}
-              className="relative group overflow-hidden rounded-full p-[2px] transition-all hover:scale-105 duration-300 active:scale-95"
+              className="btn-shiny-pink px-6 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-300"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-purple-accent rounded-full"></span>
-              <span className="relative block px-6 py-2.5 rounded-full bg-gamebees-bg text-sm font-semibold transition-colors group-hover:bg-transparent text-white">
-                Rent A Console
-              </span>
+              Rent A Console
             </button>
           </div>
 
@@ -72,7 +68,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-panel border-t-0 border-x-0 border-b border-white/10 py-4 px-4 space-y-3 animate-fadeIn">
+        <div className="md:hidden bg-gamebees-bg border-t border-white/10 py-4 px-4 space-y-3 shadow-lg">
           {navLinks.map((link) => (
             <a
               key={link.name}
@@ -88,7 +84,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
               setMobileMenuOpen(false);
               onRentClick();
             }}
-            className="w-full text-center block rounded-full bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-purple-accent px-5 py-3 text-sm font-semibold text-white shadow-lg box-glow-pink"
+            className="w-full text-center block rounded-full btn-shiny-pink px-5 py-3 text-sm font-semibold text-white"
           >
             Rent A Console
           </button>
