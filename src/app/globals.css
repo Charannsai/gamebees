@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0D0B12;
+  --foreground: #FFFFFF;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --color-gamebees-bg: #0D0B12;
+  --color-gamebees-bg-sec: #1A1622;
+  --color-gamebees-purple-deep: #4A174F;
+  --color-gamebees-purple-accent: #6A1B7A;
+  --color-gamebees-pink-accent: #E83E8C;
+  --color-gamebees-pink-highlight: #C21F73;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--color-gamebees-bg);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom glowing effects */
+.glow-pink {
+  text-shadow: 0 0 10px rgba(232, 62, 140, 0.6), 0 0 20px rgba(232, 62, 140, 0.3);
+}
+
+.glow-purple {
+  text-shadow: 0 0 10px rgba(106, 27, 122, 0.6), 0 0 20px rgba(106, 27, 122, 0.3);
+}
+
+.box-glow-pink {
+  box-shadow: 0 0 15px rgba(232, 62, 140, 0.35), 0 0 30px rgba(232, 62, 140, 0.15);
+}
+
+.box-glow-purple {
+  box-shadow: 0 0 15px rgba(106, 27, 122, 0.35), 0 0 30px rgba(106, 27, 122, 0.15);
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(26, 22, 34, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 62, 140, 0.12);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(26, 22, 34, 0.85);
+  border-color: rgba(232, 62, 140, 0.35);
+  box-shadow: 0 0 25px rgba(232, 62, 140, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Hide scrollbar but keep functional */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
