@@ -15,72 +15,65 @@ export default function HowItWorks() {
     {
       number: "01",
       title: "Book Online",
-      description: "Pick your console, customize games, add controllers, and select your rental dates using our calculator.",
-      icon: <MousePointerClick className="h-6 w-6 text-gamebees-pink-accent" />,
+      description: "Pick your console, games, and select rental dates using our calculator.",
+      icon: <MousePointerClick className="h-5 w-5 text-gamebees-pink-accent" />,
     },
     {
       number: "02",
       title: "Same-Day Delivery",
-      description: "Our tech expert hand-delivers, tests, and sets up the console directly on your TV. Ready to play instantly.",
-      icon: <Truck className="h-6 w-6 text-gamebees-pink-accent" />,
+      description: "We hand-deliver, connect, and set up the console directly on your TV.",
+      icon: <Truck className="h-5 w-5 text-gamebees-pink-accent" />,
     },
     {
       number: "03",
-      title: "Play Your Heart Out",
-      description: "No subscription required. Access top pre-installed blockbusters, multiplayer games, and exclusive bundles.",
-      icon: <Flame className="h-6 w-6 text-gamebees-pink-accent" />,
+      title: "Play Your Games",
+      description: "Play pre-installed blockbuster hits with controllers and cables supplied.",
+      icon: <Flame className="h-5 w-5 text-gamebees-pink-accent" />,
     },
     {
       number: "04",
       title: "Easy Pickup",
-      description: "Once your rental ends, we pick it up from your house. No repackaging, shipping, or cleaning necessary.",
-      icon: <RefreshCcw className="h-6 w-6 text-gamebees-pink-accent" />,
+      description: "Once your rental ends, we pick it up from your house. No repackaging.",
+      icon: <RefreshCcw className="h-5 w-5 text-gamebees-pink-accent" />,
     },
   ];
 
   return (
-    <section id="how-it-works" className="py-24 relative overflow-hidden bg-gamebees-bg">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 -z-10 h-72 w-72 rounded-full bg-gamebees-pink-highlight/5 blur-[80px] pointer-events-none"></div>
-
+    <section id="how-it-works" className="py-24 bg-gamebees-bg relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+        <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
+          <h2 className="text-3xl font-extrabold tracking-tight text-white">
             How It <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Works</span>
           </h2>
-          <p className="text-white/60 text-base sm:text-lg">
-            Rent next-gen console set ups in just four simple steps. We handle the heavy lifting, you handle the play.
+          <p className="text-white/50 text-sm font-light">
+            Rent next-gen console setups in just four simple steps.
           </p>
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-          
-          {/* Connector Line for Desktop */}
-          <div className="hidden lg:block absolute top-[68px] left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-gamebees-pink-accent/20 to-gamebees-pink-highlight/20 -z-10 shadow-[0_0_8px_rgba(232,62,140,0.3)]"></div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative">
           {steps.map((step, index) => (
             <div
               key={index}
               className="flex flex-col items-center text-center group"
             >
-              {/* Step Icon Container with Number */}
-              <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gamebees-bg-sec border border-white/10 shadow-[0_0_15px_rgba(232,62,140,0.1)] group-hover:border-gamebees-pink-accent group-hover:shadow-[0_0_20px_rgba(232,62,140,0.35)] group-hover:scale-105 transition-all duration-300">
+              {/* Step Icon Container */}
+              <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gamebees-bg-sec border border-white/5 shadow-sm group-hover:border-gamebees-pink-accent/40 group-hover:shadow-[0_0_15px_rgba(232,62,140,0.15)] transition-all duration-300">
                 {step.icon}
                 
                 {/* Step Number Badge */}
-                <span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-pink-accent text-[10px] font-black text-white flex items-center justify-center border border-gamebees-bg shadow-md">
+                <span className="absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-pink-accent text-[9px] font-black text-white flex items-center justify-center border border-gamebees-bg shadow-sm">
                   {step.number}
                 </span>
               </div>
 
               {/* Title & Description */}
-              <h3 className="text-lg font-bold text-white mb-3 group-hover:text-gamebees-pink-accent transition-colors">
+              <h3 className="text-base font-bold text-white mb-2">
                 {step.title}
               </h3>
-              <p className="text-white/60 text-xs sm:text-sm max-w-[240px] leading-relaxed">
+              <p className="text-white/50 text-xs max-w-[200px] leading-relaxed font-light">
                 {step.description}
               </p>
             </div>
