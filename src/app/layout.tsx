@@ -23,7 +23,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white">
+      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white grainy-overlay">
         {children}
       </body>
     </html>
