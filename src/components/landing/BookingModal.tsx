@@ -71,7 +71,7 @@ export default function BookingModal({
       ></div>
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg rounded-[28px] card-glow-pink p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] shadow-[0_0_40px_rgba(232,62,140,0.2)] animate-fadeIn">
+      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] animate-fadeIn z-10">
         
         {/* Close button */}
         <button
@@ -85,15 +85,15 @@ export default function BookingModal({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <h3 className="text-xl sm:text-2xl font-black text-white">
-                Book Your <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Gaming Station</span>
+                Book Your <span className="text-gamebees-pink-accent">Gaming Station</span>
               </h3>
-              <p className="text-white/60 text-xs sm:text-sm mt-1">
-                Enter your details to initiate your rental. No credit card required to request a booking.
+              <p className="text-white/50 text-xs sm:text-sm mt-1 font-light">
+                Enter your details to initiate your rental. No credit card required.
               </p>
             </div>
 
             {/* Quick summary card */}
-            <div className="p-4 rounded-2xl bg-gamebees-pink-highlight/5 border border-gamebees-pink-accent/20 space-y-2 text-xs sm:text-sm shadow-[inset_0_0_10px_rgba(232,62,140,0.05)]">
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2 text-xs sm:text-sm font-light">
               <div className="flex justify-between font-bold text-white">
                 <span>Console:</span>
                 <span className="text-gamebees-pink-accent">{consoleName}</span>
@@ -111,7 +111,7 @@ export default function BookingModal({
               <div className="h-px bg-white/10 my-2"></div>
               <div className="flex justify-between font-bold text-white text-base">
                 <span>Estimated Price:</span>
-                <span className="text-gamebees-pink-accent glow-pink-intense">${initialTotal}</span>
+                <span className="text-gamebees-pink-accent">${initialTotal}</span>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function BookingModal({
                   <select
                     value={consoleName}
                     onChange={(e) => setConsoleName(e.target.value)}
-                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 px-4 py-3 text-sm text-white focus:border-gamebees-pink-accent focus:ring-1 focus:ring-gamebees-pink-accent outline-none appearance-none"
+                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 px-4 py-3 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
                   >
                     {CONSOLE_OPTIONS.map((opt) => (
                       <option key={opt} value={opt} className="bg-gamebees-bg text-white">
@@ -147,7 +147,7 @@ export default function BookingModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent focus:ring-1 focus:ring-gamebees-pink-accent outline-none"
+                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent outline-none"
                   />
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function BookingModal({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter mobile number"
-                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent focus:ring-1 focus:ring-gamebees-pink-accent outline-none"
+                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent outline-none"
                   />
                 </div>
               </div>
@@ -183,7 +183,7 @@ export default function BookingModal({
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Enter your street address"
-                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent focus:ring-1 focus:ring-gamebees-pink-accent outline-none"
+                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent outline-none"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function BookingModal({
                     onChange={(e) => setGames(e.target.value)}
                     placeholder="E.g., GTA VI, Spiderman 2, FC 26 (List any specific titles)"
                     rows={2}
-                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent focus:ring-1 focus:ring-gamebees-pink-accent outline-none resize-none"
+                    className="w-full rounded-xl bg-gamebees-bg border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-pink-accent outline-none resize-none"
                   />
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function BookingModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 rounded-xl btn-shiny-pink text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl btn-pink-polished text-sm font-bold text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -224,7 +224,7 @@ export default function BookingModal({
         ) : (
           /* Success Screen */
           <div className="text-center py-8 space-y-6">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gamebees-pink-highlight/20 border border-gamebees-pink-accent/40 shadow-[0_0_15px_rgba(232,62,140,0.5)]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/20">
               <CheckCircle className="h-10 w-10 text-gamebees-pink-accent" />
             </div>
 
@@ -235,8 +235,8 @@ export default function BookingModal({
               </p>
             </div>
 
-            <p className="text-white/60 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-              We have received your request to rent the <span className="text-white font-bold">{consoleName}</span> for {duration} days. Our customer rep will message or call you on <span className="text-white font-bold">{phone}</span> within <span className="text-gamebees-pink-accent font-bold">15 minutes</span> to confirm your same-day delivery slots.
+            <p className="text-white/55 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed font-light">
+              We have received your request to rent the <span className="text-white font-semibold">{consoleName}</span> for {duration} days. Our customer rep will message or call you on <span className="text-white font-semibold">{phone}</span> within <span className="text-gamebees-pink-accent font-semibold">15 minutes</span> to confirm your same-day delivery slots.
             </p>
 
             <button

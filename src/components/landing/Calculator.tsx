@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Calculator as CalcIcon, Percent, ShieldCheck } from "lucide-react";
+import { Calculator as CalcIcon, Percent } from "lucide-react";
 
 interface CalculatorProps {
   onBook: (config: {
@@ -82,14 +82,14 @@ export default function Calculator({ onBook }: CalculatorProps) {
   };
 
   return (
-    <section id="estimator" className="py-24 bg-gamebees-bg relative">
+    <section id="estimator" className="py-24 relative overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
             <CalcIcon className="h-6 w-6 text-gamebees-pink-accent" />
-            Price <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Estimator</span>
+            Price <span className="text-gamebees-pink-accent">Estimator</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Configure your console setup and calculate real-time estimates with volume discounts.
@@ -100,7 +100,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           
           {/* Controls Panel */}
-          <div className="md:col-span-7 card-glow-pink p-6 sm:p-8 rounded-[20px] space-y-8">
+          <div className="md:col-span-7 card-polished p-6 sm:p-8 space-y-8">
             
             {/* 1. Select Console */}
             <div className="space-y-3">
@@ -110,7 +110,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
               <select
                 value={selectedConsole}
                 onChange={(e) => setSelectedConsole(e.target.value)}
-                className="w-full rounded-xl bg-gamebees-bg border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
+                className="w-full rounded-xl bg-gamebees-bg/50 border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
               >
                 {Object.keys(CONSOLE_PRICES).map((console) => (
                   <option key={console} value={console} className="bg-gamebees-bg text-white">
@@ -185,7 +185,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
           </div>
 
           {/* Results Panel */}
-          <div className="md:col-span-5 card-glow-pink p-6 sm:p-8 rounded-[20px] flex flex-col justify-between self-stretch">
+          <div className="md:col-span-5 card-polished p-6 sm:p-8 flex flex-col justify-between self-stretch">
             <div className="space-y-6">
               <div className="border-b border-white/10 pb-4">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-white/40 block mb-1">Rental Plan</span>
@@ -230,13 +230,13 @@ export default function Calculator({ onBook }: CalculatorProps) {
                   <span className="text-xs text-white/40 block font-semibold">ESTIMATED TOTAL</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-black text-white glow-pink-intense">${stats.total}</span>
+                  <span className="text-2xl font-black text-white">${stats.total}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleBook}
-                className="w-full py-3.5 rounded-xl btn-shiny-pink text-xs font-bold text-white transition-all duration-300"
+                className="w-full py-3.5 rounded-xl btn-pink-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
               >
                 Book This Setup
               </button>

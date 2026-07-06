@@ -18,15 +18,15 @@ export default function Navbar({ onRentClick }: NavbarProps) {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-gamebees-bg/75 backdrop-blur-md transition-all duration-300">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-gamebees-bg/50 backdrop-blur-md transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gamebees-pink-highlight to-gamebees-pink-accent shadow-[0_0_15px_rgba(232,62,140,0.7)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gamebees-pink-accent shadow-md">
               <Cpu className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-black tracking-wider text-pink-shiny select-none">
+            <span className="text-2xl font-black tracking-wider text-gamebees-pink-accent select-none">
               GAME<span className="text-white">BEES</span>
             </span>
           </div>
@@ -48,7 +48,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
           <div className="hidden md:block">
             <button
               onClick={onRentClick}
-              className="btn-shiny-pink px-6 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-300"
+              className="btn-pink-polished px-6 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-300"
             >
               Rent A Console
             </button>
@@ -84,7 +84,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
               setMobileMenuOpen(false);
               onRentClick();
             }}
-            className="w-full text-center block rounded-full btn-shiny-pink px-5 py-3 text-sm font-semibold text-white"
+            className="w-full text-center block rounded-full btn-pink-polished px-5 py-3 text-sm font-semibold text-white"
           >
             Rent A Console
           </button>
