@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Calculator as CalcIcon, Percent, ShieldCheck, Flame } from "lucide-react";
+import { Calculator as CalcIcon, Percent, ShieldCheck } from "lucide-react";
 
 interface CalculatorProps {
   onBook: (config: {
@@ -82,9 +82,9 @@ export default function Calculator({ onBook }: CalculatorProps) {
   };
 
   return (
-    <section id="estimator" className="py-24 relative overflow-hidden">
+    <section id="estimator" className="py-24 relative overflow-hidden bg-gamebees-bg">
       {/* Background neon decoration */}
-      <div className="absolute top-1/2 right-1/4 -z-10 h-96 w-96 rounded-full bg-gamebees-pink-highlight/10 blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/2 right-1/4 -z-10 h-96 w-96 rounded-full mesh-glow-pink pointer-events-none"></div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
@@ -92,7 +92,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
             <CalcIcon className="h-8 w-8 text-gamebees-pink-accent" />
-            Interactive <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent">Price Estimator</span>
+            Interactive <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Price Estimator</span>
           </h2>
           <p className="text-white/60 text-base sm:text-lg">
             Configure your setup below and instantly calculate the estimated rental costs. Long-term rentals automatically receive significant volume discounts!
@@ -103,7 +103,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
           
           {/* Controls Panel */}
-          <div className="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-[24px] border-white/10 space-y-8">
+          <div className="lg:col-span-7 card-glow-pink p-6 sm:p-8 rounded-[24px] space-y-8">
             
             {/* 1. Select Console */}
             <div className="space-y-3">
@@ -117,7 +117,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
                     onClick={() => setSelectedConsole(console)}
                     className={`p-4 rounded-xl text-left border text-sm font-semibold transition-all ${
                       selectedConsole === console
-                        ? "bg-gamebees-pink-highlight/10 border-gamebees-pink-accent text-white box-glow-pink"
+                        ? "bg-gamebees-pink-highlight/10 border-gamebees-pink-accent text-white shadow-[0_0_15px_rgba(232,62,140,0.4)]"
                         : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10 hover:border-white/10"
                     }`}
                   >
@@ -160,7 +160,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
 
               {/* Discount Alert Banner */}
               {stats.discountPct > 0 && (
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gamebees-purple-accent/15 border border-gamebees-purple-accent/30 text-xs font-semibold text-gamebees-pink-accent">
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gamebees-pink-accent/10 border border-gamebees-pink-accent/30 text-xs font-semibold text-gamebees-pink-accent shadow-[0_0_10px_rgba(232,62,140,0.15)]">
                   <Percent className="h-4 w-4" />
                   <span>Congrats! You qualify for a {stats.discountPct}% long-term discount.</span>
                 </div>
@@ -181,7 +181,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
                       onClick={() => toggleAccessory(acc)}
                       className={`w-full flex items-center justify-between p-4 rounded-xl border text-sm font-semibold transition-all ${
                         isChecked
-                          ? "bg-gamebees-purple-accent/10 border-gamebees-purple-accent text-white"
+                          ? "bg-gamebees-pink-accent/10 border-gamebees-pink-accent text-white"
                           : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10 hover:border-white/10"
                       }`}
                     >
@@ -203,7 +203,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
           </div>
 
           {/* Results / Receipt Panel */}
-          <div className="lg:col-span-5 glass-panel p-6 sm:p-8 rounded-[24px] border-white/10 bg-gradient-to-b from-gamebees-bg-sec to-gamebees-bg relative overflow-hidden flex flex-col justify-between self-stretch">
+          <div className="lg:col-span-5 card-glow-pink p-6 sm:p-8 rounded-[24px] relative overflow-hidden flex flex-col justify-between self-stretch shadow-[0_0_30px_rgba(232,62,140,0.15)]">
             
             {/* Visual shine card overlay */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent pointer-events-none"></div>
@@ -263,13 +263,13 @@ export default function Calculator({ onBook }: CalculatorProps) {
                   {stats.deposit > 0 && <span className="text-[10px] text-white/40 block">+ ${stats.deposit} refundable deposit</span>}
                 </div>
                 <div className="text-right">
-                  <span className="text-3xl font-black text-white glow-pink">${stats.total}</span>
+                  <span className="text-3xl font-black text-white glow-pink-intense">${stats.total}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleBook}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-purple-accent text-sm font-bold text-white shadow-lg box-glow-pink hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl btn-shiny-pink text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <span>Book This Setup</span>
               </button>

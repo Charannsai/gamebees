@@ -68,15 +68,15 @@ const CONSOLES: Console[] = [
 
 export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
   return (
-    <section id="consoles" className="py-24 bg-gamebees-bg-sec/40 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(106,27,122,0.1),transparent_50%)]"></div>
+    <section id="consoles" className="py-24 bg-gamebees-bg relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,62,140,0.08),transparent_50%)]"></div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Choose Your <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent">Battle Station</span>
+            Choose Your <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Battle Station</span>
           </h2>
           <p className="text-white/60 text-base sm:text-lg">
             Select from our top-tier catalog. Every rental includes 2 controllers (4 for Switch), all necessary cords, and a premium catalog of pre-installed games.
@@ -88,26 +88,24 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
           {CONSOLES.map((console) => (
             <div
               key={console.id}
-              className="flex flex-col rounded-[24px] glass-panel p-6 border-white/10 glass-panel-hover"
+              className="flex flex-col rounded-[24px] card-glow-pink p-6"
             >
               {/* Badge & Image Container */}
-              <div className="relative w-full aspect-video rounded-xl bg-gamebees-bg/80 flex items-center justify-center border border-white/5 mb-6 overflow-hidden">
+              <div className="relative w-full aspect-video rounded-xl bg-gamebees-bg/85 flex items-center justify-center border border-white/5 mb-6 overflow-hidden">
                 {/* Custom Glow background for card */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(232,62,140,0.05)_0%,transparent_70%)]"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(232,62,140,0.15)_0%,transparent_70%)]"></div>
 
                 {console.badge && (
                   <span className={`absolute top-3 left-3 text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-full border ${
                     console.badgeType === "hot"
-                      ? "bg-gamebees-pink-highlight/20 text-gamebees-pink-accent border-gamebees-pink-accent/30 animate-pulse"
-                      : console.badgeType === "popular"
-                      ? "bg-gamebees-purple-accent/20 text-white border-gamebees-purple-accent/30"
+                      ? "bg-gamebees-pink-highlight/20 text-gamebees-pink-accent border-gamebees-pink-accent/50 shadow-[0_0_10px_rgba(232,62,140,0.5)] animate-pulse"
                       : "bg-white/10 text-white border-white/20"
                   }`}>
                     {console.badge}
                   </span>
                 )}
                 
-                <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(255,255,255,0.15)] select-none">
+                <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(232,62,140,0.25)] select-none">
                   {console.image}
                 </span>
               </div>
@@ -118,7 +116,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
                   {console.name}
                 </h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-gamebees-pink-accent">${console.dailyPrice}</span>
+                  <span className="text-2xl font-black text-gamebees-pink-accent glow-pink-intense">${console.dailyPrice}</span>
                   <span className="text-xs text-white/50">/ day</span>
                 </div>
               </div>
@@ -144,7 +142,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
                 <span className="text-[10px] uppercase font-bold tracking-widest text-white/40 block mb-1">Pre-installed Games</span>
                 {console.games.map((game, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-white/80">
-                    <Gamepad2 className="h-3.5 w-3.5 text-gamebees-purple-accent flex-shrink-0" />
+                    <Gamepad2 className="h-3.5 w-3.5 text-gamebees-pink-accent flex-shrink-0" />
                     <span className="truncate font-medium">{game}</span>
                   </div>
                 ))}
@@ -153,7 +151,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
               {/* Rent Action Button */}
               <button
                 onClick={() => onRentClick(console.name)}
-                className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-gradient-to-r hover:from-gamebees-pink-highlight hover:to-gamebees-purple-accent hover:border-transparent transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl btn-shiny-pink text-xs font-bold text-white transition-all duration-300 flex items-center justify-center gap-2"
               >
                 Rent This Console
               </button>
@@ -164,7 +162,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
         {/* Security & Support Badges */}
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 border-t border-white/5 max-w-4xl mx-auto text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/20 flex items-center justify-center flex-shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(232,62,140,0.15)]">
               <ShieldCheck className="h-5 w-5 text-gamebees-pink-accent" />
             </div>
             <div>
@@ -174,7 +172,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/20 flex items-center justify-center flex-shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(232,62,140,0.15)]">
               <Gamepad2 className="h-5 w-5 text-gamebees-pink-accent" />
             </div>
             <div>
@@ -184,7 +182,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/20 flex items-center justify-center flex-shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-gamebees-pink-highlight/10 border border-gamebees-pink-accent/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(232,62,140,0.15)]">
               <Info className="h-5 w-5 text-gamebees-pink-accent" />
             </div>
             <div>
