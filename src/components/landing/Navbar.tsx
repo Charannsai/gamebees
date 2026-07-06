@@ -18,7 +18,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-gamebees-bg/50 backdrop-blur-md transition-all duration-300">
+    <nav className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-md transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
@@ -68,7 +68,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-gamebees-bg border-t border-white/10 py-4 px-4 space-y-3 shadow-lg">
+        <div className="md:hidden bg-[#0A080F]/90 backdrop-blur-md border-t border-white/5 py-4 px-4 space-y-3 shadow-lg">
           {navLinks.map((link) => (
             <a
               key={link.name}
