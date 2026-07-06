@@ -23,10 +23,10 @@ export default function Navbar({ onRentClick }: NavbarProps) {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gamebees-pink-accent shadow-md">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gamebees-accent-blue shadow-md">
               <Cpu className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-black tracking-wider text-gamebees-pink-accent select-none">
+            <span className="text-2xl font-black tracking-wider text-gamebees-accent-lavender select-none">
               GAME<span className="text-white">BEES</span>
             </span>
           </div>
@@ -37,7 +37,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
               <a
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium text-white/70 transition-colors hover:text-gamebees-pink-accent"
+                className="text-sm font-medium text-white/70 transition-colors hover:text-gamebees-accent-lavender"
               >
                 {link.name}
               </a>
@@ -48,7 +48,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
           <div className="hidden md:block">
             <button
               onClick={onRentClick}
-              className="btn-pink-polished px-6 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-300"
+              className="btn-polished px-6 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-300"
             >
               Rent A Console
             </button>
@@ -74,7 +74,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
               key={link.name}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="block rounded-lg px-3 py-2 text-base font-medium text-white/80 hover:bg-white/5 hover:text-gamebees-pink-accent"
+              className="block rounded-lg px-3 py-2 text-base font-medium text-white/80 hover:bg-white/5 hover:text-gamebees-accent-lavender"
             >
               {link.name}
             </a>
@@ -84,7 +84,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
               setMobileMenuOpen(false);
               onRentClick();
             }}
-            className="w-full text-center block rounded-full btn-pink-polished px-5 py-3 text-sm font-semibold text-white"
+            className="w-full text-center block rounded-full btn-polished px-5 py-3 text-sm font-semibold text-white"
           >
             Rent A Console
           </button>

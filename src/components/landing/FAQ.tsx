@@ -45,8 +45,8 @@ export default function FAQ() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-            <HelpCircle className="h-6 w-6 text-gamebees-pink-accent" />
-            Frequently Asked <span className="text-gamebees-pink-accent">Questions</span>
+            <HelpCircle className="h-6 w-6 text-gamebees-accent-lavender" />
+            Frequently Asked <span className="text-gamebees-accent-lavender">Questions</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Have questions about deposit waivers, games, or delivery? Find your answers below.
@@ -61,16 +61,16 @@ export default function FAQ() {
               <div
                 key={index}
                 className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
-                  isOpen ? "border-gamebees-pink-accent/40 bg-white/[0.03]" : "border-white/5"
+                  isOpen ? "border-gamebees-accent-lavender/40 bg-white/[0.03]" : "border-white/5"
                 }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full flex items-center justify-between p-5 text-left font-bold text-white hover:text-gamebees-pink-accent transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left font-bold text-white hover:text-gamebees-accent-lavender transition-colors"
                 >
                   <span className="text-sm sm:text-base pr-4 font-semibold">{faq.question}</span>
                   {isOpen ? (
-                    <ChevronUp className="h-5 w-5 text-gamebees-pink-accent flex-shrink-0" />
+                    <ChevronUp className="h-5 w-5 text-gamebees-accent-lavender" />
                   ) : (
                     <ChevronDown className="h-5 w-5 text-white/40 flex-shrink-0" />
                   )}

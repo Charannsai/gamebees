@@ -16,25 +16,25 @@ export default function HowItWorks() {
       number: "01",
       title: "Book Online",
       description: "Pick your console, games, and select rental dates using our calculator.",
-      icon: <MousePointerClick className="h-5 w-5 text-gamebees-pink-accent" />,
+      icon: <MousePointerClick className="h-5 w-5 text-gamebees-accent-lavender" />,
     },
     {
       number: "02",
       title: "Same-Day Delivery",
       description: "We hand-deliver, connect, and set up the console directly on your TV.",
-      icon: <Truck className="h-5 w-5 text-gamebees-pink-accent" />,
+      icon: <Truck className="h-5 w-5 text-gamebees-accent-lavender" />,
     },
     {
       number: "03",
       title: "Play Your Games",
       description: "Play pre-installed blockbuster hits with controllers and cables supplied.",
-      icon: <Flame className="h-5 w-5 text-gamebees-pink-accent" />,
+      icon: <Flame className="h-5 w-5 text-gamebees-accent-lavender" />,
     },
     {
       number: "04",
       title: "Easy Pickup",
       description: "Once your rental ends, we pick it up from your house. No repackaging.",
-      icon: <RefreshCcw className="h-5 w-5 text-gamebees-pink-accent" />,
+      icon: <RefreshCcw className="h-5 w-5 text-gamebees-accent-lavender" />,
     },
   ];
 
@@ -45,7 +45,7 @@ export default function HowItWorks() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white">
-            How It <span className="text-gamebees-pink-accent">Works</span>
+            How It <span className="text-gamebees-accent-lavender">Works</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Rent next-gen console setups in just four simple steps.
@@ -60,11 +60,11 @@ export default function HowItWorks() {
               className="flex flex-col items-center text-center group"
             >
               {/* Step Icon Container */}
-              <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 shadow-sm group-hover:border-gamebees-pink-accent/40 group-hover:shadow-[0_0_15px_rgba(232,62,140,0.15)] transition-all duration-300">
+              <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 shadow-sm group-hover:border-gamebees-accent-blue/40 group-hover:shadow-[0_0_15px_rgba(62,84,247,0.15)] transition-all duration-300">
                 {step.icon}
                 
                 {/* Step Number Badge */}
-                <span className="absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full bg-gradient-to-r from-gamebees-pink-highlight to-gamebees-pink-accent text-[9px] font-black text-white flex items-center justify-center border border-gamebees-bg shadow-sm">
+                <span className="absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full bg-gradient-to-r from-gamebees-accent-lavender to-gamebees-accent-blue text-[9px] font-black text-white flex items-center justify-center border border-gamebees-bg shadow-sm">
                   {step.number}
                 </span>
               </div>

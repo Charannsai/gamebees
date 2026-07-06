@@ -46,7 +46,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-transparent text-white selection:bg-gamebees-pink-highlight selection:text-white">
+    <div className="flex-1 flex flex-col min-h-screen bg-transparent text-white selection:bg-gamebees-accent-blue selection:text-white">
       {/* Dynamic Header / Navigation */}
       <Navbar onRentClick={() => handleOpenBooking()} />
 
@@ -85,7 +85,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/5">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-wider text-gamebees-pink-accent select-none">
+              <span className="text-xl font-black tracking-wider text-gamebees-accent-lavender select-none">
                 GAME<span className="text-white">BEES</span>
               </span>
             </div>

@@ -11,7 +11,7 @@ export default function Hero({ onRentClick }: HeroProps) {
   return (
     <section className="relative overflow-hidden py-24 md:py-36 bg-transparent">
       {/* Soft overlay gradient circle for visual texture depth */}
-      <div className="absolute top-1/4 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gamebees-pink-highlight/5 blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gamebees-accent-blue/5 blur-3xl pointer-events-none"></div>
       
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
@@ -20,7 +20,7 @@ export default function Hero({ onRentClick }: HeroProps) {
           <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
               Next-Gen Gaming. <br />
-              <span className="text-gamebees-pink-accent">
+              <span className="text-gamebees-accent-lavender">
                 Rented Instantly.
               </span>
             </h1>
@@ -33,16 +33,16 @@ export default function Hero({ onRentClick }: HeroProps) {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
               <button
                 onClick={onRentClick}
-                className="w-full sm:w-auto px-8 py-4 rounded-full btn-pink-polished font-bold text-white transition-all duration-300"
+                className="w-full sm:w-auto px-8 py-4 rounded-full btn-polished font-bold text-white transition-all duration-300"
               >
                 Rent Your Console
               </button>
               <a
                 href="#consoles"
-                className="w-full sm:w-auto px-8 py-4 rounded-full border border-white/10 hover:border-gamebees-pink-accent/50 hover:bg-white/5 font-semibold text-white transition-all text-center flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-8 py-4 rounded-full border border-white/10 hover:border-gamebees-accent-blue/50 hover:bg-white/5 font-semibold text-white transition-all text-center flex items-center justify-center gap-2 group"
               >
                 View Catalog
-                <Play className="h-4 w-4 text-gamebees-pink-accent group-hover:translate-x-1 transition-transform" />
+                <Play className="h-4 w-4 text-gamebees-accent-lavender group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
           </div>
@@ -63,15 +63,15 @@ export default function Hero({ onRentClick }: HeroProps) {
                   
                   {/* Middle core (Black) */}
                   <div className="absolute w-10 h-[92%] bg-gradient-to-b from-zinc-800 to-black rounded-lg border-x border-white/5 flex flex-col items-center justify-between py-6 z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gamebees-pink-accent"></div>
-                    <div className="w-0.5 h-10 bg-gamebees-pink-accent/40 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-gamebees-accent-blue"></div>
+                    <div className="w-0.5 h-10 bg-gamebees-accent-blue/40 rounded-full"></div>
                   </div>
 
                   {/* Right wing (White/Neon) */}
                   <div className="absolute right-0 w-7 h-full bg-gradient-to-t from-white via-white/95 to-white/60 rounded-tr-full rounded-br-3xl border-l border-white/10"></div>
 
-                  {/* Pink interior strip */}
-                  <div className="absolute w-[36px] h-[95%] bg-gamebees-pink-accent opacity-35 blur-[2px] z-0"></div>
+                  {/* Lavender interior strip */}
+                  <div className="absolute w-[36px] h-[95%] bg-gamebees-accent-lavender opacity-25 blur-[2px] z-0"></div>
                 </div>
               </div>
 
@@ -83,7 +83,7 @@ export default function Hero({ onRentClick }: HeroProps) {
                 </div>
                 <button
                   onClick={onRentClick}
-                  className="px-5 py-2.5 rounded-full btn-pink-polished text-xs font-bold text-white transition-all"
+                  className="px-5 py-2.5 rounded-full btn-polished text-xs font-bold text-white transition-all"
                 >
                   Rent Now
                 </button>

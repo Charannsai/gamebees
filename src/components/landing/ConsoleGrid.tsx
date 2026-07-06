@@ -58,7 +58,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white">
-            Choose Your <span className="text-gamebees-pink-accent">Gear</span>
+            Choose Your <span className="text-gamebees-accent-lavender">Gear</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Every rental includes clean matching controllers, power/HDMI accessories, and top pre-installed gaming packages.
@@ -85,7 +85,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
                   {console.name}
                 </h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-black text-gamebees-pink-accent">${console.dailyPrice}</span>
+                  <span className="text-xl font-black text-gamebees-accent-lavender">${console.dailyPrice}</span>
                   <span className="text-xs text-white/40">/ day</span>
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
               <ul className="space-y-2 mb-6 border-t border-white/5 pt-4">
                 {console.highlights.map((h, i) => (
                   <li key={i} className="text-xs text-white/70 flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gamebees-pink-accent"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-gamebees-accent-blue"></span>
                     <span>{h}</span>
                   </li>
                 ))}
@@ -108,7 +108,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
               {/* Rent Action Button */}
               <button
                 onClick={() => onRentClick(console.name)}
-                className="w-full py-3 rounded-xl btn-pink-polished text-xs font-bold text-white transition-all duration-300"
+                className="w-full py-3 rounded-xl btn-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
               >
                 Rent This Console
               </button>

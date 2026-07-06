@@ -88,8 +88,8 @@ export default function Calculator({ onBook }: CalculatorProps) {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-            <CalcIcon className="h-6 w-6 text-gamebees-pink-accent" />
-            Price <span className="text-gamebees-pink-accent">Estimator</span>
+            <CalcIcon className="h-6 w-6 text-gamebees-accent-lavender" />
+            Price <span className="text-gamebees-accent-lavender">Estimator</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Configure your console setup and calculate real-time estimates with volume discounts.
@@ -104,13 +104,13 @@ export default function Calculator({ onBook }: CalculatorProps) {
             
             {/* 1. Select Console */}
             <div className="space-y-3">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-pink-accent">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-accent-lavender">
                 1. Select Console
               </label>
               <select
                 value={selectedConsole}
                 onChange={(e) => setSelectedConsole(e.target.value)}
-                className="w-full rounded-xl bg-white/[0.02] border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
+                className="w-full rounded-xl bg-white/[0.02] border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-accent-blue outline-none appearance-none cursor-pointer"
               >
                 {Object.keys(CONSOLE_PRICES).map((console) => (
                   <option key={console} value={console} className="bg-[#0A080F] text-white">
@@ -123,7 +123,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
             {/* 2. Rental Duration Slider */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-pink-accent">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-accent-lavender">
                   2. Rental Duration
                 </label>
                 <span className="text-sm font-bold text-white">
@@ -138,7 +138,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
                   max="30"
                   value={duration}
                   onChange={(e) => setDuration(parseInt(e.target.value))}
-                  className="w-full h-1 bg-white/10 appearance-none cursor-pointer accent-gamebees-pink-accent rounded"
+                  className="w-full h-1 bg-white/10 appearance-none cursor-pointer accent-gamebees-accent-blue rounded"
                 />
                 <div className="flex justify-between text-[9px] text-white/40 pt-2 font-medium">
                   <span>1d</span>
@@ -151,7 +151,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
 
             {/* 3. Add Accessories */}
             <div className="space-y-3">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-pink-accent">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-gamebees-accent-lavender">
                 3. Optional Upgrades
               </label>
               <div className="space-y-2">
@@ -163,13 +163,13 @@ export default function Calculator({ onBook }: CalculatorProps) {
                       onClick={() => toggleAccessory(acc)}
                       className={`w-full flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all ${
                         isChecked
-                          ? "bg-gamebees-pink-accent/10 border-gamebees-pink-accent/40 text-white"
+                          ? "bg-gamebees-accent-blue/10 border-gamebees-accent-blue/40 text-white"
                           : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
-                          isChecked ? "bg-gamebees-pink-accent border-transparent" : "border-white/20"
+                          isChecked ? "bg-gamebees-accent-blue border-transparent" : "border-white/20"
                         }`}>
                           {isChecked && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
                         </div>
@@ -210,7 +210,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
                 <div className="h-px bg-white/5 my-2"></div>
 
                 {stats.discountAmount > 0 && (
-                  <div className="flex justify-between text-gamebees-pink-accent font-semibold">
+                  <div className="flex justify-between text-gamebees-accent-lavender font-semibold">
                     <span>Discount ({stats.discountPct}%)</span>
                     <span>-${stats.discountAmount}</span>
                   </div>
@@ -236,7 +236,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
 
               <button
                 onClick={handleBook}
-                className="w-full py-3.5 rounded-xl btn-pink-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
+                className="w-full py-3.5 rounded-xl btn-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
               >
                 Book This Setup
               </button>

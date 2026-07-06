@@ -1,18 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0D0B12;
+  --background: #0A080F;
   --foreground: #FFFFFF;
 }
 
 @theme {
-  --color-gamebees-bg: #0D0B12;
-  --color-gamebees-bg-sec: #1A1622;
-  --color-gamebees-purple-deep: #4A174F;
-  --color-gamebees-purple-accent: #6A1B7A;
-  --color-gamebees-pink-accent: #E83E8C;
-  --color-gamebees-pink-highlight: #C21F73;
-
+  --color-gamebees-bg: #0A080F;
+  --color-gamebees-accent-lavender: #D1B2FA;
+  --color-gamebees-accent-blue: #3E54F7;
+  
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
 
@@ -27,7 +24,7 @@
    ---------------------------------------------------- */
 
 body {
-  background-color: #0A080F;
+  background-color: #0C0A12;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -36,8 +33,8 @@ body {
   background-image: 
     radial-gradient(circle at 15% 20%, rgba(209, 178, 250, 0.45) 0%, transparent 45%),
     radial-gradient(circle at 85% 35%, rgba(62, 84, 247, 0.55) 0%, transparent 55%),
-    radial-gradient(circle at 35% 65%, rgba(106, 27, 122, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 50% 10%, rgba(74, 23, 79, 0.15) 0%, transparent 40%);
+    radial-gradient(circle at 35% 65%, rgba(62, 84, 247, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 10%, rgba(209, 178, 250, 0.1) 0%, transparent 40%);
   background-attachment: fixed;
 }
 
@@ -49,20 +46,20 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.16; /* High-density grain from shared image */
+  opacity: 0.16; /* Clean and satisfying grainy texture */
   pointer-events: none;
   z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.99' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
 
 /* ----------------------------------------------------
-   POLISHED INTERACTIVE COMPONENTS
+   POLISHED INTERACTIVE COMPONENTS (LILAC & BLUE)
    ---------------------------------------------------- */
 
-/* Clean, polished glass cards (No glowing shadows, no cuts) */
+/* Clean, polished glass cards (No glowing shadows) */
 .card-polished {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -71,25 +68,27 @@ body {
 }
 
 .card-polished:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(232, 62, 140, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(62, 84, 247, 0.45);
   transform: translateY(-4px);
 }
 
-/* Crisp Polished Primary Buttons */
-.btn-pink-polished {
-  background-color: #E83E8C;
+/* Crisp Polished Primary Buttons (Using blue accent) */
+.btn-polished {
+  background-color: #3E54F7;
   color: #FFFFFF;
   font-weight: 700;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(62, 84, 247, 0.15);
 }
 
-.btn-pink-polished:hover {
-  background-color: #C21F73;
+.btn-polished:hover {
+  background-color: #2D42D9;
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(62, 84, 247, 0.25);
 }
 
-.btn-pink-polished:active {
+.btn-polished:active {
   transform: translateY(0px);
 }
 
