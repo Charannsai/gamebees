@@ -39,9 +39,9 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="py-24 relative overflow-hidden bg-gamebees-bg-sec/40">
+    <section id="faq" className="py-24 relative overflow-hidden bg-gamebees-bg">
       {/* Radial glow background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-96 w-96 rounded-full bg-gamebees-purple-deep/10 blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-96 w-96 rounded-full bg-gamebees-pink-highlight/5 blur-[100px] pointer-events-none"></div>
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         
@@ -49,7 +49,7 @@ export default function FAQ() {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
             <HelpCircle className="h-8 w-8 text-gamebees-pink-accent" />
-            Frequently Asked <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent">Questions</span>
+            Frequently Asked <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Questions</span>
           </h2>
           <p className="text-white/60 text-base sm:text-lg">
             Have questions about deposit waivers, games, or delivery? Find your answers below.
@@ -63,7 +63,9 @@ export default function FAQ() {
             return (
               <div
                 key={index}
-                className="rounded-2xl border border-white/5 bg-gamebees-bg/50 overflow-hidden transition-all duration-300"
+                className={`rounded-2xl border bg-gamebees-bg/50 overflow-hidden transition-all duration-300 ${
+                  isOpen ? "border-gamebees-pink-accent shadow-[0_0_15px_rgba(232,62,140,0.15)]" : "border-white/5"
+                }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
