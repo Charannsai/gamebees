@@ -39,13 +39,13 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-gamebees-bg relative">
+    <section id="how-it-works" className="py-24 bg-transparent relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-white">
-            How It <span className="bg-gradient-to-r from-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent glow-pink-intense">Works</span>
+            How It <span className="text-gamebees-pink-accent">Works</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
             Rent next-gen console setups in just four simple steps.
@@ -60,7 +60,7 @@ export default function HowItWorks() {
               className="flex flex-col items-center text-center group"
             >
               {/* Step Icon Container */}
-              <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gamebees-bg-sec border border-white/5 shadow-sm group-hover:border-gamebees-pink-accent/40 group-hover:shadow-[0_0_15px_rgba(232,62,140,0.15)] transition-all duration-300">
+              <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.02] border border-white/5 shadow-sm group-hover:border-gamebees-pink-accent/40 group-hover:shadow-[0_0_15px_rgba(232,62,140,0.15)] transition-all duration-300">
                 {step.icon}
                 
                 {/* Step Number Badge */}

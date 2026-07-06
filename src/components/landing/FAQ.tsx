@@ -39,7 +39,7 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="py-24 relative overflow-hidden">
+    <section id="faq" className="py-24 relative overflow-hidden bg-transparent">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -60,8 +60,8 @@ export default function FAQ() {
             return (
               <div
                 key={index}
-                className={`rounded-2xl border bg-gamebees-bg/30 overflow-hidden transition-all duration-300 ${
-                  isOpen ? "border-gamebees-pink-accent/40 bg-gamebees-bg-sec/30" : "border-white/5"
+                className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                  isOpen ? "border-gamebees-pink-accent/40 bg-white/[0.03]" : "border-white/5"
                 }`}
               >
                 <button

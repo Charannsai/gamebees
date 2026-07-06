@@ -82,7 +82,7 @@ export default function Calculator({ onBook }: CalculatorProps) {
   };
 
   return (
-    <section id="estimator" className="py-24 relative overflow-hidden">
+    <section id="estimator" className="py-24 bg-transparent relative overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -110,10 +110,10 @@ export default function Calculator({ onBook }: CalculatorProps) {
               <select
                 value={selectedConsole}
                 onChange={(e) => setSelectedConsole(e.target.value)}
-                className="w-full rounded-xl bg-gamebees-bg/50 border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
+                className="w-full rounded-xl bg-white/[0.02] border border-white/10 px-4 py-3.5 text-sm text-white focus:border-gamebees-pink-accent outline-none appearance-none cursor-pointer"
               >
                 {Object.keys(CONSOLE_PRICES).map((console) => (
-                  <option key={console} value={console} className="bg-gamebees-bg text-white">
+                  <option key={console} value={console} className="bg-[#0A080F] text-white">
                     {console} (${CONSOLE_PRICES[console]}/day)
                   </option>
                 ))}

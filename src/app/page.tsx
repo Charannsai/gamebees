@@ -46,11 +46,11 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white">
+    <div className="flex-1 flex flex-col min-h-screen bg-transparent text-white selection:bg-gamebees-pink-highlight selection:text-white">
       {/* Dynamic Header / Navigation */}
       <Navbar onRentClick={() => handleOpenBooking()} />
 
-      {/* Main Page Layout */}
+      {/* Main Page Layout - One smooth continuous page without cut borders */}
       <main className="flex-1">
         {/* Interactive Hero Banner */}
         <Hero onRentClick={() => handleOpenBooking()} />
@@ -80,12 +80,12 @@ export default function Home() {
       </main>
 
       {/* Footer Section */}
-      <footer className="border-t border-white/10 bg-gamebees-bg-sec/40 py-12">
+      <footer className="bg-transparent py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/5 pb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/5">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-wider bg-gradient-to-r from-white via-gamebees-pink-accent to-gamebees-pink-highlight bg-clip-text text-transparent">
+              <span className="text-xl font-black tracking-wider text-gamebees-pink-accent select-none">
                 GAME<span className="text-white">BEES</span>
               </span>
             </div>

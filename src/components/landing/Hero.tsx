@@ -9,8 +9,8 @@ interface HeroProps {
 
 export default function Hero({ onRentClick }: HeroProps) {
   return (
-    <section className="relative overflow-hidden py-24 md:py-36">
-      {/* Soft overlay gradient circles to build texture depth */}
+    <section className="relative overflow-hidden py-24 md:py-36 bg-transparent">
+      {/* Soft overlay gradient circle for visual texture depth */}
       <div className="absolute top-1/4 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gamebees-pink-highlight/5 blur-3xl pointer-events-none"></div>
       
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -33,7 +33,7 @@ export default function Hero({ onRentClick }: HeroProps) {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
               <button
                 onClick={onRentClick}
-                className="w-full sm:w-auto px-8 py-4 rounded-full btn-pink-polished font-bold text-white transition-all duration-300 shadow-md"
+                className="w-full sm:w-auto px-8 py-4 rounded-full btn-pink-polished font-bold text-white transition-all duration-300"
               >
                 Rent Your Console
               </button>
@@ -54,7 +54,7 @@ export default function Hero({ onRentClick }: HeroProps) {
             <div className="relative w-full max-w-sm rounded-[24px] card-polished p-8 flex flex-col items-center">
               
               {/* Glowing Console Graphic Representation */}
-              <div className="relative aspect-square w-full rounded-2xl bg-gamebees-bg/30 overflow-hidden flex items-center justify-center border border-white/5">
+              <div className="relative aspect-square w-full rounded-2xl bg-white/[0.02] overflow-hidden flex items-center justify-center border border-white/5">
                 
                 {/* CSS Drawn Stylized PS5 Console */}
                 <div className="relative w-28 h-40 flex justify-center items-center">

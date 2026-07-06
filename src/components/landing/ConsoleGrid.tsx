@@ -52,7 +52,7 @@ const CONSOLES: Console[] = [
 
 export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
   return (
-    <section id="consoles" className="py-24 relative">
+    <section id="consoles" className="py-24 bg-transparent relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         
         {/* Section Header */}
@@ -73,7 +73,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
               className="flex flex-col rounded-[20px] card-polished p-6"
             >
               {/* Image Container */}
-              <div className="relative w-full aspect-video rounded-xl bg-gamebees-bg/30 flex items-center justify-center border border-white/5 mb-6 overflow-hidden">
+              <div className="relative w-full aspect-video rounded-xl bg-white/[0.02] flex items-center justify-center border border-white/5 mb-6 overflow-hidden">
                 <span className="text-5xl select-none">
                   {console.image}
                 </span>
@@ -108,7 +108,7 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
               {/* Rent Action Button */}
               <button
                 onClick={() => onRentClick(console.name)}
-                className="w-full py-3 rounded-xl btn-pink-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
+                className="w-full py-3 rounded-xl btn-pink-polished text-xs font-bold text-white transition-all duration-300"
               >
                 Rent This Console
               </button>
