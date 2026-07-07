@@ -24,28 +24,33 @@
    ---------------------------------------------------- */
 
 body {
-  background-color: #0A080F;
+  background-color: #0C0A12;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  
+  /* Exact gradient mesh from the user's reference image */
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(209, 178, 250, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 85% 35%, rgba(62, 84, 247, 0.55) 0%, transparent 55%),
+    radial-gradient(circle at 35% 65%, rgba(62, 84, 247, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 10%, rgba(209, 178, 250, 0.1) 0%, transparent 40%);
+  background-attachment: fixed;
 }
 
-/* Dynamic Cinematic Film-Grain Animation */
-@keyframes grain-shimmer {
-  0%, 100% { background-position: 0% 0%; }
-  10% { background-position: -3% -7%; }
-  20% { background-position: -8% 5%; }
-  30% { background-position: 9% -12%; }
-  40% { background-position: -5% 15%; }
-  50% { background-position: -12% 8%; }
-  60% { background-position: 11% -4%; }
-  70% { background-position: 4% 11%; }
-  80% { background-position: 2% 18%; }
-  90% { background-position: -6% 6%; }
-}
-
-.animate-grain-shimmer {
-  animation: grain-shimmer 0.7s steps(8) infinite;
+/* Heavy, organic film-grain overlay matching shared image */
+.grainy-overlay::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.16; /* Clean and satisfying grainy texture */
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
 }
 
 /* ----------------------------------------------------
