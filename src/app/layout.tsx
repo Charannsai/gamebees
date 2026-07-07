@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import InteractiveBackground from "@/components/landing/InteractiveBackground";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -23,7 +24,8 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white grainy-overlay">
+      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white">
+        <InteractiveBackground />
         {children}
       </body>
     </html>
