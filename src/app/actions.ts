@@ -93,3 +93,47 @@ export async function createBooking(formData: {
     return { success: false, error: error.message };
   }
 }
+
+export async function seedDatabase() {
+  try {
+    // 1. Seed items
+    const defaultItems = [
+      { name: "PlayStation 5 Pro Console", category: "Consoles", price: 12, description: "Ultimate performance with advanced ray tracing, 60fps/120fps gaming, and 2TB high-speed SSD." },
+      { name: "Extra DualSense Controller", category: "Accessories", price: 3, description: "Haptic feedback and adaptive triggers for immersive secondary player action." },
+      { name: "Pulse 3D Wireless Headset", category: "Audio", price: 2, description: "Fine-tuned for 3D Audio on PS5 consoles for maximum acoustic immersion." },
+      { name: "Premium Travel Case", category: "Accessories", price: 1, description: "Hard-shell impact proof travel case with custom cutouts for console, cables, and controllers." },
+      { name: "Xbox Series X Console Bundle", category: "Consoles", price: 10, description: "12 teraflops of raw processing power, true 4K gaming, and preloaded Game Pass access." },
+      { name: "Nintendo Switch OLED Bundle", category: "Consoles", price: 6, description: "Vibrant 7-inch OLED screen, adjustable stand, and Mario Kart 8 Deluxe pre-installed." }
+    ];
+
+    // Check if items already exist
+    const { data: existingItems } = await supabaseServer.from("items").select("id");
+    if (!existingItems || existingItems.length === 0) {
+      const { error: insertError } = await supabaseServer.from("items").insert(defaultItems);
+      if (insertError) throw insertError;
+    }
+
+    // 2. Seed Admin User in Supabase Auth
+    // Email: admin@gamebees.com
+    // Password: GamebeesAdmin2026!
+    const { data: userList } = await supabaseServer.auth.admin.listUsers();
+    
+    // Check if admin user already exists
+    const adminExists = userList?.users.some(u => u.email === "admin@gamebees.com");
+    
+    if (!adminExists) {
+      const { error: authError } = await supabaseServer.auth.admin.createUser({
+        email: "admin@gamebees.com",
+        password: "GamebeesAdmin2026!",
+        email_confirm: true,
+        user_metadata: { role: "admin" }
+      });
+      if (authError) throw authError;
+    }
+
+    return { success: true, message: "Database seeded successfully!" };
+  } catch (error: any) {
+    console.error("seedDatabase error:", error);
+    return { success: false, error: error.message };
+  }
+}
