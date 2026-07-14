@@ -3,23 +3,23 @@
 import React, { useState } from "react";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
+import ScrollShowcase from "@/components/landing/ScrollShowcase";
 import ConsoleGrid from "@/components/landing/ConsoleGrid";
 import HowItWorks from "@/components/landing/HowItWorks";
-import Calculator from "@/components/landing/Calculator";
 import FAQ from "@/components/landing/FAQ";
 import BookingModal from "@/components/landing/BookingModal";
 
 export default function Home() {
   const [booking, setBooking] = useState({
     isOpen: false,
-    consoleName: "PlayStation 5 Pro",
+    consoleName: "PlayStation 5 Pro Bundle",
     duration: 3,
     accessories: [] as string[],
     total: 36,
   });
 
   const handleOpenBooking = (
-    consoleName: string = "PlayStation 5 Pro",
+    consoleName: string = "PlayStation 5 Pro Bundle",
     duration: number = 3,
     accessories: string[] = [],
     total: number = 36
@@ -39,10 +39,8 @@ export default function Home() {
 
   // Helper mapping prices for direct grid bookings
   const consolePrices: Record<string, number> = {
-    "PlayStation 5 Pro": 12,
-    "Xbox Series X": 9,
-    "Nintendo Switch OLED": 7,
-    "Meta Quest 3 (128GB)": 14,
+    "PlayStation 5 Pro Bundle": 12,
+    "Extra DualSense Controller": 3,
   };
 
   return (
@@ -55,25 +53,25 @@ export default function Home() {
         {/* Interactive Hero Banner */}
         <Hero onRentClick={() => handleOpenBooking()} />
 
+        {/* 3D Scroll Showcase Narrative */}
+        <ScrollShowcase onRentClick={(name) => {
+          const daily = consolePrices[name] || 12;
+          const total = daily * 3;
+          handleOpenBooking(name, 3, [], total);
+        }} />
+
         {/* Console Selection Grid */}
         <ConsoleGrid
           onRentClick={(consoleName) => {
-            const daily = consolePrices[consoleName] || 10;
-            // Defaulting grid clicks to 3 days booking with 10% discount included
-            const total = Math.round(daily * 3 * 0.9);
+            const daily = consolePrices[consoleName] || 12;
+            // Defaulting grid clicks to 3 days booking
+            const total = daily * 3;
             handleOpenBooking(consoleName, 3, [], total);
           }}
         />
 
         {/* How It Works Flow */}
         <HowItWorks />
-
-        {/* Dynamic Calculator Panel */}
-        <Calculator
-          onBook={(config) =>
-            handleOpenBooking(config.console, config.duration, config.accessories, config.total)
-          }
-        />
 
         {/* Frequently Asked Questions */}
         <FAQ />
@@ -93,13 +91,10 @@ export default function Home() {
             {/* Links */}
             <div className="flex flex-wrap justify-center gap-8 text-sm text-white/50">
               <a href="#consoles" className="hover:text-white transition-colors">
-                Consoles
+                Rentals
               </a>
               <a href="#how-it-works" className="hover:text-white transition-colors">
                 How It Works
-              </a>
-              <a href="#estimator" className="hover:text-white transition-colors">
-                Price Estimator
               </a>
               <a href="#faq" className="hover:text-white transition-colors">
                 FAQs

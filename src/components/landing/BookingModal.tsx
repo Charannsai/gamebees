@@ -13,16 +13,14 @@ interface BookingModalProps {
 }
 
 const CONSOLE_OPTIONS = [
-  "PlayStation 5 Pro",
-  "Xbox Series X",
-  "Nintendo Switch OLED",
-  "Meta Quest 3 (128GB)",
+  "PlayStation 5 Pro Bundle",
+  "Extra DualSense Controller",
 ];
 
 export default function BookingModal({
   isOpen,
   onClose,
-  initialConsoleName = "PlayStation 5 Pro",
+  initialConsoleName = "PlayStation 5 Pro Bundle",
   initialDuration = 3,
   initialAccessories = [],
   initialTotal = 36,
@@ -35,6 +33,11 @@ export default function BookingModal({
   const [games, setGames] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Dynamically calculate price based on consoleName selection and duration
+  const dailyPrice = consoleName.includes("Controller") ? 3 : 12;
+  const rawTotal = dailyPrice * duration;
+  const calculatedTotal = duration >= 7 ? Math.round(rawTotal * 0.9) : rawTotal;
 
   // Sync state with props when modal opens or initial props change
   useEffect(() => {
@@ -102,16 +105,16 @@ export default function BookingModal({
                 <span>Duration:</span>
                 <span>{duration} days</span>
               </div>
-              {initialAccessories.length > 0 && (
-                <div className="flex justify-between text-white/60 text-xs">
-                  <span>Upgrades:</span>
-                  <span className="text-right">{initialAccessories.join(", ")}</span>
+              {duration >= 7 && (
+                <div className="flex justify-between text-gamebees-accent-lavender text-xs">
+                  <span>Discount:</span>
+                  <span>10% Off Applied</span>
                 </div>
               )}
               <div className="h-px bg-white/10 my-2"></div>
               <div className="flex justify-between font-bold text-white text-base">
                 <span>Estimated Price:</span>
-                <span className="text-gamebees-accent-lavender">${initialTotal}</span>
+                <span className="text-gamebees-accent-lavender">${calculatedTotal}</span>
               </div>
             </div>
 
@@ -131,6 +134,24 @@ export default function BookingModal({
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Select Duration */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-white/70 block">Rental Duration (3 to 30 Days)</label>
+                <div className="flex items-center gap-4 bg-[#0C0A12] border border-white/10 rounded-xl px-4 py-3">
+                  <input
+                    type="range"
+                    min="3"
+                    max="30"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    className="flex-1 accent-gamebees-accent-blue cursor-pointer h-1.5 bg-white/10 rounded-lg appearance-none"
+                  />
+                  <span className="text-sm font-bold text-white w-16 text-right flex-shrink-0">
+                    {duration} days
+                  </span>
                 </div>
               </div>
 
