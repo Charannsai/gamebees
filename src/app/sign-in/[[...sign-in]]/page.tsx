@@ -7,7 +7,7 @@ export default function SignInPage() {
       <div 
         className="absolute w-[600px] h-[600px] left-[-100px] top-[-100px] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.1) 0%, rgba(20, 20, 20, 0) 70%)",
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.12) 0%, rgba(20, 20, 20, 0) 70%)",
           filter: "blur(120px)",
         }}
       />
@@ -21,7 +21,7 @@ export default function SignInPage() {
 
       {/* Massive Typography Background */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
-        <div className="text-[18vw] font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/[0.04] to-white/[0.002] leading-none select-none select-none font-sans">
+        <div className="text-[18vw] font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/[0.09] to-white/[0.02] leading-none select-none font-sans select-none">
           SIGN IN
         </div>
       </div>
