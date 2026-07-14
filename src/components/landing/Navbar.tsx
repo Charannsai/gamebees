@@ -9,12 +9,7 @@ interface NavbarProps {
 
 export default function Navbar({ onRentClick }: NavbarProps) {
   return (
-    <nav 
-      className="sticky top-0 z-50 w-full backdrop-blur-sm transition-all duration-300 border-none"
-      style={{
-        background: "linear-gradient(to bottom, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.55) 60%, rgba(20, 20, 20, 0) 100%)",
-      }}
-    >
+    <nav className="absolute top-0 left-0 right-0 z-50 w-full bg-transparent border-none">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
