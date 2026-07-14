@@ -10,19 +10,19 @@ export default function Hero({ onRentClick }: HeroProps) {
   return (
     <header className="relative z-10 w-full overflow-hidden flex items-center justify-center" style={{ height: "100vh", minHeight: 720 }}>
       
-      {/* ---- SMOOTH SCATTERED GLOW ---- */}
+      {/* ---- SMOOTH SCATTERED GLOW (Smoothed interpolation to target background color to eliminate banding rings) ---- */}
       <div 
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          background: "radial-gradient(ellipse 65% 55% at 50% 50%, rgba(94, 159, 208, 0.25) 0%, rgba(36, 101, 150, 0.14) 30%, rgba(29, 73, 107, 0.05) 55%, transparent 80%)"
+          background: "radial-gradient(circle at center, rgba(36, 101, 150, 0.18) 0%, rgba(20, 20, 20, 0) 70%)"
         }}
       ></div>
 
-      {/* Pulsing glow animation spot */}
+      {/* Pulsing glow animation spot (fading into the exact background color to prevent banding) */}
       <div 
         className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full animate-pulse-glow pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.1) 0%, rgba(36, 101, 150, 0.02) 50%, transparent 80%)"
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.08) 0%, rgba(20, 20, 20, 0) 70%)"
         }}
       ></div>
 

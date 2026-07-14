@@ -103,14 +103,14 @@ export default function Home() {
     <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
       
       {/* ================================================================
-          SCATTERED GLOW BACKDROPS (Very diffuse, smooth opacity falloffs to prevent color banding)
+          SCATTERED GLOW BACKDROPS (Interpolated to target background color to eliminate banding rings)
           ================================================================ */}
       
       {/* Glow Spot 1: Under the Choose Your Loadout Section */}
       <div 
         className="absolute w-[600px] h-[600px] left-[-200px] top-[95vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.16) 0%, rgba(29, 73, 107, 0.05) 45%, transparent 75%)",
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.16) 0%, rgba(20, 20, 20, 0) 75%)",
           filter: "blur(140px)",
         }}
       ></div>
@@ -118,7 +118,7 @@ export default function Home() {
       <div 
         className="absolute w-[500px] h-[500px] right-[-100px] top-[145vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.12) 0%, rgba(36, 101, 150, 0.03) 45%, transparent 75%)",
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.12) 0%, rgba(20, 20, 20, 0) 75%)",
           filter: "blur(120px)",
         }}
       ></div>
@@ -127,7 +127,7 @@ export default function Home() {
       <div 
         className="absolute w-[700px] h-[700px] right-[-250px] top-[225vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.18) 0%, rgba(29, 73, 107, 0.06) 50%, transparent 80%)",
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.18) 0%, rgba(20, 20, 20, 0) 80%)",
           filter: "blur(150px)",
         }}
       ></div>
@@ -135,7 +135,7 @@ export default function Home() {
       <div 
         className="absolute w-[550px] h-[550px] left-[-150px] top-[285vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.14) 0%, rgba(36, 101, 150, 0.04) 45%, transparent 75%)",
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.14) 0%, rgba(20, 20, 20, 0) 75%)",
           filter: "blur(130px)",
         }}
       ></div>
@@ -144,7 +144,7 @@ export default function Home() {
       <div 
         className="absolute w-[800px] h-[500px] left-1/2 -translate-x-1/2 top-[345vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.22) 0%, rgba(94, 159, 208, 0.08) 40%, rgba(29, 73, 107, 0.02) 65%, transparent 90%)",
+          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.22) 0%, rgba(94, 159, 208, 0.08) 40%, rgba(20, 20, 20, 0) 80%)",
           filter: "blur(130px)",
         }}
       ></div>
