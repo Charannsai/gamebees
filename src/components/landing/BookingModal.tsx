@@ -12,6 +12,8 @@ interface BookingModalProps {
   initialTotal?: number;
   selectedItemId?: string; // If selected from bookings tab
   availableItems?: any[]; // Passed from dashboard or page
+  kycVerifiedProp?: boolean;
+  onRedirectToKyc?: () => void;
 }
 
 export default function BookingModal({
@@ -21,7 +23,9 @@ export default function BookingModal({
   initialDuration = 3,
   initialTotal = 36,
   selectedItemId = "",
-  availableItems = []
+  availableItems = [],
+  kycVerifiedProp = false,
+  onRedirectToKyc
 }: BookingModalProps) {
   const [step, setStep] = useState(1);
   
@@ -31,13 +35,8 @@ export default function BookingModal({
   const [address, setAddress] = useState("");
   const [mapLink, setMapLink] = useState("");
   
-  // Step 2: Aadhaar eKYC Sandbox
-  const [aadhaarNum, setAadhaarNum] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [aadhaarOtp, setAadhaarOtp] = useState("");
-  const [aadhaarVerified, setAadhaarVerified] = useState(false);
-  const [aadhaarError, setAadhaarError] = useState("");
-  const [verificationLoading, setVerificationLoading] = useState(false);
+  // Step 2: Automated KYC status check
+  const [checkingKyc, setCheckingKyc] = useState(true);
 
   // Step 3: Selfie Capture with Liveness
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -64,11 +63,6 @@ export default function BookingModal({
       setPhone("");
       setAddress("");
       setMapLink("");
-      setAadhaarNum("");
-      setOtpSent(false);
-      setAadhaarOtp("");
-      setAadhaarVerified(false);
-      setAadhaarError("");
       setSelfieCaptured(null);
       setLivenessStatus("idle");
       setAgreeTerms(false);
@@ -98,6 +92,17 @@ export default function BookingModal({
       stopCamera();
     }
   }, [step, isOpen]);
+
+  // Trigger automated KYC status spinner when reaching step 2
+  useEffect(() => {
+    if (step === 2) {
+      setCheckingKyc(true);
+      const timer = setTimeout(() => {
+        setCheckingKyc(false);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   if (!isOpen) return null;
 
@@ -136,7 +141,7 @@ export default function BookingModal({
     }
   }
 
-  // Liveness check simulator (analyzes motion, screen reflections and face presence)
+  // Liveness check simulator
   function startLivenessDetection() {
     let countdown = 0;
     setFaceAligned(false);
@@ -144,14 +149,12 @@ export default function BookingModal({
     livenessTimerRef.current = setInterval(() => {
       countdown += 1;
       
-      // Step 1: Detect face presence (simulated coordinate centering check)
       if (countdown === 3) {
         setFaceAligned(true);
         setLivenessStatus("liveness_check");
         setLivenessInstruction("Liveness Check: Please BLINK or smile to verify you are real.");
       }
       
-      // Step 2: Incremental Liveness verification checking for eye/mouth coordinate changes
       if (countdown > 3 && countdown <= 7) {
         setLivenessProgress(prev => Math.min(prev + 25, 100));
         if (countdown === 5) {
@@ -160,7 +163,6 @@ export default function BookingModal({
         }
       }
 
-      // Step 3: Auto-Capture on successful liveness verification
       if (countdown === 8) {
         capturePhoto();
       }
@@ -177,12 +179,10 @@ export default function BookingModal({
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         
-        // Mirror the image for intuitive selfie view
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Convert to base64
         const photoData = canvas.toDataURL("image/jpeg", 0.85);
         setSelfieCaptured(photoData);
         setLivenessStatus("captured");
@@ -199,35 +199,6 @@ export default function BookingModal({
     startCamera();
   }
 
-  // Aadhaar eKYC verification simulation
-  function handleSendAadhaarOtp() {
-    if (aadhaarNum.length !== 12 || !/^\d+$/.test(aadhaarNum)) {
-      setAadhaarError("Please enter a valid 12-digit Aadhaar number.");
-      return;
-    }
-    setAadhaarError("");
-    setVerificationLoading(true);
-    
-    setTimeout(() => {
-      setVerificationLoading(false);
-      setOtpSent(true);
-    }, 1000);
-  }
-
-  function handleVerifyAadhaarOtp() {
-    if (aadhaarOtp !== "123456") {
-      setAadhaarError("Invalid OTP. For testing/sandbox, please enter '123456'.");
-      return;
-    }
-    setAadhaarError("");
-    setVerificationLoading(true);
-
-    setTimeout(() => {
-      setVerificationLoading(false);
-      setAadhaarVerified(true);
-    }, 1200);
-  }
-
   // Submit Booking
   async function handleFinalSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -235,7 +206,6 @@ export default function BookingModal({
 
     setIsSubmitting(true);
     
-    // Find item ID
     let itemId = selectedItemId;
     if (!itemId && availableItems.length > 0) {
       const match = availableItems.find(i => i.name === initialConsoleName);
@@ -248,10 +218,10 @@ export default function BookingModal({
         phone: phone,
         address: address,
         mapLink: mapLink,
-        aadhaarNumber: aadhaarNum,
-        aadhaarVerified: aadhaarVerified,
+        aadhaarNumber: kycVerifiedProp ? "PROFILE_VERIFIED" : "UNVERIFIED_PENDING",
+        aadhaarVerified: kycVerifiedProp,
         selfieUrl: selfieCaptured || "data:image/png;base64,mockselfie",
-        itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f", // Fallback GUID if not defined
+        itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f",
         durationDays: initialDuration,
         totalPrice: initialTotal
       });
@@ -331,7 +301,7 @@ export default function BookingModal({
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter full name (as in Govt ID)"
+                        placeholder="Enter full name"
                         className="form-input pl-10"
                       />
                     </div>
@@ -395,130 +365,80 @@ export default function BookingModal({
                 <button
                   onClick={() => setStep(2)}
                   disabled={!name || !phone || !address || !mapLink}
-                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Continue to Identity Verification
                 </button>
               </div>
             )}
 
-            {/* Step 2: Aadhaar eKYC Sandbox */}
+            {/* Step 2: Automated KYC verification check */}
             {step === 2 && (
               <div className="space-y-5">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
                     <Shield className="h-6 w-6 text-gamebees-glow-blue" />
-                    <span>Identity Proof (Aadhaar)</span>
+                    <span>Identity KYC Status</span>
                   </h3>
                   <p className="text-white/50 text-xs mt-1 font-light">
-                    Complete eKYC verification to confirm details. This is sandboxed.
+                    Verifying secure identity profile from database records.
                   </p>
                 </div>
 
-                <div className="bg-gamebees-dark-navy/20 border border-gamebees-accent-blue/20 p-4 rounded-xl space-y-3">
-                  <div className="flex gap-2.5 items-start text-xs text-gamebees-glow-blue font-light">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <span><strong>Sandbox Notice:</strong> Enter a 12-digit number, click Send OTP, and enter test OTP <strong>123456</strong>. No real data is stored.</span>
+                {checkingKyc ? (
+                  <div className="card-polished p-12 text-center space-y-4">
+                    <div className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-white/60 text-xs font-light">Querying KYC database... Please wait.</p>
                   </div>
-                </div>
-
-                {!aadhaarVerified ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-white/70 block">Aadhaar Card Number</label>
-                      <input
-                        type="text"
-                        maxLength={12}
-                        disabled={otpSent}
-                        value={aadhaarNum}
-                        onChange={(e) => setAadhaarNum(e.target.value.replace(/\D/g, ""))}
-                        placeholder="1234 5678 9012"
-                        className="form-input tracking-[0.2em] font-mono text-center text-base"
-                      />
-                    </div>
-
-                    {otpSent && (
-                      <div className="space-y-2 animate-fadeInUp">
-                        <div className="flex justify-between items-center">
-                          <label className="text-xs font-semibold text-white/70 block">Enter 6-Digit OTP</label>
-                          <span className="text-[10px] text-green-400 font-light">OTP Sent to registered mobile!</span>
-                        </div>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={aadhaarOtp}
-                          onChange={(e) => setAadhaarOtp(e.target.value.replace(/\D/g, ""))}
-                          placeholder="------"
-                          className="form-input tracking-[0.4em] font-mono text-center text-lg border-green-500/30"
-                        />
+                ) : kycVerifiedProp ? (
+                  // KYC is completed
+                  <div className="space-y-6">
+                    <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-center space-y-4 animate-fadeInUp">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                        <ShieldCheck className="h-7 w-7" />
                       </div>
-                    )}
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Identity KYC Verified</h4>
+                        <p className="text-white/60 text-xs mt-1 font-light">Profile checks passed successfully.</p>
+                      </div>
 
-                    {aadhaarError && (
-                      <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2">
-                        <AlertCircle className="h-3.5 w-3.5" />
-                        <span>{aadhaarError}</span>
-                      </p>
-                    )}
-
-                    <div className="pt-2">
-                      {verificationLoading ? (
-                        <div className="flex justify-center py-2">
-                          <div className="h-6 w-6 border-2 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
-                        </div>
-                      ) : !otpSent ? (
-                        <button
-                          onClick={handleSendAadhaarOtp}
-                          disabled={aadhaarNum.length !== 12}
-                          className="w-full py-3.5 rounded-xl bg-gamebees-accent-blue/80 hover:bg-gamebees-accent-blue text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                          Send verification OTP
-                        </button>
-                      ) : (
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => { setOtpSent(false); setAadhaarOtp(""); }}
-                            className="flex-1 py-3.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all"
-                          >
-                            Back
-                          </button>
-                          <button
-                            onClick={handleVerifyAadhaarOtp}
-                            disabled={aadhaarOtp.length !== 6}
-                            className="flex-1 py-3.5 rounded-xl bg-green-500/80 hover:bg-green-500 text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                          >
-                            Verify & Match
-                          </button>
-                        </div>
-                      )}
+                      <div className="text-left text-[11px] text-white/50 space-y-1.5 p-3.5 bg-black/20 rounded-lg font-light">
+                        <div className="flex justify-between"><span>eKYC Registry:</span><span className="text-green-400 font-semibold">Matched</span></div>
+                        <div className="flex justify-between"><span>User Profile:</span><span className="text-white/80">{name}</span></div>
+                        <div className="flex justify-between"><span>Liveness match:</span><span className="text-green-400 font-semibold">Ready</span></div>
+                      </div>
                     </div>
+
+                    <button
+                      onClick={() => setStep(3)}
+                      className="w-full py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer animate-fadeInUp"
+                    >
+                      Continue to Live Selfie Verification
+                    </button>
                   </div>
                 ) : (
-                  <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-center space-y-4 animate-fadeInUp">
-                    <div className="mx-auto h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                      <ShieldCheck className="h-7 w-7" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Aadhaar eKYC Verified</h4>
-                      <p className="text-white/60 text-xs mt-1">Proof matched: {name}</p>
+                  // KYC is NOT completed
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+                        <AlertCircle className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">KYC Verification Required</h4>
+                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
+                          You must verify your Aadhaar card identity before checking out. This process only needs to be completed once.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="text-left text-[11px] text-white/50 space-y-1.5 p-3.5 bg-black/20 rounded-lg font-light">
-                      <div className="flex justify-between"><span>Document:</span><span className="font-mono text-white/80">XXXXXXXX{aadhaarNum.slice(-4)}</span></div>
-                      <div className="flex justify-between"><span>Name:</span><span className="text-white/80">{name}</span></div>
-                      <div className="flex justify-between"><span>Address:</span><span className="text-white/80">Karnataka, Bangalore, 560001</span></div>
-                      <div className="flex justify-between"><span>Liveness Match:</span><span className="text-green-400 font-semibold">Ready</span></div>
-                    </div>
+                    <button
+                      onClick={onRedirectToKyc}
+                      className="w-full py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer animate-fadeInUp"
+                    >
+                      Complete Your KYC in Dashboard
+                    </button>
                   </div>
                 )}
-
-                <button
-                  onClick={() => { setStep(3); }}
-                  disabled={!aadhaarVerified}
-                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Continue to Live Selfie Verification
-                </button>
               </div>
             )}
 
@@ -545,7 +465,7 @@ export default function BookingModal({
                         className="w-full h-full object-cover scale-x-[-1]"
                       />
                       
-                      {/* Bounding Oval Overlay for face alignment */}
+                      {/* Bounding Oval Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className={`w-[160px] h-[210px] rounded-[100px] border-2 transition-all duration-500 ${
                           faceAligned
@@ -574,11 +494,9 @@ export default function BookingModal({
                     <img src={selfieCaptured} alt="Selfie preview" className="w-full h-full object-cover" />
                   )}
 
-                  {/* Hidden canvas to extract data */}
                   <canvas ref={canvasRef} className="hidden" />
                 </div>
 
-                {/* Info Text & Warnings */}
                 <div className={`p-4 rounded-xl text-center text-xs transition-colors duration-300 ${
                   livenessStatus === "error"
                     ? "bg-red-500/10 border border-red-500/20 text-red-300"
@@ -593,7 +511,7 @@ export default function BookingModal({
                   {selfieCaptured ? (
                     <button
                       onClick={handleRetake}
-                      className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center gap-1.5 hover:bg-white/10 transition-colors"
+                      className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center gap-1.5 hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <RefreshCw className="h-3.5 w-3.5" />
                       <span>Retake Selfie</span>
@@ -602,7 +520,7 @@ export default function BookingModal({
                     livenessStatus === "error" && (
                       <button
                         onClick={startCamera}
-                        className="px-6 py-3 rounded-xl bg-gamebees-accent-blue/80 text-xs font-semibold text-white hover:bg-gamebees-accent-blue transition-colors"
+                        className="px-6 py-3 rounded-xl bg-gamebees-accent-blue/80 text-xs font-semibold text-white hover:bg-gamebees-accent-blue transition-colors cursor-pointer"
                       >
                         Try Again
                       </button>
@@ -613,7 +531,7 @@ export default function BookingModal({
                 <button
                   onClick={() => setStep(4)}
                   disabled={!selfieCaptured}
-                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Continue to Summary
                 </button>
@@ -632,7 +550,6 @@ export default function BookingModal({
                   </p>
                 </div>
 
-                {/* Detail summary */}
                 <div className="p-4.5 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs space-y-3 font-light">
                   <div className="flex justify-between items-center text-white/50 pb-2 border-b border-white/[0.04]">
                     <span>Item to Rent</span>
@@ -654,7 +571,7 @@ export default function BookingModal({
                     <span>Identity Proof</span>
                     <span className="text-green-400 font-semibold flex items-center gap-1">
                       <ShieldCheck className="h-3.5 w-3.5" />
-                      <span>Verified Aadhaar</span>
+                      <span>Verified KYC Profile</span>
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-white/50">
@@ -673,7 +590,6 @@ export default function BookingModal({
                   </div>
                 </div>
 
-                {/* Checkboxes */}
                 <div className="space-y-4 pt-2">
                   <label className="flex items-start gap-3 cursor-pointer select-none">
                     <input
@@ -705,14 +621,14 @@ export default function BookingModal({
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10 transition-colors"
+                    className="flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10 transition-colors cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || !agreeTerms}
-                    className="flex-[2] py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-[2] py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -748,7 +664,7 @@ export default function BookingModal({
             <div className="flex flex-col sm:flex-row gap-3 pt-4 justify-center">
               <button
                 onClick={onClose}
-                className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all"
+                className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all cursor-pointer"
               >
                 Back To Landing
               </button>
