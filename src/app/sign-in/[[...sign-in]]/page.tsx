@@ -5,13 +5,28 @@ export default function SignInPage() {
     <main className="flex-1 flex items-center justify-center min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue relative overflow-hidden">
       {/* Background glow backdrops */}
       <div 
-        className="absolute w-[500px] h-[500px] left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none z-0"
+        className="absolute w-[600px] h-[600px] left-[-100px] top-[-100px] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.12) 0%, rgba(20, 20, 20, 0) 75%)",
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.1) 0%, rgba(20, 20, 20, 0) 70%)",
           filter: "blur(120px)",
         }}
       />
-      <div className="z-10 py-12">
+      <div 
+        className="absolute w-[600px] h-[600px] right-[-100px] bottom-[-100px] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.08) 0%, rgba(20, 20, 20, 0) 70%)",
+          filter: "blur(120px)",
+        }}
+      />
+
+      {/* Massive Typography Background */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
+        <div className="text-[18vw] font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/[0.04] to-white/[0.002] leading-none select-none select-none font-sans">
+          SIGN IN
+        </div>
+      </div>
+
+      <div className="z-10 py-12 relative">
         <SignIn />
       </div>
     </main>
