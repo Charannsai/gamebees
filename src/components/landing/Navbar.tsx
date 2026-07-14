@@ -1,15 +1,13 @@
 "use client";
 
 import React from "react";
-import { ShoppingBag, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import { SignInButton, Show, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
-interface NavbarProps {
-  onRentClick: () => void;
-}
+interface NavbarProps {}
 
-export default function Navbar({ onRentClick }: NavbarProps) {
+export default function Navbar({}: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-transparent border-none">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -29,14 +27,6 @@ export default function Navbar({ onRentClick }: NavbarProps) {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={onRentClick}
-              className="btn-glow-pill flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold"
-            >
-              <ShoppingBag className="h-3.5 w-3.5 text-white/80" />
-              <span>Rent Now</span>
-            </button>
-
             <Show when="signed-out">
               <Link href="/sign-in" className="px-4 py-2.5 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.02] text-xs font-semibold text-white/80 hover:text-white transition-all cursor-pointer">
                 Sign In

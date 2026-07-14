@@ -1,12 +1,4 @@
-"use client";
-
-import React from "react";
-
-interface HeroProps {
-  onRentClick: () => void;
-}
-
-export default function Hero({ onRentClick }: HeroProps) {
+export default function Hero() {
   return (
     <header className="relative z-10 w-full overflow-hidden flex items-center justify-center" style={{ height: "100vh", minHeight: 720 }}>
       

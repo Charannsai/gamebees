@@ -5,6 +5,7 @@ import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone,
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import BookingModal from "@/components/landing/BookingModal";
+import { useUser } from "@clerk/nextjs";
 
 // --- Scroll Reveal ---
 function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -91,12 +92,22 @@ export default function Home() {
 
   const currentDailyTotal = calculateDailyPrice();
 
+  const { isSignedIn } = useUser();
+
   const handleOpenBooking = (title: string, dailyPrice: number) => {
     setBooking({ isOpen: true, consoleName: title, duration: 3, total: dailyPrice * 3 });
   };
 
   const handleCloseBooking = () => {
     setBooking((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  const handleRentClick = (title: string, dailyPrice: number) => {
+    if (isSignedIn) {
+      handleOpenBooking(title, dailyPrice);
+    } else {
+      window.location.href = "/sign-in";
+    }
   };
 
   return (
@@ -150,8 +161,8 @@ export default function Home() {
       ></div>
 
       {/* Navbar & Hero */}
-      <Navbar onRentClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)} />
-      <Hero onRentClick={() => handleOpenBooking("PlayStation 5 Pro Console", 12)} />
+      <Navbar />
+      <Hero />
 
       <main className="flex-1 relative z-10">
 
@@ -250,8 +261,8 @@ export default function Home() {
                       </div>
                     </div>
                     <button
-                      onClick={() => handleOpenBooking(`Custom Loadout Bundle (${selectedGear.length} Items)`, currentDailyTotal)}
-                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-2"
+                      onClick={() => handleRentClick(`Custom Loadout Bundle (${selectedGear.length} Items)`, currentDailyTotal)}
+                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-2 cursor-pointer"
                     >
                       <span>Book Loadout</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -431,8 +442,8 @@ export default function Home() {
                   Rent complete PS5 Pro bundles and accessories with same-day setup. Start playing instantly.
                 </p>
                 <button
-                  onClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)}
-                  className="btn-glow-pill px-8 py-4 rounded-full text-sm font-semibold flex items-center gap-2.5 mt-2"
+                  onClick={() => handleRentClick("PlayStation 5 Pro Bundle", 12)}
+                  className="btn-glow-pill px-8 py-4 rounded-full text-sm font-semibold flex items-center gap-2.5 mt-2 cursor-pointer"
                 >
                   <ShoppingBag className="h-4 w-4" />
                   <span>Book Your Rental Now</span>
@@ -448,7 +459,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-gamebees-accent-lavender/30 font-light">
           <span>© {new Date().getFullYear()} GameBees Rental. All rights reserved.</span>
           <div className="flex gap-6">
-            <span className="hover:text-white/60 cursor-pointer transition-colors" onClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)}>Rentals</span>
+            <span className="hover:text-white/60 cursor-pointer transition-colors font-semibold" onClick={() => handleRentClick("PlayStation 5 Pro Bundle", 12)}>Rentals</span>
             <span className="text-white/10">•</span>
             <span className="hover:text-white/60 cursor-pointer transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Top</span>
           </div>

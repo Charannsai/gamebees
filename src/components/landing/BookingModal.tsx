@@ -218,12 +218,12 @@ export default function BookingModal({
       <div onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 overflow-y-auto max-h-[90vh] z-10 border border-gamebees-accent-blue/30 shadow-[0_0_50px_rgba(36,101,150,0.15)] animate-fadeInUp">
+      <div className="relative w-full max-w-lg rounded-[24px] card-polished pt-12 pb-6 px-6 sm:pt-14 sm:pb-8 sm:px-8 overflow-y-auto max-h-[90vh] z-10 border border-gamebees-accent-blue/30 shadow-[0_0_50px_rgba(36,101,150,0.15)] animate-fadeInUp">
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/50 hover:text-white rounded-full hover:bg-white/5 transition-all cursor-pointer"
+          className="absolute top-5 right-5 p-2 text-white/50 hover:text-white rounded-full hover:bg-white/5 transition-all cursor-pointer"
         >
           <HugeiconsIcon icon={Cancel01Icon} size={20} />
         </button>
