@@ -103,49 +103,49 @@ export default function Home() {
     <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
       
       {/* ================================================================
-          SCATTERED GLOW BACKDROPS (Clean transition spots on unified bg)
+          SCATTERED GLOW BACKDROPS (Very diffuse, smooth opacity falloffs to prevent color banding)
           ================================================================ */}
       
       {/* Glow Spot 1: Under the Choose Your Loadout Section */}
       <div 
-        className="absolute w-[600px] h-[600px] left-[-200px] top-[90vh] pointer-events-none z-0"
+        className="absolute w-[600px] h-[600px] left-[-200px] top-[95vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.22) 0%, rgba(29, 73, 107, 0.08) 50%, transparent 80%)",
-          filter: "blur(130px)",
-        }}
-      ></div>
-
-      <div 
-        className="absolute w-[500px] h-[500px] right-[-100px] top-[140vh] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.16) 0%, rgba(36, 101, 150, 0.05) 50%, transparent 80%)",
-          filter: "blur(110px)",
-        }}
-      ></div>
-
-      {/* Glow Spot 2: Behind Mobile Mockup Section */}
-      <div 
-        className="absolute w-[700px] h-[700px] right-[-250px] top-[220vh] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.25) 0%, rgba(29, 73, 107, 0.08) 55%, transparent 80%)",
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.16) 0%, rgba(29, 73, 107, 0.05) 45%, transparent 75%)",
           filter: "blur(140px)",
         }}
       ></div>
 
       <div 
-        className="absolute w-[550px] h-[550px] left-[-150px] top-[280vh] pointer-events-none z-0"
+        className="absolute w-[500px] h-[500px] right-[-100px] top-[145vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.18) 0%, rgba(36, 101, 150, 0.06) 50%, transparent 80%)",
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.12) 0%, rgba(36, 101, 150, 0.03) 45%, transparent 75%)",
           filter: "blur(120px)",
+        }}
+      ></div>
+
+      {/* Glow Spot 2: Behind Mobile Mockup Section */}
+      <div 
+        className="absolute w-[700px] h-[700px] right-[-250px] top-[225vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.18) 0%, rgba(29, 73, 107, 0.06) 50%, transparent 80%)",
+          filter: "blur(150px)",
+        }}
+      ></div>
+
+      <div 
+        className="absolute w-[550px] h-[550px] left-[-150px] top-[285vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.14) 0%, rgba(36, 101, 150, 0.04) 45%, transparent 75%)",
+          filter: "blur(130px)",
         }}
       ></div>
 
       {/* Glow Spot 3: Centered behind CTA Zone */}
       <div 
-        className="absolute w-[800px] h-[500px] left-1/2 -translate-x-1/2 top-[340vh] pointer-events-none z-0"
+        className="absolute w-[800px] h-[500px] left-1/2 -translate-x-1/2 top-[345vh] pointer-events-none z-0"
         style={{
-          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.28) 0%, rgba(94, 159, 208, 0.12) 40%, rgba(29, 73, 107, 0.03) 70%, transparent 100%)",
-          filter: "blur(120px)",
+          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.22) 0%, rgba(94, 159, 208, 0.08) 40%, rgba(29, 73, 107, 0.02) 65%, transparent 90%)",
+          filter: "blur(130px)",
         }}
       ></div>
 
@@ -188,8 +188,8 @@ export default function Home() {
                         onClick={() => handleToggleGear(item.id)}
                         className={`group flex items-center justify-between p-5 rounded-2xl border transition-all duration-400 cursor-pointer select-none ${
                           isChecked
-                            ? "bg-gradient-to-r from-gamebees-dark-navy/40 to-transparent border-gamebees-accent-blue/40 shadow-[inset_0_0_12px_rgba(94,159,208,0.06)]"
-                            : "bg-white/[0.015] border-white/[0.05] opacity-50 hover:opacity-85 hover:border-white/[0.08]"
+                            ? "bg-gradient-to-r from-gamebees-dark-navy/20 to-transparent border-gamebees-accent-blue/35 shadow-[inset_0_0_12px_rgba(94,159,208,0.04)]"
+                            : "bg-white/[0.015] border-white/[0.04] opacity-50 hover:opacity-85 hover:border-white/[0.08]"
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -237,7 +237,7 @@ export default function Home() {
                     })}
                   </div>
 
-                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/30 to-transparent"></div>
+                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/20 to-transparent"></div>
 
                   <div className="flex justify-between items-center pt-2">
                     <div>
@@ -287,7 +287,7 @@ export default function Home() {
                   {/* Steps */}
                   <div className="space-y-5 pt-4 text-left max-w-md mx-auto lg:mx-0">
                     <div className="flex gap-4 items-start group">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/30 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/35 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
                         <Smartphone className="h-4.5 w-4.5" />
                       </div>
                       <div>
@@ -296,7 +296,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex gap-4 items-start group">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/30 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/35 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
                         <Truck className="h-4.5 w-4.5" />
                       </div>
                       <div>
@@ -311,8 +311,8 @@ export default function Home() {
                 <div className="flex justify-center">
                   <div className="relative w-[280px] h-[550px] rounded-[40px] overflow-hidden select-none"
                     style={{
-                      background: "linear-gradient(160deg, rgba(16, 50, 77, 0.4) 0%, #141414 40%, rgba(29, 73, 107, 0.25) 100%)",
-                      border: "1px solid rgba(94, 159, 208, 0.18)"
+                      background: "rgba(20, 20, 20, 0.6)",
+                      border: "1px solid rgba(94, 159, 208, 0.15)"
                     }}
                   >
                     {/* Phone notch */}
@@ -346,7 +346,7 @@ export default function Home() {
                                 PS5 Pro Bundle
                               </div>
                             </div>
-                            <button className="w-full py-2.5 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 rounded-lg text-[10px] font-semibold text-white mt-3">
+                            <button className="w-full py-2.5 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 rounded-lg text-[10px] font-semibold text-white mt-3 text-center">
                               Book Gear
                             </button>
                           </div>
@@ -442,8 +442,8 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-white/[0.04] relative z-10">
+      {/* Footer (No border divider line, seamless page end) */}
+      <footer className="py-12 relative z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-gamebees-accent-lavender/30 font-light">
           <span>© {new Date().getFullYear()} GameBees Rental. All rights reserved.</span>
           <div className="flex gap-6">
