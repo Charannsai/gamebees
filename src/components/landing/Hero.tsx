@@ -53,11 +53,17 @@ export default function Hero({ onRentClick }: HeroProps) {
         </div>
       </div>
 
-      {/* ---- OVERLAYED BRAND TITLE WITH PREMIUM GLOW EFFECT ---- */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[3] text-center w-full max-w-2xl px-6 pointer-events-none select-none animate-fadeInUp">
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none title-glow">
-          Rent Your Experience
-        </h1>
+      {/* ---- OVERLAYED BRAND TITLE & SUPPORTING TEXT IN HERO VIEWPORT (Absolute bottom center) ---- */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[3] text-center w-full max-w-2xl px-6 pointer-events-none select-none animate-fadeInUp">
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none title-glow">
+            Rent Your Experience
+          </h1>
+          <p className="text-xs sm:text-sm text-gamebees-accent-lavender/45 font-light leading-relaxed max-w-md mx-auto drop-shadow-[0_2px_8px_rgba(20,20,20,0.8)]">
+            Play the latest next-gen titles on premium console setups.<br />
+            Same-day local dispatch, zero deposits, zero hassle.
+          </p>
+        </div>
       </div>
 
     </header>
