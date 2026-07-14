@@ -173,7 +173,7 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white grainy-overlay pb-24 lg:pb-10">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white grainy-overlay pb-28 lg:pb-10">
       {/* Background glow backdrops */}
       <div 
         className="absolute w-[600px] h-[600px] right-[-200px] top-[-100px] pointer-events-none z-0"
@@ -192,10 +192,10 @@ export default function UserDashboard() {
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[#141414]/85 backdrop-blur-md border-b border-white/[0.04]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-14 sm:h-16 w-auto object-contain select-none" />
+            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-11 sm:h-14 w-auto object-contain select-none" />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export default function UserDashboard() {
       </header>
 
       {/* Main Layout Grid */}
-      <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6 relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-8">
         
         {/* Navigation Sidebar (Desktop Only) */}
         <aside className="hidden lg:block lg:col-span-1 space-y-3">
@@ -325,12 +325,12 @@ export default function UserDashboard() {
               {activeTab === "overview" && (
                 <div className="space-y-6 animate-fadeInUp">
                   {/* Hero banner / Marketing callout */}
-                  <div className="card-gradient-border p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="space-y-3 text-center md:text-left z-10 max-w-md">
+                  <div className="card-gradient-border p-5 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+                    <div className="space-y-3 text-left z-10 max-w-md">
                       <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-gamebees-glow-blue block">
                         EXCLUSIVE LOADOUTS AVAILABLE
                       </span>
-                      <h3 className="text-lg sm:text-2xl font-black text-white leading-tight">
+                      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
                         Elevate Your Playtime With Pre-Installed Top Titles!
                       </h3>
                       <p className="text-xs text-white/55 font-light leading-relaxed">
@@ -339,7 +339,7 @@ export default function UserDashboard() {
                     </div>
                     <button
                       onClick={() => setActiveTab("bookings")}
-                      className="btn-glow-pill px-5 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap z-10 cursor-pointer"
+                      className="btn-glow-pill px-5 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap z-10 cursor-pointer self-start md:self-auto"
                     >
                       <span>Rent More Gear</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -349,7 +349,7 @@ export default function UserDashboard() {
 
                   {/* Active Booking status overview */}
                   <div className="space-y-3.5">
-                    <h3 className="text-sm font-bold text-white/80 uppercase tracking-wider pl-1">
+                    <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider pl-1">
                       Active Reservations
                     </h3>
                     
@@ -433,7 +433,7 @@ export default function UserDashboard() {
                       <p className="text-xs sm:text-sm text-white/50 font-light">No gear setups listed currently. Check back later!</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                       {items.map((item) => (
                         <div key={item.id} className="card-polished p-5 flex flex-col justify-between h-[230px] border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-all">
                           <div className="space-y-3">
@@ -669,7 +669,7 @@ export default function UserDashboard() {
                       </button>
                     </div>
                   ) : (
-                    <div className="card-polished p-6 sm:p-8 space-y-6">
+                    <div className="card-polished p-5 sm:p-8 space-y-6">
                       <div className="space-y-1">
                         <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                           <Shield className="h-4.5 w-4.5 text-gamebees-glow-blue" />
@@ -809,8 +809,8 @@ export default function UserDashboard() {
         </main>
       </div>
 
-      {/* Sticky Bottom Navbar (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#141414]/90 border-t border-white/[0.05] backdrop-blur-lg lg:hidden flex justify-around items-center py-2 px-1 pb-safe shadow-[0_-5px_30px_rgba(20,20,20,0.8)]">
+      {/* Floating Glass Dock Bottom Navbar (Mobile Only) */}
+      <nav className="fixed bottom-4 left-4 right-4 z-40 bg-zinc-950/80 border border-white/10 backdrop-blur-xl lg:hidden flex justify-around items-center py-2 px-1 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <button
           onClick={() => setActiveTab("overview")}
           className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
@@ -846,7 +846,7 @@ export default function UserDashboard() {
 
         <button
           onClick={() => setActiveTab("kyc")}
-          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer relative ${
             activeTab === "kyc" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
