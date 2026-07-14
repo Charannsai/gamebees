@@ -11,14 +11,18 @@ export default function Navbar({ onRentClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: "Consoles", href: "#consoles" },
+    { name: "Rentals", href: "#consoles" },
     { name: "How It Works", href: "#how-it-works" },
-    { name: "Price Estimator", href: "#estimator" },
     { name: "FAQs", href: "#faq" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-md transition-all duration-300">
+    <nav 
+      className="sticky top-0 z-50 w-full backdrop-blur-sm transition-all duration-300"
+      style={{
+        background: "linear-gradient(to bottom, rgba(12, 10, 18, 0.85) 0%, rgba(12, 10, 18, 0.4) 60%, rgba(12, 10, 18, 0) 100%)",
+      }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
@@ -68,7 +72,12 @@ export default function Navbar({ onRentClick }: NavbarProps) {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0A080F]/90 backdrop-blur-md border-t border-white/5 py-4 px-4 space-y-3 shadow-lg">
+        <div 
+          className="md:hidden backdrop-blur-md py-4 px-4 space-y-3 shadow-lg"
+          style={{
+            background: "linear-gradient(to bottom, rgba(12, 10, 18, 0.95) 0%, rgba(12, 10, 18, 0.8) 100%)",
+          }}
+        >
           {navLinks.map((link) => (
             <a
               key={link.name}
