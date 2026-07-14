@@ -148,6 +148,16 @@ body {
   pointer-events: none;
 }
 
+/* ---- PREMIUM TITLE GLOW EFFECT ---- */
+.title-glow {
+  background: linear-gradient(180deg, #FFFFFF 20%, #A4CBE8 65%, #5E9FD0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 24px rgba(94, 159, 208, 0.4));
+  letter-spacing: -0.015em;
+}
+
 /* ---- GRADIENT BORDER CARD (CTA) ---- */
 .card-gradient-border {
   position: relative;

@@ -53,9 +53,9 @@ export default function Hero({ onRentClick }: HeroProps) {
         </div>
       </div>
 
-      {/* ---- OVERLAYED BRAND TITLE IN HERO VIEWPORT (Absolute bottom center) ---- */}
+      {/* ---- OVERLAYED BRAND TITLE WITH PREMIUM GLOW EFFECT ---- */}
       <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[3] text-center w-full max-w-2xl px-6 pointer-events-none select-none animate-fadeInUp">
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-none drop-shadow-[0_4px_16px_rgba(20,20,20,0.95)]">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none title-glow">
           Rent Your Experience
         </h1>
       </div>
