@@ -51,7 +51,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
                   <LayoutDashboard className="h-3.5 w-3.5" />
                   <span>Dashboard</span>
                 </Link>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton />
               </div>
             </Show>
           </div>
