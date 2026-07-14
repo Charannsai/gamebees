@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0A080F;
+  --background: #000000;
   --foreground: #FFFFFF;
 }
 
 @theme {
-  --color-gamebees-bg: #0A080F;
-  --color-gamebees-accent-lavender: #D1B2FA;
-  --color-gamebees-accent-blue: #3E54F7;
+  --color-gamebees-bg: #000000;
+  --color-gamebees-accent-lavender: #A59EAD;
+  --color-gamebees-accent-blue: #5B3BF5;
+  --color-gamebees-accent-deep: #23129B;
+  --color-gamebees-pill: #13111C;
   
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
@@ -20,22 +22,15 @@
 }
 
 /* ----------------------------------------------------
-   POLISHED GRADIENT MESH & INTENSE GRAINY TEXTURES
+   IMAGE-INSPIRED PREMIUM DARK AESTHETIC & STYLING
    ---------------------------------------------------- */
 
 body {
-  background-color: #0C0A12;
+  background-color: #000000;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  
-  /* Exact gradient mesh from the user's reference image */
-  background-image: 
-    radial-gradient(circle at 15% 20%, rgba(209, 178, 250, 0.45) 0%, transparent 45%),
-    radial-gradient(circle at 85% 35%, rgba(62, 84, 247, 0.55) 0%, transparent 55%),
-    radial-gradient(circle at 35% 65%, rgba(62, 84, 247, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 50% 10%, rgba(209, 178, 250, 0.1) 0%, transparent 40%);
-  background-attachment: fixed;
+  margin: 0;
 }
 
 /* Heavy, organic film-grain overlay matching shared image */
@@ -46,46 +41,41 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.16; /* Clean and satisfying grainy texture */
+  opacity: 0.12; /* Sleek and satisfying grainy texture */
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
 
-/* ----------------------------------------------------
-   POLISHED INTERACTIVE COMPONENTS (LILAC & BLUE)
-   ---------------------------------------------------- */
-
-/* Clean, polished glass cards (No glowing shadows) */
+/* Clean, polished glass cards (inspired by reference image cards) */
 .card-polished {
   background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 24px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-polished:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(62, 84, 247, 0.45);
-  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(91, 59, 245, 0.45);
 }
 
-/* Crisp Polished Primary Buttons (Using blue accent) */
+/* Crisp Pill Buttons */
 .btn-polished {
-  background-color: #3E54F7;
+  background-color: #5B3BF5;
   color: #FFFFFF;
-  font-weight: 700;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(62, 84, 247, 0.15);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(91, 59, 245, 0.3);
 }
 
 .btn-polished:hover {
-  background-color: #2D42D9;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(62, 84, 247, 0.25);
+  background-color: #492AD2;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(91, 59, 245, 0.45);
 }
 
 .btn-polished:active {
@@ -99,4 +89,19 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Semi-circular aura behind screen elements */
+.indigo-aura {
+  background: radial-gradient(circle, rgba(91, 59, 245, 0.7) 0%, rgba(35, 18, 155, 0.45) 50%, rgba(0, 0, 0, 0) 100%);
+  filter: blur(80px);
+}
+
+/* Glowing Neon ring matching screen's circular accent */
+.neon-ring {
+  border: 2px solid transparent;
+  background-image: linear-gradient(#000, #000), linear-gradient(to right, rgba(91, 59, 245, 0.8), rgba(165, 158, 173, 0.1));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 0 30px rgba(91, 59, 245, 0.15);
 }
