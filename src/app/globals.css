@@ -16,21 +16,21 @@
   
   --animate-float: float 6s ease-in-out infinite;
   --animate-fadeInUp: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pulse-glow: pulseGlow 4s ease-in-out infinite;
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-14px); }
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
   }
 }
 
@@ -54,7 +54,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.06;
+  opacity: 0.04;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -63,31 +63,32 @@ body {
 
 /* ---- CARDS ---- */
 .card-polished {
-  background: rgba(255, 255, 255, 0.02);
+  background: linear-gradient(145deg, rgba(16, 50, 77, 0.15) 0%, rgba(20, 20, 20, 0.8) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(94, 159, 208, 0.08);
   border-radius: 20px;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-polished:hover {
-  background: rgba(255, 255, 255, 0.035);
-  border-color: rgba(36, 101, 150, 0.25);
+  border-color: rgba(94, 159, 208, 0.18);
+  background: linear-gradient(145deg, rgba(16, 50, 77, 0.22) 0%, rgba(20, 20, 20, 0.85) 100%);
 }
 
 /* ---- BUTTONS ---- */
 .btn-glow-pill {
-  background: rgba(36, 101, 150, 0.12);
-  border: 1px solid rgba(94, 159, 208, 0.15);
+  background: linear-gradient(135deg, rgba(36, 101, 150, 0.25) 0%, rgba(29, 73, 107, 0.15) 100%);
+  border: 1px solid rgba(94, 159, 208, 0.2);
   color: #FFFFFF;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-glow-pill:hover {
-  background: rgba(36, 101, 150, 0.22);
-  border-color: rgba(94, 159, 208, 0.35);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(36, 101, 150, 0.4) 0%, rgba(29, 73, 107, 0.25) 100%);
+  border-color: rgba(94, 159, 208, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(36, 101, 150, 0.2);
 }
 
 /* ---- SCROLLBAR ---- */
@@ -100,12 +101,12 @@ body {
 /* ---- SCROLL REVEAL ---- */
 .scroll-reveal {
   opacity: 0;
-  filter: blur(12px);
-  transform: translateY(24px);
+  filter: blur(10px);
+  transform: translateY(30px);
   transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, filter, transform;
 }
 
@@ -116,30 +117,31 @@ body {
 }
 
 /* ============================================================
-   HERO — BEHIND-TEXT & GLOW
+   HERO
    ============================================================ */
 
-/* Single clean radial glow behind PS5 */
+/* Clean radial glow behind the PS5 — centered */
 .hero-glow {
   background: radial-gradient(
-    ellipse 50% 60% at 50% 50%,
-    rgba(36, 101, 150, 0.18) 0%,
-    rgba(29, 73, 107, 0.06) 50%,
+    ellipse 55% 55% at 50% 50%,
+    rgba(36, 101, 150, 0.30) 0%,
+    rgba(29, 73, 107, 0.12) 40%,
+    rgba(16, 50, 77, 0.04) 70%,
     transparent 100%
   );
 }
 
-/* Giant text that sits behind the PS5 */
+/* Giant behind-text — extremely faint, gradient text */
 .text-behind {
   font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.02em;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
   color: transparent;
   background: linear-gradient(
     180deg,
-    rgba(94, 159, 208, 0.07) 0%,
-    rgba(36, 101, 150, 0.04) 50%,
-    rgba(16, 50, 77, 0.02) 100%
+    rgba(94, 159, 208, 0.06) 0%,
+    rgba(36, 101, 150, 0.035) 60%,
+    rgba(16, 50, 77, 0.015) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -148,43 +150,45 @@ body {
 }
 
 /* ============================================================
-   SECTION TRANSITIONS — DARK TO BLUE FLOW
+   SECTION TRANSITIONS — DARK → BLUE FLOW (more visible)
    ============================================================ */
 
-/* Subtle gradient at section boundaries revealing blue */
+/* Section 1: First hints of blue at bottom edge */
 .section-fade-blue {
   background: linear-gradient(
     180deg,
-    transparent 0%,
-    rgba(16, 50, 77, 0.06) 40%,
-    rgba(16, 50, 77, 0.12) 100%
+    #141414 0%,
+    rgba(16, 50, 77, 0.12) 50%,
+    rgba(16, 50, 77, 0.20) 100%
   );
 }
 
+/* Section 2: Blue is clearly present */
 .section-deep-blue {
   background: linear-gradient(
     180deg,
-    rgba(16, 50, 77, 0.10) 0%,
-    rgba(29, 73, 107, 0.08) 50%,
-    rgba(16, 50, 77, 0.14) 100%
+    rgba(16, 50, 77, 0.18) 0%,
+    rgba(16, 50, 77, 0.25) 40%,
+    rgba(29, 73, 107, 0.15) 100%
   );
 }
 
+/* Section 3: Most blue — approaching the glow zone */
 .section-glow-blue {
   background: linear-gradient(
     180deg,
-    rgba(16, 50, 77, 0.12) 0%,
-    rgba(29, 73, 107, 0.10) 40%,
-    rgba(36, 101, 150, 0.06) 100%
+    rgba(16, 50, 77, 0.22) 0%,
+    rgba(29, 73, 107, 0.18) 50%,
+    rgba(16, 50, 77, 0.28) 100%
   );
 }
 
-/* Gradient border card — used for CTA */
+/* Gradient border CTA card */
 .card-gradient-border {
   position: relative;
-  background: rgba(16, 50, 77, 0.08);
+  background: linear-gradient(160deg, rgba(16, 50, 77, 0.25) 0%, rgba(20, 20, 20, 0.6) 50%, rgba(29, 73, 107, 0.15) 100%);
   border-radius: 24px;
-  border: 1px solid rgba(94, 159, 208, 0.08);
+  border: 1px solid rgba(94, 159, 208, 0.12);
   overflow: hidden;
 }
 
@@ -196,9 +200,9 @@ body {
   padding: 1px;
   background: linear-gradient(
     160deg,
-    rgba(94, 159, 208, 0.12) 0%,
-    rgba(29, 73, 107, 0.04) 50%,
-    rgba(94, 159, 208, 0.08) 100%
+    rgba(94, 159, 208, 0.2) 0%,
+    rgba(29, 73, 107, 0.05) 40%,
+    rgba(94, 159, 208, 0.15) 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -211,8 +215,8 @@ body {
 .form-input {
   width: 100%;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(16, 50, 77, 0.12);
+  border: 1px solid rgba(94, 159, 208, 0.08);
   padding: 12px 16px;
   font-size: 14px;
   color: #FFFFFF;
@@ -221,6 +225,6 @@ body {
 }
 
 .form-input:focus {
-  border-color: rgba(36, 101, 150, 0.35);
-  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(94, 159, 208, 0.3);
+  background-color: rgba(16, 50, 77, 0.18);
 }
