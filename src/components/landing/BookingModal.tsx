@@ -13,14 +13,16 @@ interface BookingModalProps {
 }
 
 const CONSOLE_OPTIONS = [
-  "PlayStation 5 Pro Bundle",
+  "PlayStation 5 Pro Console",
   "Extra DualSense Controller",
+  "Pulse 3D Wireless Headset",
+  "Premium Travel Case",
 ];
 
 export default function BookingModal({
   isOpen,
   onClose,
-  initialConsoleName = "PlayStation 5 Pro Bundle",
+  initialConsoleName = "PlayStation 5 Pro Console",
   initialDuration = 3,
   initialAccessories = [],
   initialTotal = 36,
@@ -35,7 +37,13 @@ export default function BookingModal({
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Dynamically calculate price based on consoleName selection and duration
-  const dailyPrice = consoleName.includes("Controller") ? 3 : 12;
+  const getDailyPrice = () => {
+    if (consoleName.includes("Controller")) return 3;
+    if (consoleName.includes("Headset")) return 2;
+    if (consoleName.includes("Case")) return 1;
+    return 12;
+  };
+  const dailyPrice = getDailyPrice();
   const rawTotal = dailyPrice * duration;
   const calculatedTotal = duration >= 7 ? Math.round(rawTotal * 0.9) : rawTotal;
 
