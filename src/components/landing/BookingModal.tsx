@@ -82,7 +82,7 @@ export default function BookingModal({
       ></div>
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] animate-fadeIn z-10">
+      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 overflow-y-auto max-h-[90vh] animate-fadeInUp z-10">
         
         {/* Close button */}
         <button

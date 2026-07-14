@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone, Terminal, Keyboard } from "lucide-react";
+import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone, Terminal } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import BookingModal from "@/components/landing/BookingModal";
@@ -20,7 +19,7 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.1, rootMargin: "0px 0px -100px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -80px 0px" }
     );
 
     if (ref.current) {
@@ -56,8 +55,8 @@ interface GearItem {
 const GEAR_OPTIONS: GearItem[] = [
   { id: "ps5", name: "PlayStation 5 Pro Console", price: 12, image: "/ps5.png", required: true },
   { id: "controller", name: "Extra DualSense Controller", price: 3, image: "/controller.png" },
-  { id: "headset", name: "Pulse 3D Wireless Headset", price: 2, image: "/controller.png" }, // reusing asset or icon
-  { id: "case", name: "Premium Travel Case", price: 1, image: "/ps5.png" } // reusing asset or icon
+  { id: "headset", name: "Pulse 3D Wireless Headset", price: 2, image: "/controller.png" },
+  { id: "case", name: "Premium Travel Case", price: 1, image: "/ps5.png" }
 ];
 
 export default function Home() {
@@ -134,26 +133,29 @@ export default function Home() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white relative">
       
-      {/* 1. Navbar (Borderless, Faded Top bg) */}
+      {/* Navbar */}
       <Navbar onRentClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)} />
 
-      {/* 2. Hero Section: PS5 Center & Background Text Overlay */}
+      {/* Hero */}
       <Hero onRentClick={() => handleOpenBooking("PlayStation 5 Pro Console", 12)} />
 
-      {/* 3. Section 2: Pick Your Choice (Loadout combination picker) */}
+      {/* ============================================================
+          SECTION 1: CHOOSE YOUR LOADOUT
+          Background: subtle dark-to-blue fade
+          ============================================================ */}
       <main className="flex-1">
-        <RevealSection className="py-28 relative">
+        <RevealSection className="py-28 relative section-fade-blue">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             
             {/* Header */}
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-gamebees-accent-blue">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-gamebees-glow-blue/70">
                 CHOOSE YOUR LOADOUT
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
                 Pick Your Choice
               </h2>
-              <p className="text-gamebees-accent-lavender text-sm font-light">
+              <p className="text-white/35 text-sm font-light max-w-lg mx-auto">
                 Pick any of your choice of combination at reasonable prices. Custom setup made for you.
               </p>
             </div>
@@ -162,7 +164,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-5xl mx-auto">
               
               {/* Left Selector Controls */}
-              <div className="lg:col-span-6 space-y-4">
+              <div className="lg:col-span-6 space-y-3">
                 {GEAR_OPTIONS.map((item) => {
                   const isChecked = selectedGear.includes(item.id);
                   return (
@@ -171,8 +173,8 @@ export default function Home() {
                       onClick={() => handleToggleGear(item.id)}
                       className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 cursor-pointer select-none ${
                         isChecked
-                          ? "bg-white/[0.03] border-gamebees-accent-blue/50"
-                          : "bg-white/[0.01] border-white/5 opacity-60 hover:opacity-100"
+                          ? "bg-white/[0.03] border-gamebees-accent-blue/30"
+                          : "bg-white/[0.01] border-white/[0.04] opacity-50 hover:opacity-80"
                       }`}
                     >
                       <div className="flex items-center gap-4">
@@ -180,18 +182,18 @@ export default function Home() {
                         <div className={`h-5 w-5 rounded-full border flex items-center justify-center transition-all ${
                           isChecked
                             ? "bg-gamebees-accent-blue border-gamebees-accent-blue text-white"
-                            : "border-white/20"
+                            : "border-white/15"
                         }`}>
                           {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
                         </div>
                         <div>
-                          <span className="text-sm font-bold block text-white">{item.name}</span>
-                          {item.required && <span className="text-[10px] text-gamebees-accent-blue font-bold">REQUIRED</span>}
+                          <span className="text-sm font-semibold block text-white">{item.name}</span>
+                          {item.required && <span className="text-[10px] text-gamebees-glow-blue/60 font-semibold">REQUIRED</span>}
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-black text-white/95">${item.price}</span>
-                        <span className="text-[10px] text-gamebees-accent-lavender block">/ day</span>
+                        <span className="text-sm font-bold text-white/90">${item.price}</span>
+                        <span className="text-[10px] text-white/30 block">/ day</span>
                       </div>
                     </div>
                   );
@@ -200,10 +202,9 @@ export default function Home() {
 
               {/* Right Showcase Card */}
               <div className="lg:col-span-6 flex justify-center">
-                <div className="w-full max-w-md card-polished p-8 flex flex-col gap-6 relative overflow-hidden">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-gamebees-accent-blue/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="w-full max-w-md card-polished p-8 flex flex-col gap-6 relative">
 
-                  <h3 className="text-base font-bold text-white border-b border-white/5 pb-4">
+                  <h3 className="text-base font-bold text-white border-b border-white/[0.04] pb-4">
                     Your Configuration
                   </h3>
 
@@ -212,26 +213,26 @@ export default function Home() {
                     {GEAR_OPTIONS.map((item) => {
                       if (!selectedGear.includes(item.id)) return null;
                       return (
-                        <div key={item.id} className="flex justify-between items-center text-xs text-gamebees-accent-lavender font-light">
+                        <div key={item.id} className="flex justify-between items-center text-xs text-white/40 font-light">
                           <span>{item.name}</span>
-                          <span className="text-white font-bold">${item.price}/day</span>
+                          <span className="text-white font-semibold">${item.price}/day</span>
                         </div>
                       );
                     })}
                   </div>
 
-                  <div className="h-px bg-white/10 my-1"></div>
+                  <div className="h-px bg-white/[0.06] my-1"></div>
 
                   {/* Summary Rate */}
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[10px] uppercase text-gamebees-accent-lavender font-bold block">Combined Rate</span>
-                      <span className="text-2xl font-black text-gamebees-accent-blue">${currentDailyTotal}</span>
-                      <span className="text-[10px] text-white/40"> / day</span>
+                      <span className="text-[10px] uppercase text-white/30 font-semibold block">Combined Rate</span>
+                      <span className="text-2xl font-black text-gamebees-glow-blue">${currentDailyTotal}</span>
+                      <span className="text-[10px] text-white/25"> / day</span>
                     </div>
                     <button
                       onClick={() => handleOpenBooking(`Custom Loadout Bundle (${selectedGear.length} Items)`, currentDailyTotal)}
-                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-bold flex items-center gap-1.5"
+                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5"
                     >
                       <span>Book Loadout</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -245,41 +246,44 @@ export default function Home() {
           </div>
         </RevealSection>
 
-        {/* 4. Section 3: Quick & Easy Booking (Mobile mockup) */}
-        <RevealSection className="py-28 relative bg-white/[0.01]">
+        {/* ============================================================
+            SECTION 2: QUICK & EASY BOOKING (Mobile mockup)
+            Background: deeper blue tint
+            ============================================================ */}
+        <RevealSection className="py-28 relative section-deep-blue">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center max-w-5xl mx-auto">
               
               {/* Left Column: Descriptive text */}
               <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-                <span className="text-xs uppercase tracking-[0.25em] font-bold text-gamebees-accent-blue">
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-gamebees-glow-blue/70">
                   MOBILE TRACKING & DISPATCH
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
                   Quick & Easy Booking
                 </h2>
-                <p className="text-gamebees-accent-lavender text-sm sm:text-base leading-relaxed font-light">
+                <p className="text-white/35 text-sm sm:text-base leading-relaxed font-light">
                   You can just book from your mobile and track the delivery in real-time. No complicated setups, zero deposits, and continuous updates.
                 </p>
 
                 {/* Tracking Steps list */}
-                <div className="space-y-4 pt-4 text-left max-w-md mx-auto lg:mx-0">
+                <div className="space-y-5 pt-4 text-left max-w-md mx-auto lg:mx-0">
                   <div className="flex gap-4 items-start">
-                    <div className="h-8 w-8 rounded-lg bg-gamebees-accent-blue/10 border border-gamebees-accent-blue/20 flex items-center justify-center text-gamebees-accent-blue flex-shrink-0">
+                    <div className="h-9 w-9 rounded-lg bg-gamebees-dark-navy/60 border border-white/[0.06] flex items-center justify-center text-gamebees-glow-blue/70 flex-shrink-0">
                       <Smartphone className="h-4 w-4" />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-white block">1. Reserve Instantly</span>
-                      <span className="text-[11px] text-gamebees-accent-lavender font-light">Select loadout, specify dates, and book in 15 seconds.</span>
+                      <span className="text-xs font-semibold text-white block">1. Reserve Instantly</span>
+                      <span className="text-[11px] text-white/30 font-light">Select loadout, specify dates, and book in 15 seconds.</span>
                     </div>
                   </div>
                   <div className="flex gap-4 items-start">
-                    <div className="h-8 w-8 rounded-lg bg-gamebees-accent-blue/10 border border-gamebees-accent-blue/20 flex items-center justify-center text-gamebees-accent-blue flex-shrink-0">
+                    <div className="h-9 w-9 rounded-lg bg-gamebees-dark-navy/60 border border-white/[0.06] flex items-center justify-center text-gamebees-glow-blue/70 flex-shrink-0">
                       <Truck className="h-4 w-4" />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-white block">2. Track Delivery Router</span>
-                      <span className="text-[11px] text-gamebees-accent-lavender font-light">Observe the courier route from our hub directly to your coordinates.</span>
+                      <span className="text-xs font-semibold text-white block">2. Track Delivery Route</span>
+                      <span className="text-[11px] text-white/30 font-light">Observe the courier route from our hub directly to your coordinates.</span>
                     </div>
                   </div>
                 </div>
@@ -287,16 +291,16 @@ export default function Home() {
 
               {/* Right Column: Phone Mockup Simulation */}
               <div className="lg:col-span-6 flex justify-center">
-                <div className="relative w-[280px] h-[540px] bg-black border-[6px] border-white/10 rounded-[36px] overflow-hidden shadow-2xl p-3 flex flex-col justify-between select-none">
+                <div className="relative w-[280px] h-[540px] bg-gamebees-bg border border-white/[0.08] rounded-[36px] overflow-hidden p-3 flex flex-col justify-between select-none">
                   {/* Phone notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-white/15 rounded-b-2xl z-20"></div>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-white/10 rounded-b-2xl z-20"></div>
 
                   {/* Phone Screen Area */}
-                  <div className="relative flex-1 rounded-[28px] overflow-hidden bg-[#10324D] p-4 flex flex-col justify-between border border-white/5">
+                  <div className="relative flex-1 rounded-[28px] overflow-hidden bg-gamebees-dark-navy/40 p-4 flex flex-col justify-between border border-white/[0.04]">
                     
                     {/* Header */}
-                    <div className="flex justify-between items-center text-[10px] text-white/40 pt-2 border-b border-white/5 pb-2">
-                      <span className="font-bold text-white/80">GAMEBEES App</span>
+                    <div className="flex justify-between items-center text-[10px] text-white/30 pt-2 border-b border-white/[0.04] pb-2">
+                      <span className="font-semibold text-white/60">GAMEBEES App</span>
                       <span>12:54 PM</span>
                     </div>
 
@@ -305,22 +309,22 @@ export default function Home() {
                       
                       {/* Step 0: Typing form simulation */}
                       {phoneStep === 0 && (
-                        <div className="space-y-4 animate-fadeIn">
-                          <h4 className="text-xs font-bold text-white text-center mb-4">Submit Rental Booking</h4>
+                        <div className="space-y-4 animate-fadeInUp">
+                          <h4 className="text-xs font-semibold text-white text-center mb-4">Submit Rental Booking</h4>
                           <div className="space-y-2">
-                            <label className="text-[8px] text-white/40 block">FULL NAME</label>
-                            <div className="h-9 w-full bg-white/[0.01] border border-white/10 rounded-lg flex items-center px-3 text-[10px]">
+                            <label className="text-[8px] text-white/30 block">FULL NAME</label>
+                            <div className="h-9 w-full bg-white/[0.02] border border-white/[0.06] rounded-lg flex items-center px-3 text-[10px]">
                               <span>{typingText}</span>
-                              <span className="h-4 w-[1px] bg-gamebees-accent-blue ml-0.5 animate-pulse"></span>
+                              <span className="h-4 w-[1px] bg-gamebees-glow-blue/60 ml-0.5 animate-pulse"></span>
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[8px] text-white/40 block">RENTAL ITEM</label>
-                            <div className="h-9 w-full bg-white/[0.01] border border-white/10 rounded-lg flex items-center px-3 text-[10px] text-white/70">
+                            <label className="text-[8px] text-white/30 block">RENTAL ITEM</label>
+                            <div className="h-9 w-full bg-white/[0.02] border border-white/[0.06] rounded-lg flex items-center px-3 text-[10px] text-white/50">
                               <span>PS5 Pro Bundle</span>
                             </div>
                           </div>
-                          <button className="w-full py-2 bg-gamebees-accent-blue rounded-lg text-[10px] font-bold text-white mt-4 opacity-70">
+                          <button className="w-full py-2 bg-gamebees-accent-blue/50 rounded-lg text-[10px] font-semibold text-white mt-4">
                             Book Gear
                           </button>
                         </div>
@@ -328,38 +332,37 @@ export default function Home() {
 
                       {/* Step 1: Confirmation success checklist screen */}
                       {phoneStep === 1 && (
-                        <div className="space-y-4 text-center animate-fadeIn">
-                          <div className="mx-auto h-12 w-12 rounded-full bg-gamebees-accent-blue/10 border border-gamebees-accent-blue/20 flex items-center justify-center text-gamebees-accent-blue">
+                        <div className="space-y-4 text-center animate-fadeInUp">
+                          <div className="mx-auto h-12 w-12 rounded-full bg-gamebees-dark-navy/60 border border-white/[0.06] flex items-center justify-center text-gamebees-glow-blue/70">
                             <ShieldCheck className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-white">Order Confirmed!</h4>
-                            <span className="text-[9px] text-gamebees-accent-lavender block mt-1">Receipt ID: #GB-89240</span>
+                            <h4 className="text-xs font-semibold text-white">Order Confirmed!</h4>
+                            <span className="text-[9px] text-white/30 block mt-1">Receipt ID: #GB-89240</span>
                           </div>
-                          <div className="p-3 bg-white/[0.02] border border-white/5 rounded-lg text-left text-[9px] text-white/60 space-y-1">
-                            <div className="flex justify-between"><span className="font-bold">Console:</span><span>PS5 Pro Bundle</span></div>
+                          <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-lg text-left text-[9px] text-white/40 space-y-1">
+                            <div className="flex justify-between"><span className="font-semibold">Console:</span><span>PS5 Pro Bundle</span></div>
                             <div className="flex justify-between"><span>Duration:</span><span>3 Days</span></div>
-                            <div className="flex justify-between font-bold text-white border-t border-white/5 pt-1.5 mt-1"><span>Total:</span><span>$36</span></div>
+                            <div className="flex justify-between font-semibold text-white border-t border-white/[0.04] pt-1.5 mt-1"><span>Total:</span><span>$36</span></div>
                           </div>
                         </div>
                       )}
 
                       {/* Step 2: Live Tracking map route */}
                       {phoneStep === 2 && (
-                        <div className="space-y-4 animate-fadeIn flex flex-col h-full justify-between">
+                        <div className="space-y-4 animate-fadeInUp flex flex-col h-full justify-between">
                           <div className="text-center">
-                            <h4 className="text-[10px] font-bold text-white">Live Tracking courier</h4>
-                            <span className="text-[8px] text-gamebees-accent-blue font-bold uppercase tracking-wider block mt-0.5">EN ROUTE • SAME DAY</span>
+                            <h4 className="text-[10px] font-semibold text-white">Live Tracking courier</h4>
+                            <span className="text-[8px] text-gamebees-glow-blue/60 font-semibold uppercase tracking-wider block mt-0.5">EN ROUTE • SAME DAY</span>
                           </div>
 
-                          {/* Map Simulation SVG/Canvas */}
-                          <div className="flex-1 bg-white/[0.01] border border-white/5 rounded-xl my-2 overflow-hidden relative flex items-center justify-center p-2">
-                            {/* Dotted path route */}
+                          {/* Map Simulation SVG */}
+                          <div className="flex-1 bg-white/[0.01] border border-white/[0.04] rounded-xl my-2 overflow-hidden relative flex items-center justify-center p-2">
                             <svg className="w-full h-full absolute inset-0" viewBox="0 0 200 150">
                               <path
                                 d="M 30,120 Q 80,40 120,90 T 170,30"
                                 fill="none"
-                                stroke="rgba(36, 101, 150, 0.25)"
+                                stroke="rgba(36, 101, 150, 0.2)"
                                 strokeWidth="2"
                                 strokeDasharray="4 3"
                               />
@@ -367,26 +370,26 @@ export default function Home() {
 
                             {/* Warehouse Start Pin */}
                             <div className="absolute bottom-[20px] left-[25px] flex flex-col items-center">
-                              <div className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center border border-white/20"><Terminal className="h-2 w-2 text-white/50" /></div>
-                              <span className="text-[7px] text-white/40 mt-0.5">Hub</span>
+                              <div className="h-4 w-4 rounded-full bg-white/[0.06] flex items-center justify-center border border-white/10"><Terminal className="h-2 w-2 text-white/40" /></div>
+                              <span className="text-[7px] text-white/30 mt-0.5">Hub</span>
                             </div>
 
-                            {/* Delivery truck moving/floating */}
-                            <div className="absolute top-[80px] left-[85px] p-1.5 bg-gamebees-accent-blue rounded-lg text-white shadow-lg animate-bounce">
+                            {/* Delivery truck */}
+                            <div className="absolute top-[80px] left-[85px] p-1.5 bg-gamebees-accent-blue/60 rounded-lg text-white animate-bounce">
                               <Truck className="h-3 w-3" />
                             </div>
 
                             {/* Home Destination Pin */}
                             <div className="absolute top-[20px] right-[25px] flex flex-col items-center">
-                              <div className="h-5 w-5 rounded-full bg-gamebees-accent-blue/20 flex items-center justify-center border border-gamebees-accent-blue/40 text-gamebees-accent-blue"><MapPin className="h-3 w-3" /></div>
-                              <span className="text-[7px] font-bold text-white/70 mt-0.5">You</span>
+                              <div className="h-5 w-5 rounded-full bg-gamebees-dark-navy/60 flex items-center justify-center border border-gamebees-accent-blue/20 text-gamebees-glow-blue/70"><MapPin className="h-3 w-3" /></div>
+                              <span className="text-[7px] font-semibold text-white/50 mt-0.5">You</span>
                             </div>
                           </div>
 
                           {/* Delivery info */}
-                          <div className="flex justify-between items-center text-[9px] border-t border-white/5 pt-2">
-                            <span>ETA: <strong className="text-white">15 Mins</strong></span>
-                            <span>Distance: <strong className="text-white">2.4 mi</strong></span>
+                          <div className="flex justify-between items-center text-[9px] border-t border-white/[0.04] pt-2 text-white/30">
+                            <span>ETA: <strong className="text-white/70">15 Mins</strong></span>
+                            <span>Distance: <strong className="text-white/70">2.4 mi</strong></span>
                           </div>
                         </div>
                       )}
@@ -394,10 +397,10 @@ export default function Home() {
                     </div>
 
                     {/* Mobile App Tabs */}
-                    <div className="flex justify-around items-center border-t border-white/5 pt-3 text-[8px] text-white/40">
-                      <span className={phoneStep === 0 ? "text-gamebees-accent-blue font-bold" : ""}>Book</span>
-                      <span className={phoneStep === 1 ? "text-gamebees-accent-blue font-bold" : ""}>Status</span>
-                      <span className={phoneStep === 2 ? "text-gamebees-accent-blue font-bold" : ""}>Track</span>
+                    <div className="flex justify-around items-center border-t border-white/[0.04] pt-3 text-[8px] text-white/25">
+                      <span className={phoneStep === 0 ? "text-gamebees-glow-blue/70 font-semibold" : ""}>Book</span>
+                      <span className={phoneStep === 1 ? "text-gamebees-glow-blue/70 font-semibold" : ""}>Status</span>
+                      <span className={phoneStep === 2 ? "text-gamebees-glow-blue/70 font-semibold" : ""}>Track</span>
                     </div>
 
                   </div>
@@ -408,24 +411,26 @@ export default function Home() {
           </div>
         </RevealSection>
 
-        {/* 5. Section 4: Book Now CTA */}
-        <RevealSection className="py-28 relative">
+        {/* ============================================================
+            SECTION 3: BOOK NOW CTA
+            Background: deepest blue glow
+            ============================================================ */}
+        <RevealSection className="py-28 relative section-glow-blue">
           <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center relative z-10">
-            <div className="absolute inset-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full ice-aura opacity-40 -z-10 pointer-events-none"></div>
 
-            <div className="card-polished p-12 sm:p-16 flex flex-col items-center justify-center gap-6">
-              <span className="text-xs uppercase tracking-[0.3em] font-extrabold text-gamebees-accent-blue block">
+            <div className="card-gradient-border p-12 sm:p-16 flex flex-col items-center justify-center gap-6">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-semibold text-gamebees-glow-blue/70 block">
                 READY TO EXPERIENCE POWER
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Secure Your Loadout Today
               </h2>
-              <p className="max-w-md text-sm text-gamebees-accent-lavender leading-relaxed font-light">
+              <p className="max-w-md text-sm text-white/35 leading-relaxed font-light">
                 Rent complete PS5 Pro bundles and accessories with same-day setup. Start playing instantly.
               </p>
               <button
                 onClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)}
-                className="btn-glow-pill px-8 py-4 rounded-full text-xs font-bold flex items-center gap-2 shadow-lg"
+                className="btn-glow-pill px-8 py-4 rounded-full text-xs font-semibold flex items-center gap-2"
               >
                 <ShoppingBag className="h-4 w-4" />
                 <span>Book Your Rental Now</span>
@@ -435,14 +440,14 @@ export default function Home() {
         </RevealSection>
       </main>
 
-      {/* 6. Footer (No bg, transparent border divider only) */}
-      <footer className="py-12 border-t border-white/5 pointer-events-auto">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-gamebees-accent-lavender font-light">
+      {/* Footer */}
+      <footer className="py-12 border-t border-white/[0.04] pointer-events-auto">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-white/30 font-light">
           <span>© {new Date().getFullYear()} GameBees Rental. All rights reserved.</span>
           <div className="flex gap-6">
-            <span className="hover:text-white cursor-pointer transition-colors" onClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)}>Rentals</span>
-            <span>•</span>
-            <span className="hover:text-white cursor-pointer transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Top</span>
+            <span className="hover:text-white/60 cursor-pointer transition-colors" onClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)}>Rentals</span>
+            <span className="text-white/15">•</span>
+            <span className="hover:text-white/60 cursor-pointer transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Top</span>
           </div>
         </div>
       </footer>
