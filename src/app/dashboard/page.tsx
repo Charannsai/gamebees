@@ -2,26 +2,27 @@
 
 import React, { useState, useEffect } from "react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { 
-  ShoppingBag, 
-  MapPin, 
-  Settings as SettingsIcon, 
-  LayoutDashboard, 
-  Compass, 
-  Package, 
-  Clock, 
-  CheckCircle, 
-  User, 
-  FileText, 
-  AlertCircle,
-  Truck,
-  ArrowRight,
-  LogOut,
-  ShieldCheck,
-  RefreshCw,
-  Shield,
-  Check
-} from "lucide-react";
+  DashboardSquare01Icon, 
+  ShoppingBag01Icon, 
+  Compass01Icon, 
+  Shield01Icon, 
+  Settings01Icon, 
+  Logout01Icon, 
+  UserIcon, 
+  CallingIcon, 
+  Location01Icon, 
+  CheckmarkCircle01Icon, 
+  AlertCircleIcon, 
+  DeliveryTruck01Icon, 
+  ArrowRight01Icon, 
+  RefreshIcon, 
+  Camera01Icon,
+  PackageIcon,
+  Time01Icon,
+  File01Icon
+} from "@hugeicons/core-free-icons";
 import { fetchItems, fetchBookings, getKycStatus, saveKyc } from "@/app/actions";
 import BookingModal from "@/components/landing/BookingModal";
 import Link from "next/link";
@@ -173,7 +174,7 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white grainy-overlay pb-28 lg:pb-10">
+    <div className="flex-1 flex flex-col relative overflow-x-hidden w-full pb-28 lg:pb-10">
       {/* Background glow backdrops */}
       <div 
         className="absolute w-[600px] h-[600px] right-[-200px] top-[-100px] pointer-events-none z-0"
@@ -206,7 +207,7 @@ export default function UserDashboard() {
             
             <SignOutButton>
               <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold transition-all border border-red-500/20 cursor-pointer">
-                <LogOut className="h-3.5 w-3.5" />
+                <HugeiconsIcon icon={Logout01Icon} size={15} />
                 <span className="hidden sm:inline">Sign Out</span>
               </button>
             </SignOutButton>
@@ -232,7 +233,7 @@ export default function UserDashboard() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <LayoutDashboard className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={DashboardSquare01Icon} size={18} />
               <span>Overview</span>
             </button>
 
@@ -244,7 +245,7 @@ export default function UserDashboard() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <ShoppingBag className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} />
               <span>Available Gear</span>
             </button>
 
@@ -256,7 +257,7 @@ export default function UserDashboard() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <Compass className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={Compass01Icon} size={18} />
               <span>Track Orders</span>
               {activeBooking && (
                 <span className="ml-auto h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse" />
@@ -271,7 +272,7 @@ export default function UserDashboard() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <Shield className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={Shield01Icon} size={18} />
               <span>Identity KYC</span>
               {kycVerified ? (
                 <span className="ml-auto text-green-400 text-[10px] font-bold">Verified</span>
@@ -288,7 +289,7 @@ export default function UserDashboard() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <SettingsIcon className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={Settings01Icon} size={18} />
               <span>Settings</span>
             </button>
           </div>
@@ -342,7 +343,7 @@ export default function UserDashboard() {
                       className="btn-glow-pill px-5 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap z-10 cursor-pointer self-start md:self-auto"
                     >
                       <span>Rent More Gear</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={15} />
                     </button>
                     <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-gradient-to-l from-gamebees-accent-blue/10 to-transparent pointer-events-none" />
                   </div>
@@ -355,7 +356,7 @@ export default function UserDashboard() {
                     
                     {bookings.filter(b => b.status !== "completed" && b.status !== "discarded").length === 0 ? (
                       <div className="card-polished p-8 text-center space-y-4">
-                        <Package className="h-10 w-10 text-white/20 mx-auto" />
+                        <HugeiconsIcon icon={PackageIcon} size={40} className="text-white/20 mx-auto" />
                         <div>
                           <p className="text-xs sm:text-sm text-white/60 font-semibold">No active rentals found</p>
                           <p className="text-[11px] text-white/40 mt-1 font-light">Choose from our catalog to book your first setup!</p>
@@ -404,7 +405,7 @@ export default function UserDashboard() {
                                 onClick={() => { setActiveTab("track"); }}
                                 className="w-full py-2 bg-gamebees-dark-navy/30 hover:bg-gamebees-dark-navy/60 border border-gamebees-accent-blue/20 hover:border-gamebees-accent-blue/40 rounded-lg text-[10px] font-semibold text-gamebees-glow-blue flex items-center justify-center gap-1 transition-all cursor-pointer"
                               >
-                                <Compass className="h-3.5 w-3.5" />
+                                <HugeiconsIcon icon={Compass01Icon} size={14} />
                                 <span>Track Live Delivery</span>
                               </button>
                             </div>
@@ -429,7 +430,7 @@ export default function UserDashboard() {
 
                   {items.length === 0 ? (
                     <div className="card-polished p-16 text-center space-y-3">
-                      <ShoppingBag className="h-10 w-10 text-white/10 mx-auto" />
+                      <HugeiconsIcon icon={ShoppingBag01Icon} size={40} className="text-white/10 mx-auto" />
                       <p className="text-xs sm:text-sm text-white/50 font-light">No gear setups listed currently. Check back later!</p>
                     </div>
                   ) : (
@@ -460,7 +461,7 @@ export default function UserDashboard() {
                             onClick={() => handleOpenBooking(item)}
                             className="w-full mt-4 py-2.5 bg-gamebees-accent-blue/70 hover:bg-gamebees-accent-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.15)] cursor-pointer"
                           >
-                            <ShoppingBag className="h-4 w-4" />
+                            <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
                             <span>Rent Now</span>
                           </button>
                         </div>
@@ -484,7 +485,7 @@ export default function UserDashboard() {
 
                   {!displayBookingForTrack ? (
                     <div className="card-polished p-16 text-center space-y-3">
-                      <Compass className="h-10 w-10 text-white/10 mx-auto" />
+                      <HugeiconsIcon icon={Compass01Icon} size={40} className="text-white/10 mx-auto" />
                       <p className="text-xs sm:text-sm text-white/50 font-light">No bookings found to track. Rent a console first!</p>
                     </div>
                   ) : (
@@ -513,7 +514,7 @@ export default function UserDashboard() {
                             {/* Steps */}
                             <div className="relative flex gap-3.5 items-start">
                               <div className="h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] border-green-400 text-green-400">
-                                <Check className="h-2 w-2 stroke-[3]" />
+                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Order Confirmed</span>
@@ -528,9 +529,9 @@ export default function UserDashboard() {
                                   : "border-white/10 text-white/20"
                               }`}>
                                 {["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
-                                  <Check className="h-2 w-2 stroke-[3]" />
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
-                                  <Clock className="h-1.5 w-1.5 fill-current" />
+                                  <HugeiconsIcon icon={Time01Icon} size={10} />
                                 )}
                               </div>
                               <div className="space-y-0.5">
@@ -546,9 +547,9 @@ export default function UserDashboard() {
                                   : "border-white/10 text-white/20"
                               }`}>
                                 {["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
-                                  <Check className="h-2 w-2 stroke-[3]" />
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
-                                  <Truck className="h-2.5 w-2.5" />
+                                  <HugeiconsIcon icon={DeliveryTruck01Icon} size={10} />
                                 )}
                               </div>
                               <div className="space-y-0.5">
@@ -563,7 +564,7 @@ export default function UserDashboard() {
                                   ? "border-green-400 text-green-400 bg-green-400/10"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                <CheckCircle className="h-3 w-3" />
+                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} />
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Delivered & Set up</span>
@@ -609,7 +610,7 @@ export default function UserDashboard() {
 
                         {displayBookingForTrack.tracking_status === "shipped" && (
                           <div className="absolute p-1.5 bg-gamebees-accent-blue rounded-lg text-white border border-white/20 animate-bounce" style={{ bottom: "135px", left: "185px" }}>
-                            <Truck className="h-4 w-4" />
+                            <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
                           </div>
                         )}
                         {displayBookingForTrack.tracking_status === "preparing" && (
@@ -620,7 +621,7 @@ export default function UserDashboard() {
                         )}
                         {displayBookingForTrack.tracking_status === "delivered" && (
                           <div className="absolute p-2 bg-green-500/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5" style={{ top: "65px", right: "75px" }}>
-                            <Check className="h-3 w-3 text-white" />
+                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-white" />
                             <span className="text-[9px] font-bold">Courier Arrived!</span>
                           </div>
                         )}
@@ -645,7 +646,7 @@ export default function UserDashboard() {
                   {kycVerified ? (
                     <div className="card-polished p-8 text-center space-y-5 border border-green-500/10 bg-green-500/[0.01]">
                       <div className="mx-auto h-16 w-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.1)]">
-                        <ShieldCheck className="h-9 w-9" />
+                        <HugeiconsIcon icon={Shield01Icon} size={32} />
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-white">Your Identity is KYC Verified</h4>
@@ -665,14 +666,14 @@ export default function UserDashboard() {
                         className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
                       >
                         <span>Go Rent Consoles</span>
-                        <ArrowRight className="h-4 w-4" />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={15} />
                       </button>
                     </div>
                   ) : (
                     <div className="card-polished p-5 sm:p-8 space-y-6">
                       <div className="space-y-1">
                         <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                          <Shield className="h-4.5 w-4.5 text-gamebees-glow-blue" />
+                          <HugeiconsIcon icon={Shield01Icon} size={18} className="text-gamebees-glow-blue" />
                           <span>Aadhaar eKYC Sandbox</span>
                         </h4>
                         <p className="text-white/40 text-xs font-light">
@@ -710,7 +711,7 @@ export default function UserDashboard() {
 
                         {aadhaarError && (
                           <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2 font-light">
-                            <AlertCircle className="h-3.5 w-3.5" />
+                            <HugeiconsIcon icon={AlertCircleIcon} size={14} />
                             <span>{aadhaarError}</span>
                           </p>
                         )}
@@ -767,7 +768,7 @@ export default function UserDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="card-polished p-5 space-y-4">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
-                        <User className="h-4 w-4 text-gamebees-glow-blue" />
+                        <HugeiconsIcon icon={UserIcon} size={16} className="text-gamebees-glow-blue" />
                         <span>Profile Information</span>
                       </h4>
 
@@ -785,7 +786,7 @@ export default function UserDashboard() {
 
                     <div className="card-polished p-5 space-y-4">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
-                        <FileText className="h-4 w-4 text-gamebees-glow-blue" />
+                        <HugeiconsIcon icon={File01Icon} size={16} className="text-gamebees-glow-blue" />
                         <span>Rental Agreement & Policies</span>
                       </h4>
 
@@ -817,7 +818,7 @@ export default function UserDashboard() {
             activeTab === "overview" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
-          <LayoutDashboard className="h-5 w-5" />
+          <HugeiconsIcon icon={DashboardSquare01Icon} size={20} />
           <span className="text-[9px] mt-1 font-medium">Overview</span>
         </button>
 
@@ -827,7 +828,7 @@ export default function UserDashboard() {
             activeTab === "bookings" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
-          <ShoppingBag className="h-5 w-5" />
+          <HugeiconsIcon icon={ShoppingBag01Icon} size={20} />
           <span className="text-[9px] mt-1 font-medium">Rent</span>
         </button>
 
@@ -837,7 +838,7 @@ export default function UserDashboard() {
             activeTab === "track" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
-          <Compass className="h-5 w-5" />
+          <HugeiconsIcon icon={Compass01Icon} size={20} />
           <span className="text-[9px] mt-1 font-medium">Track</span>
           {activeBooking && (
             <span className="absolute top-1 right-5 h-1.5 w-1.5 rounded-full bg-gamebees-glow-blue" />
@@ -850,7 +851,7 @@ export default function UserDashboard() {
             activeTab === "kyc" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
-          <Shield className="h-5 w-5" />
+          <HugeiconsIcon icon={Shield01Icon} size={20} />
           <span className="text-[9px] mt-1 font-medium">KYC</span>
           {kycVerified && (
             <span className="absolute top-1 right-5 text-[8px] font-bold text-green-400">•</span>
@@ -863,7 +864,7 @@ export default function UserDashboard() {
             activeTab === "settings" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
           }`}
         >
-          <SettingsIcon className="h-5 w-5" />
+          <HugeiconsIcon icon={Settings01Icon} size={20} />
           <span className="text-[9px] mt-1 font-medium">Settings</span>
         </button>
       </nav>

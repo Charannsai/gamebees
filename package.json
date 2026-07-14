@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.18",
+    "@hugeicons/core-free-icons": "^4.2.2",
+    "@hugeicons/react": "^1.1.9",
     "@supabase/supabase-js": "^2.110.5",
     "lucide-react": "^1.23.0",
     "next": "16.2.10",
