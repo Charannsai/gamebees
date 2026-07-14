@@ -26,8 +26,14 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay">{children}</body>
+      <body 
+        className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay"
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }
