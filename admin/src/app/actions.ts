@@ -13,7 +13,7 @@ async function verifyAdmin(): Promise<boolean> {
   if (error || !user) return false;
 
   // Additional role check
-  return user.user_metadata?.role === "admin" || user.email === "admin@gamebees.com";
+  return user.user_metadata?.role === "admin" || user.email === "gamebeesofficial@gmail.com";
 }
 
 export async function adminLogin(formData: FormData) {

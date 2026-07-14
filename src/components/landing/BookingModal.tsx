@@ -87,6 +87,18 @@ export default function BookingModal({
     };
   }, [cameraStream]);
 
+  // Camera trigger based on step transitions
+  useEffect(() => {
+    if (isOpen && step === 3) {
+      const timer = setTimeout(() => {
+        startCamera();
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
+      stopCamera();
+    }
+  }, [step, isOpen]);
+
   if (!isOpen) return null;
 
   // Camera handling
@@ -501,7 +513,7 @@ export default function BookingModal({
                 )}
 
                 <button
-                  onClick={() => { setStep(3); startCamera(); }}
+                  onClick={() => { setStep(3); }}
                   disabled={!aadhaarVerified}
                   className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
