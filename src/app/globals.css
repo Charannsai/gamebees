@@ -15,16 +15,28 @@
   --color-gamebees-pill: rgba(255, 255, 255, 0.04);
   
   --animate-float: float 6s ease-in-out infinite;
+  --animate-fadeInUp: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
-/* ----------------------------------------------------
-   IMAGE-INSPIRED STEEL-BLUE DARK AESTHETIC
-   ---------------------------------------------------- */
+/* ============================================================
+   GAMEBEES — DARK-TO-BLUE GRADIENT AESTHETIC
+   ============================================================ */
 
 body {
   background-color: #141414;
@@ -34,7 +46,7 @@ body {
   margin: 0;
 }
 
-/* Heavy, organic film-grain overlay matching shared image */
+/* Subtle film-grain overlay */
 .grainy-overlay::before {
   content: "";
   position: fixed;
@@ -42,61 +54,58 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.1; /* Sleek and satisfying grainy texture */
+  opacity: 0.06;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
 
-/* Clean, polished glass cards (inspired by reference image cards) */
+/* ---- CARDS ---- */
 .card-polished {
   background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-polished:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(36, 101, 150, 0.45);
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(36, 101, 150, 0.25);
 }
 
-/* Lets Colab Styled Glow Pill Button (Glassmorphic Glow) */
+/* ---- BUTTONS ---- */
 .btn-glow-pill {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(36, 101, 150, 0.12);
+  border: 1px solid rgba(94, 159, 208, 0.15);
   color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(36, 101, 150, 0.12), 0 0 25px rgba(29, 73, 107, 0.04);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-glow-pill:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(94, 159, 208, 0.45);
-  box-shadow: 0 0 22px rgba(94, 159, 208, 0.35), 0 0 35px rgba(36, 101, 150, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
-  transform: scale(1.02);
+  background: rgba(36, 101, 150, 0.22);
+  border-color: rgba(94, 159, 208, 0.35);
+  transform: translateY(-1px);
 }
 
-/* Hide scrollbar but keep functional */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+/* ---- SCROLLBAR ---- */
+.no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* SCROLL REVEAL BLURRY OPENING TRANSITIONS */
+/* ---- SCROLL REVEAL ---- */
 .scroll-reveal {
   opacity: 0;
-  filter: blur(20px);
-  transform: translateY(20px);
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), filter 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(12px);
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, filter, transform;
 }
 
@@ -106,27 +115,104 @@ body {
   transform: translateY(0);
 }
 
-/* Steel Blue Radial Backdrop Glow */
-.ice-aura {
-  background: radial-gradient(circle, rgba(36, 101, 150, 0.22) 0%, rgba(29, 73, 107, 0.08) 55%, rgba(0, 0, 0, 0) 80%);
-  filter: blur(60px);
+/* ============================================================
+   HERO — BEHIND-TEXT & GLOW
+   ============================================================ */
+
+/* Single clean radial glow behind PS5 */
+.hero-glow {
+  background: radial-gradient(
+    ellipse 50% 60% at 50% 50%,
+    rgba(36, 101, 150, 0.18) 0%,
+    rgba(29, 73, 107, 0.06) 50%,
+    transparent 100%
+  );
 }
 
-/* Glowing Neon ring matching screen's circular accent */
-.neon-ring {
-  border: 1px solid transparent;
-  background-image: linear-gradient(#141414, #141414), linear-gradient(to right, rgba(94, 159, 208, 0.6), rgba(29, 73, 107, 0.1));
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  box-shadow: 0 0 40px rgba(36, 101, 150, 0.12);
+/* Giant text that sits behind the PS5 */
+.text-behind {
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: transparent;
+  background: linear-gradient(
+    180deg,
+    rgba(94, 159, 208, 0.07) 0%,
+    rgba(36, 101, 150, 0.04) 50%,
+    rgba(16, 50, 77, 0.02) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  user-select: none;
+  pointer-events: none;
 }
 
-/* Form input styling */
+/* ============================================================
+   SECTION TRANSITIONS — DARK TO BLUE FLOW
+   ============================================================ */
+
+/* Subtle gradient at section boundaries revealing blue */
+.section-fade-blue {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(16, 50, 77, 0.06) 40%,
+    rgba(16, 50, 77, 0.12) 100%
+  );
+}
+
+.section-deep-blue {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 50, 77, 0.10) 0%,
+    rgba(29, 73, 107, 0.08) 50%,
+    rgba(16, 50, 77, 0.14) 100%
+  );
+}
+
+.section-glow-blue {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 50, 77, 0.12) 0%,
+    rgba(29, 73, 107, 0.10) 40%,
+    rgba(36, 101, 150, 0.06) 100%
+  );
+}
+
+/* Gradient border card — used for CTA */
+.card-gradient-border {
+  position: relative;
+  background: rgba(16, 50, 77, 0.08);
+  border-radius: 24px;
+  border: 1px solid rgba(94, 159, 208, 0.08);
+  overflow: hidden;
+}
+
+.card-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(
+    160deg,
+    rgba(94, 159, 208, 0.12) 0%,
+    rgba(29, 73, 107, 0.04) 50%,
+    rgba(94, 159, 208, 0.08) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---- FORM INPUTS ---- */
 .form-input {
   width: 100%;
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 12px 16px;
   font-size: 14px;
   color: #FFFFFF;
@@ -135,7 +221,6 @@ body {
 }
 
 .form-input:focus {
-  border-color: rgba(94, 159, 208, 0.5);
-  box-shadow: 0 0 10px rgba(36, 101, 150, 0.15);
-  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(36, 101, 150, 0.35);
+  background-color: rgba(255, 255, 255, 0.03);
 }
