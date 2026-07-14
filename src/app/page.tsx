@@ -100,7 +100,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
       
       {/* ================================================================
           SCATTERED GLOW BACKDROPS (Clean transition spots on unified bg)

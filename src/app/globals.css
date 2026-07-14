@@ -16,26 +16,45 @@
   
   --animate-float: float 6s ease-in-out infinite;
   --animate-fadeInUp: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-pulse-glow: pulseGlow 4s ease-in-out infinite;
+  --animate-pulse-glow: pulseGlow 5s ease-in-out infinite;
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-14px); }
+    50% { transform: translateY(-12px); }
   }
 
   @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes pulseGlow {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.08); }
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
   }
 }
 
 /* ============================================================
-   GAMEBEES — DARK AESTHETIC WITH SHINY SCATTERED BLUE GLOWS
+   SLIM CUSTOM SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(36, 101, 150, 0.3);
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(94, 159, 208, 0.5);
+}
+
+/* ============================================================
+   GAMEBEES — SEAMLESS CONSTANT DARK BG AESTHETIC
    ============================================================ */
 
 body {
@@ -54,7 +73,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.03;
+  opacity: 0.02;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -63,53 +82,45 @@ body {
 
 /* ---- CARDS ---- */
 .card-polished {
-  background: linear-gradient(145deg, rgba(29, 73, 107, 0.08) 0%, rgba(20, 20, 20, 0.7) 100%);
+  background: rgba(20, 20, 20, 0.6);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(94, 159, 208, 0.12);
-  border-radius: 24px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(94, 159, 208, 0.1);
+  border-radius: 20px;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .card-polished:hover {
-  border-color: rgba(94, 159, 208, 0.3);
-  background: linear-gradient(145deg, rgba(29, 73, 107, 0.15) 0%, rgba(20, 20, 20, 0.8) 100%);
-  box-shadow: 0 12px 40px rgba(36, 101, 150, 0.12);
+  border-color: rgba(94, 159, 208, 0.25);
+  box-shadow: 0 10px 30px rgba(36, 101, 150, 0.08);
 }
 
 /* ---- BUTTONS ---- */
 .btn-glow-pill {
   background: linear-gradient(135deg, #246596 0%, #1D496B 100%);
-  border: 1px solid rgba(94, 159, 208, 0.4);
+  border: 1px solid rgba(94, 159, 208, 0.3);
   color: #FFFFFF;
   font-weight: 600;
-  box-shadow: 0 4px 20px rgba(36, 101, 150, 0.25);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(36, 101, 150, 0.15);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-glow-pill:hover {
   background: linear-gradient(135deg, #5E9FD0 0%, #246596 100%);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(94, 159, 208, 0.45);
-}
-
-/* ---- SCROLLBAR ---- */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(94, 159, 208, 0.3);
 }
 
 /* ---- SCROLL REVEAL ---- */
 .scroll-reveal {
   opacity: 0;
-  filter: blur(10px);
-  transform: translateY(30px);
+  filter: blur(8px);
+  transform: translateY(20px);
   transition:
-    opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, filter, transform;
 }
 
@@ -119,21 +130,7 @@ body {
   transform: translateY(0);
 }
 
-/* ============================================================
-   SHINY SCATTERED BACKDROP LIGHTS (Primary/Glow Blue transitions)
-   ============================================================ */
-
-/* Large, smooth, organic blue radial light scattered on single dark BG */
-.glow-scatter-blue {
-  position: absolute;
-  border-radius: 100%;
-  pointer-events: none;
-  filter: blur(140px);
-  opacity: 0.75;
-  mix-blend-mode: screen;
-}
-
-/* Giant behind-text — extremely faint, gradient text */
+/* ---- GIANT BEHIND-TEXT ---- */
 .text-behind {
   font-weight: 900;
   line-height: 0.88;
@@ -141,9 +138,9 @@ body {
   color: transparent;
   background: linear-gradient(
     180deg,
-    rgba(94, 159, 208, 0.08) 0%,
-    rgba(36, 101, 150, 0.04) 60%,
-    rgba(16, 50, 77, 0.015) 100%
+    rgba(94, 159, 208, 0.07) 0%,
+    rgba(36, 101, 150, 0.03) 60%,
+    transparent 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -151,12 +148,12 @@ body {
   pointer-events: none;
 }
 
-/* Gradient border CTA card */
+/* ---- GRADIENT BORDER CARD (CTA) ---- */
 .card-gradient-border {
   position: relative;
-  background: linear-gradient(160deg, rgba(16, 50, 77, 0.4) 0%, rgba(20, 20, 20, 0.8) 50%, rgba(29, 73, 107, 0.3) 100%);
+  background: rgba(20, 20, 20, 0.6);
   border-radius: 24px;
-  border: 1px solid rgba(94, 159, 208, 0.2);
+  border: 1px solid rgba(94, 159, 208, 0.15);
   overflow: hidden;
 }
 
@@ -168,9 +165,9 @@ body {
   padding: 1px;
   background: linear-gradient(
     160deg,
-    rgba(94, 159, 208, 0.35) 0%,
-    rgba(29, 73, 107, 0.1) 40%,
-    rgba(94, 159, 208, 0.25) 100%
+    rgba(94, 159, 208, 0.25) 0%,
+    rgba(29, 73, 107, 0.05) 50%,
+    rgba(94, 159, 208, 0.15) 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -183,17 +180,16 @@ body {
 .form-input {
   width: 100%;
   border-radius: 12px;
-  background-color: rgba(16, 50, 77, 0.25);
-  border: 1px solid rgba(94, 159, 208, 0.15);
+  background-color: rgba(16, 50, 77, 0.15);
+  border: 1px solid rgba(94, 159, 208, 0.1);
   padding: 12px 16px;
   font-size: 14px;
   color: #FFFFFF;
   outline: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
 }
 
 .form-input:focus {
-  border-color: rgba(94, 159, 208, 0.5);
-  background-color: rgba(16, 50, 77, 0.35);
-  box-shadow: 0 0 15px rgba(94, 159, 208, 0.2);
+  border-color: rgba(94, 159, 208, 0.35);
+  background-color: rgba(16, 50, 77, 0.25);
 }
