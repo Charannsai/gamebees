@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060B12;
+  --background: #141414;
   --foreground: #FFFFFF;
 }
 
 @theme {
-  --color-gamebees-bg: #060B12;
-  --color-gamebees-accent-lavender: #7A8A9E;
-  --color-gamebees-accent-blue: #1381CD;
-  --color-gamebees-accent-deep: #0A5C9B;
+  --color-gamebees-bg: #141414;
+  --color-gamebees-dark-navy: #10324D;
+  --color-gamebees-medium-blue: #1D496B;
+  --color-gamebees-accent-blue: #246596;
+  --color-gamebees-glow-blue: #5E9FD0;
+  --color-gamebees-accent-lavender: #A4CBE8;
   --color-gamebees-pill: rgba(255, 255, 255, 0.04);
   
   --animate-float: float 6s ease-in-out infinite;
@@ -25,7 +27,7 @@
    ---------------------------------------------------- */
 
 body {
-  background-color: #060B12;
+  background-color: #141414;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -59,7 +61,7 @@ body {
 
 .card-polished:hover {
   background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(19, 129, 205, 0.45);
+  border-color: rgba(36, 101, 150, 0.45);
 }
 
 /* Lets Colab Styled Glow Pill Button (Glassmorphic Glow) */
@@ -69,14 +71,14 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(19, 129, 205, 0.12), 0 0 25px rgba(10, 92, 155, 0.04);
+  box-shadow: 0 0 15px rgba(36, 101, 150, 0.12), 0 0 25px rgba(29, 73, 107, 0.04);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-glow-pill:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(19, 129, 205, 0.45);
-  box-shadow: 0 0 22px rgba(19, 129, 205, 0.35), 0 0 35px rgba(10, 92, 155, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
+  border-color: rgba(94, 159, 208, 0.45);
+  box-shadow: 0 0 22px rgba(94, 159, 208, 0.35), 0 0 35px rgba(36, 101, 150, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
   transform: scale(1.02);
 }
 
@@ -106,17 +108,17 @@ body {
 
 /* Steel Blue Radial Backdrop Glow */
 .ice-aura {
-  background: radial-gradient(circle, rgba(19, 129, 205, 0.22) 0%, rgba(10, 92, 155, 0.08) 55%, rgba(0, 0, 0, 0) 80%);
+  background: radial-gradient(circle, rgba(36, 101, 150, 0.22) 0%, rgba(29, 73, 107, 0.08) 55%, rgba(0, 0, 0, 0) 80%);
   filter: blur(60px);
 }
 
 /* Glowing Neon ring matching screen's circular accent */
 .neon-ring {
   border: 1px solid transparent;
-  background-image: linear-gradient(#060B12, #060B12), linear-gradient(to right, rgba(19, 129, 205, 0.6), rgba(10, 92, 155, 0.1));
+  background-image: linear-gradient(#141414, #141414), linear-gradient(to right, rgba(94, 159, 208, 0.6), rgba(29, 73, 107, 0.1));
   background-origin: border-box;
   background-clip: padding-box, border-box;
-  box-shadow: 0 0 40px rgba(19, 129, 205, 0.12);
+  box-shadow: 0 0 40px rgba(36, 101, 150, 0.12);
 }
 
 /* Form input styling */
@@ -133,7 +135,7 @@ body {
 }
 
 .form-input:focus {
-  border-color: rgba(19, 129, 205, 0.5);
-  box-shadow: 0 0 10px rgba(19, 129, 205, 0.15);
+  border-color: rgba(94, 159, 208, 0.5);
+  box-shadow: 0 0 10px rgba(36, 101, 150, 0.15);
   background-color: rgba(255, 255, 255, 0.04);
 }

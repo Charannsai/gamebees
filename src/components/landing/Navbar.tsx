@@ -12,7 +12,7 @@ export default function Navbar({ onRentClick }: NavbarProps) {
     <nav 
       className="sticky top-0 z-50 w-full backdrop-blur-sm transition-all duration-300 border-none"
       style={{
-        background: "linear-gradient(to bottom, rgba(6, 11, 18, 0.95) 0%, rgba(6, 11, 18, 0.55) 60%, rgba(6, 11, 18, 0) 100%)",
+        background: "linear-gradient(to bottom, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.55) 60%, rgba(20, 20, 20, 0) 100%)",
       }}
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
