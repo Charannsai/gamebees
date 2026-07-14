@@ -292,7 +292,7 @@ export default function Home() {
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-white/15 rounded-b-2xl z-20"></div>
 
                   {/* Phone Screen Area */}
-                  <div className="relative flex-1 rounded-[28px] overflow-hidden bg-[#0A0E15] p-4 flex flex-col justify-between border border-white/5">
+                  <div className="relative flex-1 rounded-[28px] overflow-hidden bg-[#10324D] p-4 flex flex-col justify-between border border-white/5">
                     
                     {/* Header */}
                     <div className="flex justify-between items-center text-[10px] text-white/40 pt-2 border-b border-white/5 pb-2">
@@ -359,7 +359,7 @@ export default function Home() {
                               <path
                                 d="M 30,120 Q 80,40 120,90 T 170,30"
                                 fill="none"
-                                stroke="rgba(19, 129, 205, 0.25)"
+                                stroke="rgba(36, 101, 150, 0.25)"
                                 strokeWidth="2"
                                 strokeDasharray="4 3"
                               />

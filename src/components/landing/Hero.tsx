@@ -29,7 +29,7 @@ export default function Hero({ onRentClick }: HeroProps) {
         
         {/* Centered PS5 image floating */}
         <div
-          className="relative animate-float drop-shadow-[0_25px_60px_rgba(19,129,205,0.45)]"
+          className="relative animate-float drop-shadow-[0_25px_60px_rgba(94,159,208,0.45)]"
           style={{ width: 300, height: 400 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
