@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 
 interface HeroProps {
   onRentClick: () => void;
@@ -9,7 +8,10 @@ interface HeroProps {
 
 export default function Hero({ onRentClick }: HeroProps) {
   return (
-    <header className="relative z-10 w-full h-[90vh] flex items-center justify-center overflow-hidden">
+    <header
+      className="relative z-10 w-full flex items-center justify-center overflow-hidden"
+      style={{ height: "90vh", flexShrink: 0 }}
+    >
       
       {/* Soft Ice-Blue Backdrop Aura */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ice-aura opacity-75 z-0 pointer-events-none"></div>
@@ -26,13 +28,15 @@ export default function Hero({ onRentClick }: HeroProps) {
       <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center flex flex-col items-center justify-center z-10 relative">
         
         {/* Centered PS5 image floating */}
-        <div className="relative w-[300px] h-[400px] sm:w-[350px] sm:h-[450px] animate-float drop-shadow-[0_25px_60px_rgba(19,129,205,0.45)]">
-          <Image
+        <div
+          className="relative animate-float drop-shadow-[0_25px_60px_rgba(19,129,205,0.45)]"
+          style={{ width: 300, height: 400 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/ps5.png"
             alt="PlayStation 5 Pro Console"
-            fill
-            priority
-            className="object-contain"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
           />
         </div>
 
