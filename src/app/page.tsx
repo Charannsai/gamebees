@@ -100,24 +100,71 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white relative">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-hidden">
       
+      {/* ================================================================
+          SCATTERED GLOW BACKDROPS (Clean transition spots on unified bg)
+          ================================================================ */}
+      
+      {/* Glow Spot 1: Under the Choose Your Loadout Section */}
+      <div 
+        className="absolute w-[600px] h-[600px] left-[-200px] top-[90vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.22) 0%, rgba(29, 73, 107, 0.08) 50%, transparent 80%)",
+          filter: "blur(130px)",
+        }}
+      ></div>
+
+      <div 
+        className="absolute w-[500px] h-[500px] right-[-100px] top-[140vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.16) 0%, rgba(36, 101, 150, 0.05) 50%, transparent 80%)",
+          filter: "blur(110px)",
+        }}
+      ></div>
+
+      {/* Glow Spot 2: Behind Mobile Mockup Section */}
+      <div 
+        className="absolute w-[700px] h-[700px] right-[-250px] top-[220vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(36, 101, 150, 0.25) 0%, rgba(29, 73, 107, 0.08) 55%, transparent 80%)",
+          filter: "blur(140px)",
+        }}
+      ></div>
+
+      <div 
+        className="absolute w-[550px] h-[550px] left-[-150px] top-[280vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(94, 159, 208, 0.18) 0%, rgba(36, 101, 150, 0.06) 50%, transparent 80%)",
+          filter: "blur(120px)",
+        }}
+      ></div>
+
+      {/* Glow Spot 3: Centered behind CTA Zone */}
+      <div 
+        className="absolute w-[800px] h-[500px] left-1/2 -translate-x-1/2 top-[340vh] pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.28) 0%, rgba(94, 159, 208, 0.12) 40%, rgba(29, 73, 107, 0.03) 70%, transparent 100%)",
+          filter: "blur(120px)",
+        }}
+      ></div>
+
+      {/* Navbar & Hero */}
       <Navbar onRentClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)} />
       <Hero onRentClick={() => handleOpenBooking("PlayStation 5 Pro Console", 12)} />
 
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
 
         {/* ================================================================
             SECTION 1: CHOOSE YOUR LOADOUT
-            First hint of blue emerging from darkness
             ================================================================ */}
-        <section className="relative section-fade-blue">
+        <section className="relative">
           <RevealSection className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               
               {/* Section Header */}
               <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium text-gamebees-glow-blue">
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-semibold text-gamebees-glow-blue">
                   CHOOSE YOUR LOADOUT
                 </span>
                 <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
@@ -132,7 +179,7 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start max-w-5xl mx-auto">
                 
                 {/* Left — Gear checklist */}
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {GEAR_OPTIONS.map((item) => {
                     const isChecked = selectedGear.includes(item.id);
                     return (
@@ -141,8 +188,8 @@ export default function Home() {
                         onClick={() => handleToggleGear(item.id)}
                         className={`group flex items-center justify-between p-5 rounded-2xl border transition-all duration-400 cursor-pointer select-none ${
                           isChecked
-                            ? "bg-gradient-to-r from-gamebees-dark-navy/30 to-transparent border-gamebees-accent-blue/25"
-                            : "bg-white/[0.015] border-white/[0.04] opacity-50 hover:opacity-80 hover:border-white/[0.08]"
+                            ? "bg-gradient-to-r from-gamebees-dark-navy/40 to-transparent border-gamebees-accent-blue/40 shadow-[inset_0_0_12px_rgba(94,159,208,0.06)]"
+                            : "bg-white/[0.015] border-white/[0.05] opacity-50 hover:opacity-85 hover:border-white/[0.08]"
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -156,14 +203,14 @@ export default function Home() {
                           <div>
                             <span className="text-sm font-semibold block text-white">{item.name}</span>
                             {item.required && (
-                              <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue/60 font-semibold">
+                              <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue font-semibold">
                                 Required
                               </span>
                             )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-base font-bold text-white">${item.price}</span>
+                          <span className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors">${item.price}</span>
                           <span className="text-[10px] text-white/25 block">/ day</span>
                         </div>
                       </div>
@@ -190,7 +237,7 @@ export default function Home() {
                     })}
                   </div>
 
-                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/15 to-transparent"></div>
+                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/30 to-transparent"></div>
 
                   <div className="flex justify-between items-center pt-2">
                     <div>
@@ -219,9 +266,8 @@ export default function Home() {
 
         {/* ================================================================
             SECTION 2: QUICK & EASY BOOKING
-            Deeper blue — the blue is clearly emerging now
             ================================================================ */}
-        <section className="relative section-deep-blue">
+        <section className="relative">
           <RevealSection className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center max-w-5xl mx-auto">
@@ -241,7 +287,7 @@ export default function Home() {
                   {/* Steps */}
                   <div className="space-y-5 pt-4 text-left max-w-md mx-auto lg:mx-0">
                     <div className="flex gap-4 items-start group">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/50 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/15 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/30 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
                         <Smartphone className="h-4.5 w-4.5" />
                       </div>
                       <div>
@@ -250,7 +296,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex gap-4 items-start group">
-                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/50 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/15 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gamebees-dark-navy/60 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/30 flex items-center justify-center text-gamebees-glow-blue flex-shrink-0">
                         <Truck className="h-4.5 w-4.5" />
                       </div>
                       <div>
@@ -265,12 +311,12 @@ export default function Home() {
                 <div className="flex justify-center">
                   <div className="relative w-[280px] h-[550px] rounded-[40px] overflow-hidden select-none"
                     style={{
-                      background: "linear-gradient(160deg, rgba(16, 50, 77, 0.35) 0%, #141414 40%, rgba(29, 73, 107, 0.15) 100%)",
-                      border: "1px solid rgba(94, 159, 208, 0.10)"
+                      background: "linear-gradient(160deg, rgba(16, 50, 77, 0.4) 0%, #141414 40%, rgba(29, 73, 107, 0.25) 100%)",
+                      border: "1px solid rgba(94, 159, 208, 0.18)"
                     }}
                   >
                     {/* Phone notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gamebees-bg rounded-b-2xl z-20"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#141414] rounded-b-2xl z-20"></div>
 
                     {/* Phone Screen */}
                     <div className="relative h-full p-4 pt-8 flex flex-col justify-between">
@@ -300,7 +346,7 @@ export default function Home() {
                                 PS5 Pro Bundle
                               </div>
                             </div>
-                            <button className="w-full py-2.5 bg-gradient-to-r from-gamebees-accent-blue/60 to-gamebees-medium-blue/40 rounded-lg text-[10px] font-semibold text-white mt-3">
+                            <button className="w-full py-2.5 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 rounded-lg text-[10px] font-semibold text-white mt-3">
                               Book Gear
                             </button>
                           </div>
@@ -308,7 +354,7 @@ export default function Home() {
 
                         {phoneStep === 1 && (
                           <div className="space-y-4 text-center animate-fadeInUp">
-                            <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-br from-gamebees-dark-navy/50 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/15 flex items-center justify-center text-gamebees-glow-blue">
+                            <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-br from-gamebees-dark-navy/50 to-gamebees-medium-blue/20 border border-gamebees-accent-blue/30 flex items-center justify-center text-gamebees-glow-blue">
                               <ShieldCheck className="h-6 w-6" />
                             </div>
                             <div>
@@ -331,17 +377,17 @@ export default function Home() {
                             </div>
                             <div className="flex-1 bg-gamebees-dark-navy/12 border border-white/[0.04] rounded-xl my-2 overflow-hidden relative">
                               <svg className="w-full h-full absolute inset-0" viewBox="0 0 200 150">
-                                <path d="M 30,120 Q 80,40 120,90 T 170,30" fill="none" stroke="rgba(94, 159, 208, 0.15)" strokeWidth="2" strokeDasharray="4 3" />
+                                <path d="M 30,120 Q 80,40 120,90 T 170,30" fill="none" stroke="rgba(94, 159, 208, 0.25)" strokeWidth="2" strokeDasharray="4 3" />
                               </svg>
                               <div className="absolute bottom-[18px] left-[22px] flex flex-col items-center">
                                 <div className="h-4 w-4 rounded-full bg-gamebees-dark-navy/40 flex items-center justify-center border border-white/[0.08]"><Terminal className="h-2 w-2 text-white/30" /></div>
                                 <span className="text-[6px] text-white/20 mt-0.5">Hub</span>
                               </div>
-                              <div className="absolute top-[75px] left-[85px] p-1.5 bg-gamebees-accent-blue/50 rounded-lg text-white animate-bounce">
+                              <div className="absolute top-[75px] left-[85px] p-1.5 bg-gamebees-accent-blue/70 rounded-lg text-white animate-bounce">
                                 <Truck className="h-3 w-3" />
                               </div>
                               <div className="absolute top-[18px] right-[22px] flex flex-col items-center">
-                                <div className="h-5 w-5 rounded-full bg-gamebees-dark-navy/40 flex items-center justify-center border border-gamebees-accent-blue/20 text-gamebees-glow-blue/60"><MapPin className="h-3 w-3" /></div>
+                                <div className="h-5 w-5 rounded-full bg-gamebees-dark-navy/40 flex items-center justify-center border border-gamebees-accent-blue/20 text-gamebees-glow-blue/80"><MapPin className="h-3 w-3" /></div>
                                 <span className="text-[6px] font-semibold text-white/40 mt-0.5">You</span>
                               </div>
                             </div>
@@ -369,19 +415,12 @@ export default function Home() {
 
         {/* ================================================================
             SECTION 3: CTA — BOOK NOW
-            Deepest blue glow zone
             ================================================================ */}
-        <section className="relative section-glow-blue">
-          {/* Centered background glow */}
-          <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(ellipse, rgba(36, 101, 150, 0.12) 0%, transparent 70%)" }}
-          ></div>
-
+        <section className="relative">
           <RevealSection className="py-24 sm:py-32">
             <div className="mx-auto max-w-4xl px-6 lg:px-8 text-center relative z-10">
               <div className="card-gradient-border p-12 sm:p-16 lg:p-20 flex flex-col items-center justify-center gap-6">
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium text-gamebees-glow-blue block">
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-semibold text-gamebees-glow-blue block">
                   READY TO EXPERIENCE POWER
                 </span>
                 <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
@@ -404,9 +443,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/[0.04]"
-        style={{ background: "linear-gradient(to top, rgba(16, 50, 77, 0.08), transparent)" }}
-      >
+      <footer className="py-12 border-t border-white/[0.04] relative z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-gamebees-accent-lavender/30 font-light">
           <span>© {new Date().getFullYear()} GameBees Rental. All rights reserved.</span>
           <div className="flex gap-6">
