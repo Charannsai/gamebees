@@ -11,21 +11,22 @@ import {
   Package, 
   Clock, 
   CheckCircle, 
-  Check,
   User, 
   FileText, 
   AlertCircle,
   Truck,
   ArrowRight,
   LogOut,
-  MapPin as MapPinIcon,
-  Play
+  ShieldCheck,
+  RefreshCw,
+  Shield,
+  Check
 } from "lucide-react";
-import { fetchItems, fetchBookings } from "@/app/actions";
+import { fetchItems, fetchBookings, getKycStatus, saveKyc } from "@/app/actions";
 import BookingModal from "@/components/landing/BookingModal";
 import Link from "next/link";
 
-type TabType = "overview" | "bookings" | "track" | "settings";
+type TabType = "overview" | "bookings" | "track" | "kyc" | "settings";
 
 export default function UserDashboard() {
   const { user, isLoaded } = useUser();
@@ -34,6 +35,18 @@ export default function UserDashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   
+  // KYC State
+  const [kycVerified, setKycVerified] = useState(false);
+  const [kycLoading, setKycLoading] = useState(true);
+  const [kycProfile, setKycProfile] = useState<any>(null);
+  
+  // Local Aadhaar Verification Form (in KYC Tab)
+  const [aadhaarNum, setAadhaarNum] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [aadhaarOtp, setAadhaarOtp] = useState("");
+  const [aadhaarError, setAadhaarError] = useState("");
+  const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+
   // Booking modal controls
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConsoleName, setModalConsoleName] = useState("");
@@ -41,26 +54,40 @@ export default function UserDashboard() {
   const [modalDailyPrice, setModalDailyPrice] = useState(12);
   const [modalDuration, setModalDuration] = useState(3);
 
-  const loadData = async () => {
+  const loadDashboardData = async () => {
     setLoadingData(true);
     try {
-      const [itemsRes, bookingsRes] = await Promise.all([
+      const [itemsRes, bookingsRes, kycRes] = await Promise.all([
         fetchItems(),
-        fetchBookings()
+        fetchBookings(),
+        getKycStatus()
       ]);
 
       if (itemsRes.success) setItems(itemsRes.data || []);
       if (bookingsRes.success) setBookings(bookingsRes.data || []);
+      
+      if (kycRes.success) {
+        setKycVerified(kycRes.verified);
+        setKycProfile(kycRes.profile);
+      } else {
+        // LocalStorage fallback for sandbox testing if DB fails/is missing
+        const cachedKyc = localStorage.getItem(`kyc_verified_${user?.id}`);
+        if (cachedKyc) {
+          setKycVerified(true);
+          setKycProfile(JSON.parse(cachedKyc));
+        }
+      }
     } catch (err) {
       console.error("Error loading dashboard data:", err);
     } finally {
       setLoadingData(false);
+      setKycLoading(false);
     }
   };
 
   useEffect(() => {
     if (isLoaded && user) {
-      loadData();
+      loadDashboardData();
     }
   }, [isLoaded, user]);
 
@@ -70,6 +97,57 @@ export default function UserDashboard() {
     setModalDailyPrice(Number(item.price));
     setModalDuration(3);
     setModalOpen(true);
+  };
+
+  // Local Aadhaar Sandbox Handlers
+  const handleSendAadhaarOtp = () => {
+    if (aadhaarNum.length !== 12 || !/^\d+$/.test(aadhaarNum)) {
+      setAadhaarError("Please enter a valid 12-digit Aadhaar number.");
+      return;
+    }
+    setAadhaarError("");
+    setVerifyingAadhaar(true);
+    
+    setTimeout(() => {
+      setVerifyingAadhaar(false);
+      setOtpSent(true);
+    }, 1000);
+  };
+
+  const handleVerifyAadhaarOtp = async () => {
+    if (aadhaarOtp !== "123456") {
+      setAadhaarError("Invalid OTP. Enter '123456' for sandbox verification.");
+      return;
+    }
+    setAadhaarError("");
+    setVerifyingAadhaar(true);
+
+    const profileData = {
+      fullName: user?.fullName || "Verified User",
+      phone: user?.primaryPhoneNumber?.phoneNumber || "9988776655",
+      aadhaarNumber: aadhaarNum,
+      aadhaarVerified: true,
+      selfieUrl: "data:image/png;base64,mockselfie"
+    };
+
+    try {
+      const res = await saveKyc(profileData);
+      
+      // Save locally in all cases for safety & immediate use
+      localStorage.setItem(`kyc_verified_${user?.id}`, JSON.stringify(profileData));
+      
+      setKycVerified(true);
+      setKycProfile(profileData);
+    } catch (err) {
+      console.error("KYC save error:", err);
+    } finally {
+      setVerifyingAadhaar(false);
+    }
+  };
+
+  const handleTriggerRedirectToKyc = () => {
+    setModalOpen(false);
+    setActiveTab("kyc");
   };
 
   const getStatusColor = (status: string) => {
@@ -83,9 +161,7 @@ export default function UserDashboard() {
     }
   };
 
-  // Find active booking for the Track tab
   const activeBooking = bookings.find(b => b.status !== "completed" && b.status !== "discarded");
-  // Default fallback if no active bookings exist
   const displayBookingForTrack = activeBooking || bookings[0];
 
   if (!isLoaded) {
@@ -97,7 +173,7 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white grainy-overlay">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white grainy-overlay pb-24 lg:pb-10">
       {/* Background glow backdrops */}
       <div 
         className="absolute w-[600px] h-[600px] right-[-200px] top-[-100px] pointer-events-none z-0"
@@ -115,14 +191,14 @@ export default function UserDashboard() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[#141414]/80 backdrop-blur-md border-b border-white/[0.04]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 h-18 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[#141414]/85 backdrop-blur-md border-b border-white/[0.04]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-16 w-auto object-contain select-none" />
+            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-14 sm:h-16 w-auto object-contain select-none" />
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/[0.04] text-xs text-white/70">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               <span>Signed in as: <strong>{user?.primaryEmailAddress?.emailAddress}</strong></span>
@@ -139,10 +215,10 @@ export default function UserDashboard() {
       </header>
 
       {/* Main Layout Grid */}
-      <div className="flex-1 mx-auto max-w-7xl w-full px-6 lg:px-8 py-10 relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
         
-        {/* Navigation Sidebar */}
-        <aside className="lg:col-span-1 space-y-3">
+        {/* Navigation Sidebar (Desktop Only) */}
+        <aside className="hidden lg:block lg:col-span-1 space-y-3">
           <div className="card-polished p-4 space-y-1.5">
             <p className="text-[10px] uppercase tracking-wider text-white/30 font-bold px-3 pb-2 border-b border-white/[0.04] mb-2">
               Navigation
@@ -184,6 +260,23 @@ export default function UserDashboard() {
               <span>Track Orders</span>
               {activeBooking && (
                 <span className="ml-auto h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("kyc")}
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === "kyc"
+                  ? "bg-gamebees-accent-blue text-white shadow-[0_4px_12px_rgba(36,101,150,0.2)]"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Shield className="h-4.5 w-4.5" />
+              <span>Identity KYC</span>
+              {kycVerified ? (
+                <span className="ml-auto text-green-400 text-[10px] font-bold">Verified</span>
+              ) : (
+                <span className="ml-auto h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
               )}
             </button>
 
@@ -232,12 +325,12 @@ export default function UserDashboard() {
               {activeTab === "overview" && (
                 <div className="space-y-6 animate-fadeInUp">
                   {/* Hero banner / Marketing callout */}
-                  <div className="card-gradient-border p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="space-y-3 text-center sm:text-left z-10 max-w-md">
+                  <div className="card-gradient-border p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                    <div className="space-y-3 text-center md:text-left z-10 max-w-md">
                       <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-gamebees-glow-blue block">
                         EXCLUSIVE LOADOUTS AVAILABLE
                       </span>
-                      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                      <h3 className="text-lg sm:text-2xl font-black text-white leading-tight">
                         Elevate Your Playtime With Pre-Installed Top Titles!
                       </h3>
                       <p className="text-xs text-white/55 font-light leading-relaxed">
@@ -246,12 +339,11 @@ export default function UserDashboard() {
                     </div>
                     <button
                       onClick={() => setActiveTab("bookings")}
-                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap z-10"
+                      className="btn-glow-pill px-5 py-3 rounded-full text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap z-10 cursor-pointer"
                     >
                       <span>Rent More Gear</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </button>
-                    {/* Shadow overlay backdrops inside card */}
                     <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-gradient-to-l from-gamebees-accent-blue/10 to-transparent pointer-events-none" />
                   </div>
 
@@ -262,15 +354,15 @@ export default function UserDashboard() {
                     </h3>
                     
                     {bookings.filter(b => b.status !== "completed" && b.status !== "discarded").length === 0 ? (
-                      <div className="card-polished p-10 text-center space-y-4">
+                      <div className="card-polished p-8 text-center space-y-4">
                         <Package className="h-10 w-10 text-white/20 mx-auto" />
                         <div>
-                          <p className="text-sm text-white/60 font-semibold">No active rentals found</p>
-                          <p className="text-xs text-white/40 mt-1 font-light">Choose from our catalog to book your first setup!</p>
+                          <p className="text-xs sm:text-sm text-white/60 font-semibold">No active rentals found</p>
+                          <p className="text-[11px] text-white/40 mt-1 font-light">Choose from our catalog to book your first setup!</p>
                         </div>
                         <button
                           onClick={() => setActiveTab("bookings")}
-                          className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-white transition-colors"
+                          className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-white transition-colors cursor-pointer"
                         >
                           Explore Gear Catalog
                         </button>
@@ -280,10 +372,10 @@ export default function UserDashboard() {
                         {bookings
                           .filter(b => b.status !== "completed" && b.status !== "discarded")
                           .map((b) => (
-                            <div key={b.id} className="card-polished p-5 space-y-4">
+                            <div key={b.id} className="card-polished p-5 space-y-4 border border-white/[0.02]">
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <span className="text-[10px] text-white/40 font-mono">ID: #{b.id.slice(-6).toUpperCase()}</span>
+                                  <span className="text-[9px] text-white/40 font-mono">ID: #{b.id.slice(-6).toUpperCase()}</span>
                                   <h4 className="text-sm font-bold text-white mt-0.5">
                                     {b.items?.name || "Gaming Console Setup"}
                                   </h4>
@@ -310,7 +402,7 @@ export default function UserDashboard() {
 
                               <button
                                 onClick={() => { setActiveTab("track"); }}
-                                className="w-full py-2 bg-gamebees-dark-navy/30 hover:bg-gamebees-dark-navy/60 border border-gamebees-accent-blue/20 hover:border-gamebees-accent-blue/40 rounded-lg text-[10px] font-semibold text-gamebees-glow-blue flex items-center justify-center gap-1 transition-all"
+                                className="w-full py-2 bg-gamebees-dark-navy/30 hover:bg-gamebees-dark-navy/60 border border-gamebees-accent-blue/20 hover:border-gamebees-accent-blue/40 rounded-lg text-[10px] font-semibold text-gamebees-glow-blue flex items-center justify-center gap-1 transition-all cursor-pointer"
                               >
                                 <Compass className="h-3.5 w-3.5" />
                                 <span>Track Live Delivery</span>
@@ -323,7 +415,7 @@ export default function UserDashboard() {
                 </div>
               )}
 
-              {/* Tab: Bookings (Item Store list) */}
+              {/* Tab: Bookings */}
               {activeTab === "bookings" && (
                 <div className="space-y-6 animate-fadeInUp">
                   <div>
@@ -338,7 +430,7 @@ export default function UserDashboard() {
                   {items.length === 0 ? (
                     <div className="card-polished p-16 text-center space-y-3">
                       <ShoppingBag className="h-10 w-10 text-white/10 mx-auto" />
-                      <p className="text-sm text-white/50 font-light">No gear setups listed currently. Check back later!</p>
+                      <p className="text-xs sm:text-sm text-white/50 font-light">No gear setups listed currently. Check back later!</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -366,7 +458,7 @@ export default function UserDashboard() {
 
                           <button
                             onClick={() => handleOpenBooking(item)}
-                            className="w-full mt-4 py-2.5 bg-gamebees-accent-blue/70 hover:bg-gamebees-accent-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.15)]"
+                            className="w-full mt-4 py-2.5 bg-gamebees-accent-blue/70 hover:bg-gamebees-accent-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.15)] cursor-pointer"
                           >
                             <ShoppingBag className="h-4 w-4" />
                             <span>Rent Now</span>
@@ -393,11 +485,10 @@ export default function UserDashboard() {
                   {!displayBookingForTrack ? (
                     <div className="card-polished p-16 text-center space-y-3">
                       <Compass className="h-10 w-10 text-white/10 mx-auto" />
-                      <p className="text-sm text-white/50 font-light">No bookings found to track. Rent a console first!</p>
+                      <p className="text-xs sm:text-sm text-white/50 font-light">No bookings found to track. Rent a console first!</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      
                       {/* Left: Progression tracker */}
                       <div className="lg:col-span-1 card-polished p-5 flex flex-col justify-between gap-6">
                         <div className="space-y-4">
@@ -408,9 +499,7 @@ export default function UserDashboard() {
                             </h4>
                           </div>
 
-                          {/* Stepper tracker */}
                           <div className="relative pl-6 space-y-6">
-                            {/* Line connecting steps */}
                             <div className="absolute left-[7px] top-1 bottom-1 w-[2px] bg-white/5" />
                             <div 
                               className="absolute left-[7px] top-1 w-[2px] bg-gamebees-glow-blue transition-all duration-700" 
@@ -421,22 +510,17 @@ export default function UserDashboard() {
                               }}
                             />
 
-                            {/* Step 1: Booked */}
+                            {/* Steps */}
                             <div className="relative flex gap-3.5 items-start">
-                              <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
-                                ["booked", "preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) || displayBookingForTrack.status === "booked"
-                                  ? "border-green-400 text-green-400"
-                                  : "border-white/10 text-white/20"
-                              }`}>
+                              <div className="h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] border-green-400 text-green-400">
                                 <Check className="h-2 w-2 stroke-[3]" />
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Order Confirmed</span>
-                                <span className="text-[10px] text-white/40 block">Booking matches verified identity ID.</span>
+                                <span className="text-[10px] text-white/40 block font-light">Booking verified.</span>
                               </div>
                             </div>
 
-                            {/* Step 2: Preparing */}
                             <div className="relative flex gap-3.5 items-start">
                               <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
                                 ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
@@ -451,11 +535,10 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Pre-Installing Games</span>
-                                <span className="text-[10px] text-white/40 block">Installing games & hardware checks.</span>
+                                <span className="text-[10px] text-white/40 block font-light">Preparing hardware.</span>
                               </div>
                             </div>
 
-                            {/* Step 3: Shipped / Dispatched */}
                             <div className="relative flex gap-3.5 items-start">
                               <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
                                 ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
@@ -470,11 +553,10 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Out for Delivery</span>
-                                <span className="text-[10px] text-white/40 block">Handed to driver for dispatch.</span>
+                                <span className="text-[10px] text-white/40 block font-light">Driver dispatched.</span>
                               </div>
                             </div>
 
-                            {/* Step 4: Delivered */}
                             <div className="relative flex gap-3.5 items-start">
                               <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
                                 ["delivered", "returned"].includes(displayBookingForTrack.tracking_status)
@@ -485,7 +567,7 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className="text-xs font-semibold text-white block">Delivered & Set up</span>
-                                <span className="text-[10px] text-white/40 block">Arrived at destination address.</span>
+                                <span className="text-[10px] text-white/40 block font-light">Arrived at destination.</span>
                               </div>
                             </div>
                           </div>
@@ -498,22 +580,10 @@ export default function UserDashboard() {
                       </div>
 
                       {/* Right: Map simulation view */}
-                      <div className="lg:col-span-2 card-polished overflow-hidden h-[380px] relative border border-white/[0.03]">
-                        {/* Mock Map Background SVG */}
+                      <div className="lg:col-span-2 card-polished overflow-hidden h-[300px] lg:h-[380px] relative border border-white/[0.03]">
                         <svg className="w-full h-full absolute inset-0 bg-[#0e0e0e]" viewBox="0 0 400 300">
-                          {/* Map Streets Grid */}
                           <path d="M 0 50 L 400 50 M 0 150 L 400 150 M 0 250 L 400 250 M 80 0 L 80 300 M 200 0 L 200 300 M 320 0 L 320 300" stroke="rgba(255,255,255,0.03)" strokeWidth="4" fill="none" />
-                          
-                          {/* Route Path based on status */}
-                          <path 
-                            d="M 80,250 L 200,250 L 200,150 L 320,150 L 320,50" 
-                            fill="none" 
-                            stroke="rgba(94, 159, 208, 0.15)" 
-                            strokeWidth="3" 
-                            strokeDasharray="5 4" 
-                          />
-
-                          {/* Animation tracking path */}
+                          <path d="M 80,250 L 200,250 L 200,150 L 320,150 L 320,50" fill="none" stroke="rgba(94, 159, 208, 0.15)" strokeWidth="3" strokeDasharray="5 4" />
                           <path 
                             d="M 80,250 L 200,250 L 200,150 L 320,150 L 320,50" 
                             fill="none" 
@@ -522,65 +592,161 @@ export default function UserDashboard() {
                             className="stroke-dash" 
                             style={{
                               strokeDasharray: "400",
-                              strokeDashoffset: 
-                                displayBookingForTrack.tracking_status === "preparing" ? "400" :
-                                displayBookingForTrack.tracking_status === "shipped" ? "200" : "0",
+                              strokeDashoffset: displayBookingForTrack.tracking_status === "preparing" ? "400" : displayBookingForTrack.tracking_status === "shipped" ? "200" : "0",
                               transition: "stroke-dashoffset 2s ease-out-in"
                             }}
                           />
-                          
-                          {/* Warehouse coordinate */}
                           <circle cx="80" cy="250" r="6" fill="#1D496B" stroke="white" strokeWidth="1.5" />
-                          
-                          {/* Dest Coordinate */}
                           <circle cx="320" cy="50" r="6" fill="#10B981" stroke="white" strokeWidth="1.5" />
                         </svg>
 
-                        {/* Node markers */}
-                        <div className="absolute bottom-[35px] left-[55px] flex flex-col items-center pointer-events-none">
+                        <div className="absolute bottom-[35px] left-[55px] flex flex-col items-center">
                           <span className="text-[8px] bg-black/80 px-1.5 py-0.5 rounded border border-white/10 text-white/50">Hub</span>
                         </div>
-
-                        <div className="absolute top-[25px] right-[55px] flex flex-col items-center pointer-events-none">
+                        <div className="absolute top-[25px] right-[55px] flex flex-col items-center">
                           <span className="text-[8px] bg-black/80 px-1.5 py-0.5 rounded border border-green-500/20 text-green-400 font-bold">Delivery Dest</span>
                         </div>
 
-                        {/* Moving truck icon simulation */}
                         {displayBookingForTrack.tracking_status === "shipped" && (
-                          <div 
-                            className="absolute p-1.5 bg-gamebees-accent-blue rounded-lg text-white border border-white/20 animate-bounce"
-                            style={{ bottom: "135px", left: "185px" }}
-                          >
+                          <div className="absolute p-1.5 bg-gamebees-accent-blue rounded-lg text-white border border-white/20 animate-bounce" style={{ bottom: "135px", left: "185px" }}>
                             <Truck className="h-4 w-4" />
                           </div>
                         )}
-
                         {displayBookingForTrack.tracking_status === "preparing" && (
-                          <div 
-                            className="absolute p-2 bg-gamebees-dark-navy/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5"
-                            style={{ bottom: "25px", left: "125px" }}
-                          >
+                          <div className="absolute p-2 bg-gamebees-dark-navy/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5" style={{ bottom: "25px", left: "125px" }}>
                             <div className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
                             <span className="text-[9px] font-semibold">Packaging at Warehouse...</span>
                           </div>
                         )}
-
                         {displayBookingForTrack.tracking_status === "delivered" && (
-                          <div 
-                            className="absolute p-2 bg-green-500/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5"
-                            style={{ top: "65px", right: "75px" }}
-                          >
+                          <div className="absolute p-2 bg-green-500/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5" style={{ top: "65px", right: "75px" }}>
                             <Check className="h-3 w-3 text-white" />
                             <span className="text-[9px] font-bold">Courier Arrived!</span>
                           </div>
                         )}
-                        
-                        <div className="absolute bottom-4 right-4 bg-black/80 px-3 py-1.5 rounded-xl border border-white/10 text-[9px] text-white/50 font-light flex items-center gap-2">
-                          <span>Map Mode:</span>
-                          <span className="text-white font-semibold">Interactive Path Mock</span>
-                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab: Identity KYC */}
+              {activeTab === "kyc" && (
+                <div className="space-y-6 animate-fadeInUp">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
+                      Identity KYC Verification
+                    </h3>
+                    <p className="text-white/50 text-xs mt-1 font-light">
+                      Verify your identity to lock in quick checkouts and avoid submitting documents on every single order.
+                    </p>
+                  </div>
+
+                  {kycVerified ? (
+                    <div className="card-polished p-8 text-center space-y-5 border border-green-500/10 bg-green-500/[0.01]">
+                      <div className="mx-auto h-16 w-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.1)]">
+                        <ShieldCheck className="h-9 w-9" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white">Your Identity is KYC Verified</h4>
+                        <p className="text-white/50 text-xs mt-1 font-light">
+                          Verified Name: <strong className="text-white/80">{kycProfile?.fullName || user?.fullName}</strong>
+                        </p>
                       </div>
 
+                      <div className="max-w-md mx-auto text-left text-xs text-white/50 space-y-2 p-4 bg-black/30 rounded-2xl border border-white/[0.04] font-light">
+                        <div className="flex justify-between"><span>Aadhaar status:</span><span className="text-green-400 font-bold uppercase tracking-wider">SUCCESS</span></div>
+                        <div className="flex justify-between"><span>Document ID:</span><span className="font-mono text-white/70">XXXXXXXX{kycProfile?.aadhaarNumber ? kycProfile.aadhaarNumber.slice(-4) : "XXXX"}</span></div>
+                        <div className="flex justify-between"><span>KYC Verification Date:</span><span className="text-white/70">{new Date().toLocaleDateString()}</span></div>
+                      </div>
+                      
+                      <button
+                        onClick={() => setActiveTab("bookings")}
+                        className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>Go Rent Consoles</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="card-polished p-6 sm:p-8 space-y-6">
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                          <Shield className="h-4.5 w-4.5 text-gamebees-glow-blue" />
+                          <span>Aadhaar eKYC Sandbox</span>
+                        </h4>
+                        <p className="text-white/40 text-xs font-light">
+                          Enter your 12-digit Aadhaar to simulate eKYC matching. Use sandbox test code <strong>123456</strong> when prompted.
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold text-white/70 block">Aadhaar Card Number</label>
+                          <input
+                            type="text"
+                            maxLength={12}
+                            disabled={otpSent}
+                            value={aadhaarNum}
+                            onChange={(e) => setAadhaarNum(e.target.value.replace(/\D/g, ""))}
+                            placeholder="1234 5678 9012"
+                            className="form-input tracking-[0.2em] font-mono text-center text-base"
+                          />
+                        </div>
+
+                        {otpSent && (
+                          <div className="space-y-2 animate-fadeInUp">
+                            <label className="text-xs font-semibold text-white/70 block">Enter 6-Digit OTP</label>
+                            <input
+                              type="text"
+                              maxLength={6}
+                              value={aadhaarOtp}
+                              onChange={(e) => setAadhaarOtp(e.target.value.replace(/\D/g, ""))}
+                              placeholder="------"
+                              className="form-input tracking-[0.4em] font-mono text-center text-lg border-green-500/30"
+                            />
+                          </div>
+                        )}
+
+                        {aadhaarError && (
+                          <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2 font-light">
+                            <AlertCircle className="h-3.5 w-3.5" />
+                            <span>{aadhaarError}</span>
+                          </p>
+                        )}
+
+                        <div className="pt-2">
+                          {verifyingAadhaar ? (
+                            <div className="flex justify-center py-2">
+                              <div className="h-6 w-6 border-2 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          ) : !otpSent ? (
+                            <button
+                              onClick={handleSendAadhaarOtp}
+                              disabled={aadhaarNum.length !== 12}
+                              className="w-full py-3.5 rounded-xl bg-gamebees-accent-blue/80 hover:bg-gamebees-accent-blue text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                            >
+                              Send OTP Code
+                            </button>
+                          ) : (
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => { setOtpSent(false); setAadhaarOtp(""); }}
+                                className="flex-1 py-3.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all cursor-pointer"
+                              >
+                                Back
+                              </button>
+                              <button
+                                onClick={handleVerifyAadhaarOtp}
+                                disabled={aadhaarOtp.length !== 6}
+                                className="flex-1 py-3.5 rounded-xl bg-green-500/80 hover:bg-green-500 text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                              >
+                                Complete KYC
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -599,7 +765,6 @@ export default function UserDashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* User profile card */}
                     <div className="card-polished p-5 space-y-4">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
                         <User className="h-4 w-4 text-gamebees-glow-blue" />
@@ -615,14 +780,9 @@ export default function UserDashboard() {
                           <span className="text-white/40">Contact Email</span>
                           <span className="text-white font-semibold">{user?.primaryEmailAddress?.emailAddress}</span>
                         </div>
-                        <div className="flex justify-between items-center py-1 border-t border-white/[0.02]">
-                          <span className="text-white/40">Registered Phone</span>
-                          <span className="text-white font-semibold">{user?.primaryPhoneNumber?.phoneNumber || "OTP Verification Mode"}</span>
-                        </div>
                       </div>
                     </div>
 
-                    {/* Legal things card */}
                     <div className="card-polished p-5 space-y-4">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
                         <FileText className="h-4 w-4 text-gamebees-glow-blue" />
@@ -649,15 +809,76 @@ export default function UserDashboard() {
         </main>
       </div>
 
+      {/* Sticky Bottom Navbar (Mobile Only) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#141414]/90 border-t border-white/[0.05] backdrop-blur-lg lg:hidden flex justify-around items-center py-2 px-1 pb-safe shadow-[0_-5px_30px_rgba(20,20,20,0.8)]">
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
+            activeTab === "overview" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          <LayoutDashboard className="h-5 w-5" />
+          <span className="text-[9px] mt-1 font-medium">Overview</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("bookings")}
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
+            activeTab === "bookings" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          <ShoppingBag className="h-5 w-5" />
+          <span className="text-[9px] mt-1 font-medium">Rent</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("track")}
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer relative ${
+            activeTab === "track" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          <Compass className="h-5 w-5" />
+          <span className="text-[9px] mt-1 font-medium">Track</span>
+          {activeBooking && (
+            <span className="absolute top-1 right-5 h-1.5 w-1.5 rounded-full bg-gamebees-glow-blue" />
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("kyc")}
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
+            activeTab === "kyc" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          <Shield className="h-5 w-5" />
+          <span className="text-[9px] mt-1 font-medium">KYC</span>
+          {kycVerified && (
+            <span className="absolute top-1 right-5 text-[8px] font-bold text-green-400">•</span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("settings")}
+          className={`flex flex-col items-center justify-center py-1 flex-1 transition-colors cursor-pointer ${
+            activeTab === "settings" ? "text-gamebees-glow-blue" : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          <SettingsIcon className="h-5 w-5" />
+          <span className="text-[9px] mt-1 font-medium">Settings</span>
+        </button>
+      </nav>
+
       {/* Booking Modal container */}
       <BookingModal
         isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); loadData(); }}
+        onClose={() => { setModalOpen(false); loadDashboardData(); }}
         initialConsoleName={modalConsoleName}
         initialDuration={modalDuration}
         initialTotal={modalDailyPrice * modalDuration}
         selectedItemId={modalItemId}
         availableItems={items}
+        kycVerifiedProp={kycVerified}
+        onRedirectToKyc={handleTriggerRedirectToKyc}
       />
     </div>
   );
