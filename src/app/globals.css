@@ -1,18 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
+  --background: #060B12;
   --foreground: #FFFFFF;
 }
 
 @theme {
-  --color-gamebees-bg: #000000;
-  --color-gamebees-accent-lavender: #A59EAD;
-  --color-gamebees-accent-blue: #5B3BF5;
-  --color-gamebees-accent-deep: #23129B;
-  --color-gamebees-pill: #13111C;
+  --color-gamebees-bg: #060B12;
+  --color-gamebees-accent-lavender: #7A8A9E;
+  --color-gamebees-accent-blue: #1381CD;
+  --color-gamebees-accent-deep: #0A5C9B;
+  --color-gamebees-pill: rgba(255, 255, 255, 0.04);
   
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
 
   @keyframes float {
@@ -22,11 +21,11 @@
 }
 
 /* ----------------------------------------------------
-   IMAGE-INSPIRED PREMIUM DARK AESTHETIC & STYLING
+   IMAGE-INSPIRED STEEL-BLUE DARK AESTHETIC
    ---------------------------------------------------- */
 
 body {
-  background-color: #000000;
+  background-color: #060B12;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -41,7 +40,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.12; /* Sleek and satisfying grainy texture */
+  opacity: 0.1; /* Sleek and satisfying grainy texture */
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -55,31 +54,12 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-polished:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(91, 59, 245, 0.45);
-}
-
-/* Crisp Pill Buttons - Base */
-.btn-polished {
-  background-color: #5B3BF5;
-  color: #FFFFFF;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(91, 59, 245, 0.3);
-}
-
-.btn-polished:hover {
-  background-color: #492AD2;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(91, 59, 245, 0.45);
-}
-
-.btn-polished:active {
-  transform: translateY(0px);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(19, 129, 205, 0.45);
 }
 
 /* Lets Colab Styled Glow Pill Button (Glassmorphic Glow) */
@@ -89,14 +69,14 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(91, 59, 245, 0.12), 0 0 25px rgba(209, 26, 255, 0.04);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px rgba(19, 129, 205, 0.12), 0 0 25px rgba(10, 92, 155, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-glow-pill:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(91, 59, 245, 0.45);
-  box-shadow: 0 0 22px rgba(91, 59, 245, 0.35), 0 0 35px rgba(209, 26, 255, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
+  border-color: rgba(19, 129, 205, 0.45);
+  box-shadow: 0 0 22px rgba(19, 129, 205, 0.35), 0 0 35px rgba(10, 92, 155, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
   transform: scale(1.02);
 }
 
@@ -109,62 +89,51 @@ body {
   scrollbar-width: none;
 }
 
-/* CINEMATIC DUAL lighting GLOWS (Warm vs. Cool) */
-.warm-aura {
-  background: radial-gradient(circle, rgba(255, 90, 54, 0.26) 0%, rgba(255, 90, 54, 0.05) 50%, rgba(0, 0, 0, 0) 75%);
-  filter: blur(60px);
+/* SCROLL REVEAL BLURRY OPENING TRANSITIONS */
+.scroll-reveal {
+  opacity: 0;
+  filter: blur(20px);
+  transform: translateY(20px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), filter 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter, transform;
 }
 
-.cool-aura {
-  background: radial-gradient(circle, rgba(209, 26, 255, 0.24) 0%, rgba(91, 59, 245, 0.16) 55%, rgba(0, 0, 0, 0) 80%);
+.scroll-reveal.revealed {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+/* Steel Blue Radial Backdrop Glow */
+.ice-aura {
+  background: radial-gradient(circle, rgba(19, 129, 205, 0.22) 0%, rgba(10, 92, 155, 0.08) 55%, rgba(0, 0, 0, 0) 80%);
   filter: blur(60px);
 }
 
 /* Glowing Neon ring matching screen's circular accent */
 .neon-ring {
-  border: 2px solid transparent;
-  background-image: linear-gradient(#000, #000), linear-gradient(to right, rgba(91, 59, 245, 0.8), rgba(209, 26, 255, 0.2));
+  border: 1px solid transparent;
+  background-image: linear-gradient(#060B12, #060B12), linear-gradient(to right, rgba(19, 129, 205, 0.6), rgba(10, 92, 155, 0.1));
   background-origin: border-box;
   background-clip: padding-box, border-box;
-  box-shadow: 0 0 40px rgba(91, 59, 245, 0.15);
+  box-shadow: 0 0 40px rgba(19, 129, 205, 0.12);
 }
 
-/* Conic gradient starburst rays simulating backlight burst */
-.starburst-rays {
-  background-image: conic-gradient(
-    from 0deg,
-    transparent 0deg 8deg,
-    rgba(91, 59, 245, 0.14) 8deg 10deg,
-    transparent 10deg 24deg,
-    rgba(209, 26, 255, 0.11) 24deg 26deg,
-    transparent 26deg 42deg,
-    rgba(91, 59, 245, 0.14) 42deg 44deg,
-    transparent 44deg 68deg,
-    rgba(209, 26, 255, 0.11) 68deg 70deg,
-    transparent 70deg 88deg,
-    rgba(91, 59, 245, 0.14) 88deg 90deg,
-    transparent 90deg 118deg,
-    rgba(209, 26, 255, 0.11) 118deg 120deg,
-    transparent 120deg 142deg,
-    rgba(91, 59, 245, 0.14) 142deg 144deg,
-    transparent 144deg 168deg,
-    rgba(209, 26, 255, 0.11) 168deg 170deg,
-    transparent 170deg 188deg,
-    rgba(91, 59, 245, 0.14) 188deg 190deg,
-    transparent 190deg 218deg,
-    rgba(209, 26, 255, 0.11) 218deg 220deg,
-    transparent 220deg 242deg,
-    rgba(91, 59, 245, 0.14) 242deg 244deg,
-    transparent 244deg 268deg,
-    rgba(209, 26, 255, 0.11) 268deg 270deg,
-    transparent 270deg 288deg,
-    rgba(91, 59, 245, 0.14) 88deg 90deg,
-    transparent 90deg 318deg,
-    rgba(209, 26, 255, 0.11) 318deg 320deg,
-    transparent 320deg 338deg,
-    rgba(91, 59, 245, 0.14) 338deg 340deg,
-    transparent 340deg 360deg
-  );
-  mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
-  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
+/* Form input styling */
+.form-input {
+  width: 100%;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #FFFFFF;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.form-input:focus {
+  border-color: rgba(19, 129, 205, 0.5);
+  box-shadow: 0 0 10px rgba(19, 129, 205, 0.15);
+  background-color: rgba(255, 255, 255, 0.04);
 }
