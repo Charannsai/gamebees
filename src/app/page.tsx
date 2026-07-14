@@ -126,6 +126,10 @@ export default function Home() {
     });
   };
 
+  const handleCloseBooking = () => {
+    setBooking((prev) => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay relative">
       
