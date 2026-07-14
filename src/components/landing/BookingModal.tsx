@@ -233,7 +233,7 @@ export default function BookingModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 rounded-xl btn-polished text-sm font-bold text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl btn-glow-pill text-sm font-bold text-white flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

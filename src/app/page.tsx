@@ -96,9 +96,15 @@ export default function Home() {
       {/* 2. Main Hero / Interactive 3D Stage Section */}
       <main className="flex-1 flex items-center justify-center relative py-12 px-6 lg:px-8">
         
-        {/* Soft Background Auras */}
-        <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] rounded-full indigo-aura opacity-75 z-0 pointer-events-none"></div>
-        <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full neon-ring opacity-35 z-0 pointer-events-none"></div>
+        {/* Cinematic Dual Glow Auras (Warm vs. Cool) */}
+        <div className="absolute top-[48%] left-[26%] -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full warm-aura opacity-70 z-0 pointer-events-none"></div>
+        <div className="absolute top-[42%] left-[62%] -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full cool-aura opacity-80 z-0 pointer-events-none"></div>
+        
+        {/* Neon Ring Backdrop */}
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[360px] rounded-full neon-ring opacity-25 z-0 pointer-events-none"></div>
+
+        {/* Starburst Conic Gradient Rays */}
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] starburst-rays opacity-55 z-0 animate-pulse-slow pointer-events-none"></div>
 
         <div className="mx-auto max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center z-10 relative pointer-events-none">
           
@@ -131,8 +137,22 @@ export default function Home() {
               className="relative w-full h-full flex items-center justify-center overflow-visible"
               style={{ perspective: "1200px" }}
             >
+              {/* Particle Sparks Trailing Effect */}
+              <div className="absolute inset-0 pointer-events-none z-20 overflow-visible">
+                {/* Gold spark 1 */}
+                <div className="absolute top-[25%] left-[28%] w-1.5 h-1.5 rounded-full bg-[#FFB800] shadow-[0_0_8px_#FFB800] animate-float opacity-75"></div>
+                {/* Magenta spark 2 */}
+                <div className="absolute top-[18%] right-[24%] w-2 h-2 rounded-full bg-[#D11AFF] shadow-[0_0_10px_#D11AFF] animate-float opacity-60" style={{ animationDelay: "1.5s" }}></div>
+                {/* Gold spark 3 */}
+                <div className="absolute bottom-[28%] left-[22%] w-1 h-1 rounded-full bg-[#FFB800] shadow-[0_0_6px_#FFB800] animate-float opacity-80" style={{ animationDelay: "0.8s" }}></div>
+                {/* Magenta spark 4 */}
+                <div className="absolute bottom-[24%] right-[20%] w-1.5 h-1.5 rounded-full bg-[#D11AFF] shadow-[0_0_8px_#D11AFF] animate-float opacity-50" style={{ animationDelay: "2.2s" }}></div>
+                {/* Small gold spark 5 */}
+                <div className="absolute top-[48%] left-[16%] w-1 h-1 rounded-full bg-[#FFB800] shadow-[0_0_5px_#FFB800] animate-float opacity-90" style={{ animationDelay: "1.9s" }}></div>
+              </div>
+
               <div
-                className="relative transition-all duration-700 ease-out filter drop-shadow-[0_20px_50px_rgba(91,59,245,0.4)] flex items-center justify-center"
+                className="relative transition-all duration-700 ease-out filter drop-shadow-[0_20px_50px_rgba(91,59,245,0.4)] flex items-center justify-center z-10"
                 style={{
                   transform: `rotateY(${tilt.rotateY}deg) rotateX(${tilt.rotateX}deg) translateZ(50px)`,
                   width: "100%",
@@ -185,15 +205,15 @@ export default function Home() {
 
               <div className="flex items-center justify-between border-t border-white/5 pt-3">
                 {/* Neon Blue Price Pill */}
-                <div className="bg-gamebees-accent-blue text-white px-3.5 py-1.5 rounded-full text-[10px] font-black tracking-wide shadow-sm">
+                <div className="bg-white/5 border border-white/10 text-white/90 px-3.5 py-1.5 rounded-full text-[10px] font-black tracking-wide shadow-sm">
                   ${activeProduct.price}/day
                 </div>
                 <button
                   onClick={() => handleOpenBooking(activeProduct)}
-                  className="text-xs font-bold text-white flex items-center gap-1.5 hover:text-gamebees-accent-lavender transition-all group"
+                  className="btn-glow-pill px-5 py-2.5 rounded-full text-[10px] font-bold tracking-wide shadow-md flex items-center gap-1.5 group/btn"
                 >
                   <span>Rent Now</span>
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             </div>

@@ -63,7 +63,7 @@ body {
   border-color: rgba(91, 59, 245, 0.45);
 }
 
-/* Crisp Pill Buttons */
+/* Crisp Pill Buttons - Base */
 .btn-polished {
   background-color: #5B3BF5;
   color: #FFFFFF;
@@ -82,6 +82,24 @@ body {
   transform: translateY(0px);
 }
 
+/* Lets Colab Styled Glow Pill Button (Glassmorphic Glow) */
+.btn-glow-pill {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(91, 59, 245, 0.12), 0 0 25px rgba(209, 26, 255, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-glow-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(91, 59, 245, 0.45);
+  box-shadow: 0 0 22px rgba(91, 59, 245, 0.35), 0 0 35px rgba(209, 26, 255, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.03);
+  transform: scale(1.02);
+}
+
 /* Hide scrollbar but keep functional */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -91,17 +109,62 @@ body {
   scrollbar-width: none;
 }
 
-/* Semi-circular aura behind screen elements */
-.indigo-aura {
-  background: radial-gradient(circle, rgba(91, 59, 245, 0.7) 0%, rgba(35, 18, 155, 0.45) 50%, rgba(0, 0, 0, 0) 100%);
-  filter: blur(80px);
+/* CINEMATIC DUAL lighting GLOWS (Warm vs. Cool) */
+.warm-aura {
+  background: radial-gradient(circle, rgba(255, 90, 54, 0.26) 0%, rgba(255, 90, 54, 0.05) 50%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(60px);
+}
+
+.cool-aura {
+  background: radial-gradient(circle, rgba(209, 26, 255, 0.24) 0%, rgba(91, 59, 245, 0.16) 55%, rgba(0, 0, 0, 0) 80%);
+  filter: blur(60px);
 }
 
 /* Glowing Neon ring matching screen's circular accent */
 .neon-ring {
   border: 2px solid transparent;
-  background-image: linear-gradient(#000, #000), linear-gradient(to right, rgba(91, 59, 245, 0.8), rgba(165, 158, 173, 0.1));
+  background-image: linear-gradient(#000, #000), linear-gradient(to right, rgba(91, 59, 245, 0.8), rgba(209, 26, 255, 0.2));
   background-origin: border-box;
   background-clip: padding-box, border-box;
-  box-shadow: 0 0 30px rgba(91, 59, 245, 0.15);
+  box-shadow: 0 0 40px rgba(91, 59, 245, 0.15);
+}
+
+/* Conic gradient starburst rays simulating backlight burst */
+.starburst-rays {
+  background-image: conic-gradient(
+    from 0deg,
+    transparent 0deg 8deg,
+    rgba(91, 59, 245, 0.14) 8deg 10deg,
+    transparent 10deg 24deg,
+    rgba(209, 26, 255, 0.11) 24deg 26deg,
+    transparent 26deg 42deg,
+    rgba(91, 59, 245, 0.14) 42deg 44deg,
+    transparent 44deg 68deg,
+    rgba(209, 26, 255, 0.11) 68deg 70deg,
+    transparent 70deg 88deg,
+    rgba(91, 59, 245, 0.14) 88deg 90deg,
+    transparent 90deg 118deg,
+    rgba(209, 26, 255, 0.11) 118deg 120deg,
+    transparent 120deg 142deg,
+    rgba(91, 59, 245, 0.14) 142deg 144deg,
+    transparent 144deg 168deg,
+    rgba(209, 26, 255, 0.11) 168deg 170deg,
+    transparent 170deg 188deg,
+    rgba(91, 59, 245, 0.14) 188deg 190deg,
+    transparent 190deg 218deg,
+    rgba(209, 26, 255, 0.11) 218deg 220deg,
+    transparent 220deg 242deg,
+    rgba(91, 59, 245, 0.14) 242deg 244deg,
+    transparent 244deg 268deg,
+    rgba(209, 26, 255, 0.11) 268deg 270deg,
+    transparent 270deg 288deg,
+    rgba(91, 59, 245, 0.14) 88deg 90deg,
+    transparent 90deg 318deg,
+    rgba(209, 26, 255, 0.11) 318deg 320deg,
+    transparent 320deg 338deg,
+    rgba(91, 59, 245, 0.14) 338deg 340deg,
+    transparent 340deg 360deg
+  );
+  mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
 }

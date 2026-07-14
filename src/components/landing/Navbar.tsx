@@ -64,11 +64,11 @@ export default function Navbar({ onRentClick, activeSection, onSectionChange }: 
             })}
           </div>
 
-          {/* Action Button - Sleek dark pill with shopping bag icon */}
+          {/* Action Button - Lets Colab Styled Glow Pill Button */}
           <div className="hidden md:block">
             <button
               onClick={onRentClick}
-              className="flex items-center gap-2 bg-[#0A0A0A] border border-white/10 hover:border-white/20 px-6 py-2.5 rounded-full text-xs font-semibold text-white transition-all duration-300"
+              className="btn-glow-pill flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold"
             >
               <ShoppingBag className="h-3.5 w-3.5 text-white/80" />
               <span>Rent Now</span>
