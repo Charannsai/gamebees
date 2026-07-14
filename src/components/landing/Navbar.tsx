@@ -13,11 +13,14 @@ export default function Navbar({ onRentClick }: NavbarProps) {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
-          {/* Logo - Minimalist tracked uppercase */}
+          {/* Logo Image */}
           <div className="flex items-center">
-            <span className="text-xl font-bold tracking-[0.25em] text-white select-none">
-              GAMEBEES
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/gamebeeslogo.png"
+              alt="GAMEBEES"
+              className="h-22 w-auto object-contain select-none"
+            />
           </div>
 
           {/* Action Button - Glow Pill */}

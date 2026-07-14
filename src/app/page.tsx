@@ -323,7 +323,8 @@ export default function Home() {
                       
                       {/* Header */}
                       <div className="flex justify-between items-center text-[10px] text-white/25 border-b border-white/[0.04] pb-2">
-                        <span className="font-semibold text-white/50 tracking-wider text-[9px]">GAMEBEES</span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-3 w-auto object-contain opacity-50 select-none" />
                         <span>12:54 PM</span>
                       </div>
 
