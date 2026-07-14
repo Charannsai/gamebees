@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface Console {
   id: string;
@@ -11,44 +12,28 @@ interface Console {
   highlights: string[];
 }
 
-interface ConsoleGridProps {
-  onRentClick: (consoleName: string) => void;
-}
-
 const CONSOLES: Console[] = [
   {
     id: "ps5-pro",
-    name: "PlayStation 5 Pro",
-    description: "The ultimate power. Upgraded ray tracing, 4K at high frame rates, and 2TB SSD storage.",
+    name: "PlayStation 5 Pro Bundle",
+    description: "The ultimate next-gen setup. Includes the PS5 Pro console (2TB SSD), two matching DualSense wireless controllers, power/HDMI cords, and top pre-installed games.",
     dailyPrice: 12,
-    image: "🎮",
-    highlights: ["2TB High-Speed SSD", "Spider-Man 2 & EA FC 26", "2 Controllers Included"],
+    image: "/ps5.png",
+    highlights: ["2TB High-Speed SSD", "2 Controllers Included", "Preloaded Game Package", "Premium Travel Case"],
   },
   {
-    id: "xbox-x",
-    name: "Xbox Series X",
-    description: "True 4K gaming powerhouse. Includes Game Pass Ultimate with 400+ titles ready.",
-    dailyPrice: 9,
-    image: "🕹️",
-    highlights: ["1TB SSD Storage", "Game Pass Ultimate Ready", "2 Controllers Included"],
-  },
-  {
-    id: "nintendo-oled",
-    name: "Nintendo Switch OLED",
-    description: "Vibrant 7-inch OLED screen. Perfect for local couch co-op, parties, and portability.",
-    dailyPrice: 7,
-    image: "👾",
-    highlights: ["OLED Display Panel", "Mario Kart 8 & Zelda", "4 Joy-Cons Included"],
-  },
-  {
-    id: "meta-quest",
-    name: "Meta Quest 3",
-    description: "Mixed reality gaming. No PC or wires needed. Pre-loaded with top VR games.",
-    dailyPrice: 14,
-    image: "🥽",
-    highlights: ["4K+ Infinite Display", "Passthrough Mixed Reality", "5 VR Games Preloaded"],
+    id: "dualsense-extra",
+    name: "Extra DualSense Controller",
+    description: "Add an additional controller for local couch co-op and party gaming. Fully sanitized and includes a dual controller charging dock.",
+    dailyPrice: 3,
+    image: "/controller.png",
+    highlights: ["Haptic Feedback Support", "Adaptive Triggers", "Charging Dock Included", "Sanitized & Sealed"],
   },
 ];
+
+interface ConsoleGridProps {
+  onRentClick: (consoleName: string) => void;
+}
 
 export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
   return (
@@ -61,56 +46,63 @@ export default function ConsoleGrid({ onRentClick }: ConsoleGridProps) {
             Choose Your <span className="text-gamebees-accent-lavender">Gear</span>
           </h2>
           <p className="text-white/50 text-sm font-light">
-            Every rental includes clean matching controllers, power/HDMI accessories, and top pre-installed gaming packages.
+            Rent pristine, sanitized PlayStation 5 setups and extra controllers. Includes same-day setup and free game installations.
           </p>
         </div>
 
-        {/* Console Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Console Grid - Centered 2 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {CONSOLES.map((console) => (
             <div
               key={console.id}
-              className="flex flex-col rounded-[20px] card-polished p-6"
+              className="flex flex-col rounded-[24px] card-polished p-6 sm:p-8 justify-between group"
             >
-              {/* Image Container */}
-              <div className="relative w-full aspect-video rounded-xl bg-white/[0.02] flex items-center justify-center border border-white/5 mb-6 overflow-hidden">
-                <span className="text-5xl select-none">
-                  {console.image}
-                </span>
-              </div>
-
-              {/* Title & Price */}
-              <div className="mb-4">
-                <h3 className="text-lg font-bold text-white mb-1">
-                  {console.name}
-                </h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-black text-gamebees-accent-lavender">${console.dailyPrice}</span>
-                  <span className="text-xs text-white/40">/ day</span>
+              <div>
+                {/* Image Container */}
+                <div className="relative w-full h-52 sm:h-60 rounded-2xl bg-white/[0.01] flex items-center justify-center border border-white/5 mb-6 overflow-hidden p-6">
+                  <div className="relative w-full h-full transition-all duration-700 ease-out group-hover:scale-105 filter drop-shadow-[0_12px_25px_rgba(255,255,255,0.05)]">
+                    <Image
+                      src={console.image}
+                      alt={console.name}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 </div>
+
+                {/* Title & Price */}
+                <div className="mb-4 flex justify-between items-start gap-4">
+                  <div>
+                    <h3 className="text-xl font-extrabold text-white mb-1">
+                      {console.name}
+                    </h3>
+                    <p className="text-white/50 text-xs leading-relaxed font-light mt-2">
+                      {console.description}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end flex-shrink-0">
+                    <span className="text-2xl font-black text-gamebees-accent-lavender">${console.dailyPrice}</span>
+                    <span className="text-[10px] text-white/40">/ day</span>
+                  </div>
+                </div>
+
+                {/* Key Highlights */}
+                <ul className="space-y-2.5 my-6 border-t border-white/5 pt-5">
+                  {console.highlights.map((h, i) => (
+                    <li key={i} className="text-xs text-white/70 flex items-center gap-2.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-gamebees-accent-blue"></span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              {/* Description */}
-              <p className="text-white/50 text-xs mb-6 flex-grow leading-relaxed font-light">
-                {console.description}
-              </p>
-
-              {/* Key Highlights */}
-              <ul className="space-y-2 mb-6 border-t border-white/5 pt-4">
-                {console.highlights.map((h, i) => (
-                  <li key={i} className="text-xs text-white/70 flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gamebees-accent-blue"></span>
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
 
               {/* Rent Action Button */}
               <button
                 onClick={() => onRentClick(console.name)}
-                className="w-full py-3 rounded-xl btn-polished text-xs font-bold text-white transition-all duration-300 shadow-md"
+                className="w-full py-3.5 rounded-xl btn-polished text-xs font-bold text-white transition-all duration-300 shadow-md mt-2"
               >
-                Rent This Console
+                Rent This Gear
               </button>
             </div>
           ))}
