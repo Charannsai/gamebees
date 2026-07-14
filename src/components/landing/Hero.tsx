@@ -9,7 +9,7 @@ interface HeroProps {
 
 export default function Hero({ onRentClick }: HeroProps) {
   return (
-    <header className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden">
+    <header className="relative z-10 w-full h-[90vh] flex items-center justify-center overflow-hidden">
       
       {/* Soft Ice-Blue Backdrop Aura */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ice-aura opacity-75 z-0 pointer-events-none"></div>

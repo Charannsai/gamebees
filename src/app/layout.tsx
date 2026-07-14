@@ -25,7 +25,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white grainy-overlay"
+        className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay"
         suppressHydrationWarning
       >
         {children}

@@ -132,7 +132,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay relative">
+    <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white relative">
       
       {/* 1. Navbar (Borderless, Faded Top bg) */}
       <Navbar onRentClick={() => handleOpenBooking("PlayStation 5 Pro Bundle", 12)} />
