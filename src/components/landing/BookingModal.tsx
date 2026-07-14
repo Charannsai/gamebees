@@ -148,7 +148,7 @@ export default function BookingModal({
               {/* Select Duration */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-white/70 block">Rental Duration (3 to 30 Days)</label>
-                <div className="flex items-center gap-4 bg-black border border-white/10 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-4 bg-[#0A121E] border border-white/10 rounded-xl px-4 py-3">
                   <input
                     type="range"
                     min="3"
@@ -176,7 +176,7 @@ export default function BookingModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="w-full rounded-xl bg-black border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
+                    className="w-full rounded-xl bg-[#0A121E] border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
                   />
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function BookingModal({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter mobile number"
-                    className="w-full rounded-xl bg-black border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
+                    className="w-full rounded-xl bg-[#0A121E] border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
                   />
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function BookingModal({
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Enter your street address"
-                    className="w-full rounded-xl bg-black border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
+                    className="w-full rounded-xl bg-[#0A121E] border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none"
                   />
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function BookingModal({
                     onChange={(e) => setGames(e.target.value)}
                     placeholder="E.g., GTA VI, Spiderman 2, FC 26 (List any specific titles)"
                     rows={2}
-                    className="w-full rounded-xl bg-black border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none resize-none"
+                    className="w-full rounded-xl bg-[#0A121E] border border-white/10 pl-10 pr-4 py-3 text-sm text-white placeholder-white/30 focus:border-gamebees-accent-blue outline-none resize-none"
                   />
                 </div>
               </div>
