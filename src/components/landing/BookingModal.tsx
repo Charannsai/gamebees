@@ -50,16 +50,12 @@ export default function BookingModal({
   // Step 2: Automated KYC status check
   const [checkingKyc, setCheckingKyc] = useState(true);
 
-  // Step 3: Selfie Capture with Liveness
+  // Step 3: Selfie Capture
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [selfieCaptured, setSelfieCaptured] = useState<string | null>(null);
-  const [livenessStatus, setLivenessStatus] = useState<"idle" | "detecting" | "liveness_check" | "auto_capturing" | "captured" | "error">("idle");
-  const [livenessProgress, setLivenessProgress] = useState(0);
-  const [faceAligned, setFaceAligned] = useState(false);
-  const [livenessInstruction, setLivenessInstruction] = useState("Align your face in the frame");
+  const [cameraStatus, setCameraStatus] = useState<"idle" | "streaming" | "captured" | "error">("idle");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const livenessTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Step 4: Final Consent & Total
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -76,7 +72,7 @@ export default function BookingModal({
       setAddress("");
       setMapLink("");
       setSelfieCaptured(null);
-      setLivenessStatus("idle");
+      setCameraStatus("idle");
       setAgreeTerms(false);
       setAgreeMarketing(false);
       setIsSuccess(false);
@@ -121,8 +117,7 @@ export default function BookingModal({
   // Camera handling
   async function startCamera() {
     try {
-      setLivenessStatus("detecting");
-      setLivenessInstruction("Requesting camera access...");
+      setCameraStatus("idle");
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
         audio: false
@@ -132,14 +127,10 @@ export default function BookingModal({
         videoRef.current.srcObject = stream;
         videoRef.current.play();
       }
-      setLivenessInstruction("Align your face in the oval guide");
-      
-      // Simulate live face detection and liveness flow
-      startLivenessDetection();
+      setCameraStatus("streaming");
     } catch (err) {
       console.error("Camera error:", err);
-      setLivenessStatus("error");
-      setLivenessInstruction("Could not access selfie camera. Ensure permissions are granted.");
+      setCameraStatus("error");
     }
   }
 
@@ -148,37 +139,6 @@ export default function BookingModal({
       cameraStream.getTracks().forEach(track => track.stop());
       setCameraStream(null);
     }
-    if (livenessTimerRef.current) {
-      clearInterval(livenessTimerRef.current);
-    }
-  }
-
-  // Liveness check simulator
-  function startLivenessDetection() {
-    let countdown = 0;
-    setFaceAligned(false);
-    
-    livenessTimerRef.current = setInterval(() => {
-      countdown += 1;
-      
-      if (countdown === 3) {
-        setFaceAligned(true);
-        setLivenessStatus("liveness_check");
-        setLivenessInstruction("Liveness Check: Please BLINK or smile to verify you are real.");
-      }
-      
-      if (countdown > 3 && countdown <= 7) {
-        setLivenessProgress(prev => Math.min(prev + 25, 100));
-        if (countdown === 5) {
-          setLivenessInstruction("Liveness Verified! Keep still for auto-capture.");
-          setLivenessStatus("auto_capturing");
-        }
-      }
-
-      if (countdown === 8) {
-        capturePhoto();
-      }
-    }, 1000);
   }
 
   function capturePhoto() {
@@ -197,8 +157,7 @@ export default function BookingModal({
         
         const photoData = canvas.toDataURL("image/jpeg", 0.85);
         setSelfieCaptured(photoData);
-        setLivenessStatus("captured");
-        setLivenessInstruction("Selfie Captured Successfully!");
+        setCameraStatus("captured");
         stopCamera();
       }
     }
@@ -206,8 +165,7 @@ export default function BookingModal({
 
   function handleRetake() {
     setSelfieCaptured(null);
-    setLivenessProgress(0);
-    setFaceAligned(false);
+    setCameraStatus("idle");
     startCamera();
   }
 
@@ -250,6 +208,9 @@ export default function BookingModal({
       setIsSubmitting(false);
     }
   }
+
+  // Input styling definition to override custom components & prevent text overlaps
+  const inputClassName = "w-full rounded-xl bg-[#10324d]/15 border border-[#5e9fd0]/10 py-3 pl-11 pr-4 text-sm text-white placeholder-white/20 outline-none transition-all focus:border-[#5e9fd0]/35 focus:bg-[#10324d]/25";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -307,7 +268,7 @@ export default function BookingModal({
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-white/70 block">Full Name</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
                         <HugeiconsIcon icon={UserIcon} size={16} />
                       </span>
                       <input
@@ -316,7 +277,7 @@ export default function BookingModal({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter full name"
-                        className="form-input pl-10"
+                        className={inputClassName}
                       />
                     </div>
                   </div>
@@ -324,7 +285,7 @@ export default function BookingModal({
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-white/70 block">Mobile Number</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
                         <HugeiconsIcon icon={CallingIcon} size={16} />
                       </span>
                       <input
@@ -333,7 +294,7 @@ export default function BookingModal({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="Enter mobile number"
-                        className="form-input pl-10"
+                        className={inputClassName}
                       />
                     </div>
                   </div>
@@ -341,7 +302,7 @@ export default function BookingModal({
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-white/70 block">Delivery Address</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
                         <HugeiconsIcon icon={Location01Icon} size={16} />
                       </span>
                       <input
@@ -350,7 +311,7 @@ export default function BookingModal({
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="Enter street name, building/flat"
-                        className="form-input pl-10"
+                        className={inputClassName}
                       />
                     </div>
                   </div>
@@ -361,8 +322,8 @@ export default function BookingModal({
                       <span className="text-[10px] text-gamebees-glow-blue font-light">For accurate delivery routing</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                        <HugeiconsIcon icon={Location01Icon} size={16} className="text-gamebees-glow-blue" />
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gamebees-glow-blue/80 z-10">
+                        <HugeiconsIcon icon={Location01Icon} size={16} />
                       </span>
                       <input
                         type="url"
@@ -370,7 +331,7 @@ export default function BookingModal({
                         value={mapLink}
                         onChange={(e) => setMapLink(e.target.value)}
                         placeholder="https://maps.app.goo.gl/..."
-                        className="form-input pl-10 border-gamebees-accent-blue/35 focus:border-gamebees-glow-blue"
+                        className={inputClassName}
                       />
                     </div>
                   </div>
@@ -465,11 +426,11 @@ export default function BookingModal({
                     <span>Liveness & Selfie Verification</span>
                   </h3>
                   <p className="text-white/50 text-xs mt-1 font-light">
-                    Ensure face is well-lit. Front camera only. No screen photos allowed.
+                    Ensure your face fits inside the guide and click the shutter button.
                   </p>
                 </div>
 
-                <div className="relative aspect-video w-full max-w-sm mx-auto bg-black/60 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center">
+                <div className="relative aspect-video w-full max-w-sm mx-auto bg-black/60 rounded-2xl overflow-hidden border border-white/10 flex flex-col items-center justify-center">
                   {!selfieCaptured ? (
                     <>
                       <video
@@ -479,29 +440,23 @@ export default function BookingModal({
                         className="w-full h-full object-cover scale-x-[-1]"
                       />
                       
-                      {/* Bounding Oval Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className={`w-[160px] h-[210px] rounded-[100px] border-2 transition-all duration-500 ${
-                          faceAligned
-                            ? "border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.4),inset_0_0_20px_rgba(74,222,128,0.4)]"
-                            : "border-gamebees-accent-blue/60 shadow-[0_0_15px_rgba(36,101,150,0.2)] animate-pulse"
-                        }`} />
+                      {/* Dotted Guide Overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                        <div className="w-[150px] h-[200px] rounded-[100px] border-2 border-dashed border-gamebees-glow-blue/50 shadow-[0_0_15px_rgba(36,101,150,0.2)]" />
                       </div>
 
-                      {/* Scanning Light Line */}
-                      {livenessStatus === "detecting" && (
-                        <div className="absolute left-0 right-0 top-0 h-0.5 bg-gamebees-glow-blue/80 blur-[1px] animate-[bounce_2s_infinite]"></div>
-                      )}
-
-                      {/* Liveness Progress Bar */}
-                      {livenessStatus === "liveness_check" && (
-                        <div className="absolute bottom-4 left-10 right-10 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-gamebees-accent-blue to-green-400 transition-all duration-300"
-                            style={{ width: `${livenessProgress}%` }}
-                          />
-                        </div>
-                      )}
+                      {/* Shutter Button floating over bottom of the camera */}
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                        <button
+                          type="button"
+                          onClick={capturePhoto}
+                          disabled={cameraStatus !== "streaming"}
+                          className="h-14 w-14 rounded-full border-4 border-white/20 hover:border-white bg-[#246596]/80 hover:bg-[#246596] flex items-center justify-center shadow-lg transition-all duration-300 transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Capture Photo"
+                        >
+                          <div className="h-6 w-6 rounded-full bg-white" />
+                        </button>
+                      </div>
                     </>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -511,44 +466,48 @@ export default function BookingModal({
                   <canvas ref={canvasRef} className="hidden" />
                 </div>
 
-                <div className={`p-4 rounded-xl text-center text-xs transition-colors duration-300 ${
-                  livenessStatus === "error"
-                    ? "bg-red-500/10 border border-red-500/20 text-red-300"
-                    : livenessStatus === "captured"
-                    ? "bg-green-500/10 border border-green-500/20 text-green-300 font-semibold"
-                    : "bg-white/5 border border-white/5 text-white/60"
-                }`}>
-                  {livenessInstruction}
-                </div>
+                {cameraStatus === "error" && (
+                  <div className="p-4 rounded-xl text-center text-xs bg-red-500/10 border border-red-500/20 text-red-300">
+                    Could not access selfie camera. Ensure permissions are granted.
+                  </div>
+                )}
 
-                <div className="flex gap-3 justify-center pt-2">
-                  {selfieCaptured ? (
-                    <button
-                      onClick={handleRetake}
-                      className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center gap-1.5 hover:bg-white/10 transition-colors cursor-pointer"
-                    >
-                      <HugeiconsIcon icon={RefreshIcon} size={15} />
-                      <span>Retake Selfie</span>
-                    </button>
-                  ) : (
-                    livenessStatus === "error" && (
+                {selfieCaptured && (
+                  <div className="space-y-4 pt-2">
+                    <div className="p-4 rounded-xl text-center text-xs bg-green-500/10 border border-green-500/20 text-green-300 font-semibold animate-fadeInUp">
+                      Selfie captured successfully! Would you like to confirm or retake?
+                    </div>
+
+                    <div className="flex gap-3 justify-center">
                       <button
-                        onClick={startCamera}
-                        className="px-6 py-3 rounded-xl bg-gamebees-accent-blue/80 text-xs font-semibold text-white hover:bg-gamebees-accent-blue transition-colors cursor-pointer"
+                        type="button"
+                        onClick={handleRetake}
+                        className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors cursor-pointer"
                       >
-                        Try Again
+                        <HugeiconsIcon icon={RefreshIcon} size={15} />
+                        <span>Retake Selfie</span>
                       </button>
-                    )
-                  )}
-                </div>
 
-                <button
-                  onClick={() => setStep(4)}
-                  disabled={!selfieCaptured}
-                  className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  Continue to Summary
-                </button>
+                      <button
+                        type="button"
+                        onClick={() => setStep(4)}
+                        className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={15} />
+                        <span>Confirm & Continue</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {!selfieCaptured && (
+                  <button
+                    disabled
+                    className="w-full mt-4 py-4 rounded-xl bg-white/5 text-xs font-bold text-white/30 flex items-center justify-center gap-2 cursor-not-allowed"
+                  >
+                    Please capture your selfie to proceed
+                  </button>
+                )}
               </div>
             )}
 
