@@ -90,7 +90,7 @@ export default function BookingModal({
   if (!isOpen) return null;
 
   // Camera handling
-  const startCamera = async () => {
+  async function startCamera() {
     try {
       setLivenessStatus("detecting");
       setLivenessInstruction("Requesting camera access...");
@@ -112,9 +112,9 @@ export default function BookingModal({
       setLivenessStatus("error");
       setLivenessInstruction("Could not access selfie camera. Ensure permissions are granted.");
     }
-  };
+  }
 
-  const stopCamera = () => {
+  function stopCamera() {
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => track.stop());
       setCameraStream(null);
@@ -122,10 +122,10 @@ export default function BookingModal({
     if (livenessTimerRef.current) {
       clearInterval(livenessTimerRef.current);
     }
-  };
+  }
 
   // Liveness check simulator (analyzes motion, screen reflections and face presence)
-  const startLivenessDetection = () => {
+  function startLivenessDetection() {
     let countdown = 0;
     setFaceAligned(false);
     
@@ -153,9 +153,9 @@ export default function BookingModal({
         capturePhoto();
       }
     }, 1000);
-  };
+  }
 
-  const capturePhoto = () => {
+  function capturePhoto() {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -178,17 +178,17 @@ export default function BookingModal({
         stopCamera();
       }
     }
-  };
+  }
 
-  const handleRetake = () => {
+  function handleRetake() {
     setSelfieCaptured(null);
     setLivenessProgress(0);
     setFaceAligned(false);
     startCamera();
-  };
+  }
 
   // Aadhaar eKYC verification simulation
-  const handleSendAadhaarOtp = () => {
+  function handleSendAadhaarOtp() {
     if (aadhaarNum.length !== 12 || !/^\d+$/.test(aadhaarNum)) {
       setAadhaarError("Please enter a valid 12-digit Aadhaar number.");
       return;
@@ -200,9 +200,9 @@ export default function BookingModal({
       setVerificationLoading(false);
       setOtpSent(true);
     }, 1000);
-  };
+  }
 
-  const handleVerifyAadhaarOtp = () => {
+  function handleVerifyAadhaarOtp() {
     if (aadhaarOtp !== "123456") {
       setAadhaarError("Invalid OTP. For testing/sandbox, please enter '123456'.");
       return;
@@ -214,10 +214,10 @@ export default function BookingModal({
       setVerificationLoading(false);
       setAadhaarVerified(true);
     }, 1200);
-  };
+  }
 
   // Submit Booking
-  const handleFinalSubmit = async (e: React.FormEvent) => {
+  async function handleFinalSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agreeTerms) return;
 
@@ -255,7 +255,7 @@ export default function BookingModal({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
