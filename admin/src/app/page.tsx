@@ -15,8 +15,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   ShoppingBag01Icon, 
   Compass01Icon, 
-  PlusIcon, 
-  DeleteIcon, 
+  PlusSignIcon, 
+  Delete01Icon, 
   Shield01Icon, 
   UserIcon, 
   Location01Icon, 
@@ -526,7 +526,7 @@ export default function AdminPage() {
                     {/* Add Item Form Card */}
                     <div className="lg:col-span-1 card-polished p-5 border border-white/[0.03] h-fit bg-zinc-950/20">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-3 mb-4 flex items-center gap-1.5">
-                        <HugeiconsIcon icon={PlusIcon} size={16} className="text-gamebees-glow-blue" />
+                        <HugeiconsIcon icon={PlusSignIcon} size={16} className="text-gamebees-glow-blue" />
                         <span>Add Product Listing</span>
                       </h4>
 
@@ -599,7 +599,7 @@ export default function AdminPage() {
                             <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <>
-                              <HugeiconsIcon icon={PlusIcon} size={15} />
+                              <HugeiconsIcon icon={PlusSignIcon} size={15} />
                               <span>Add to Listings</span>
                             </>
                           )}
@@ -640,7 +640,7 @@ export default function AdminPage() {
                                 onClick={() => handleDeleteItem(item.id)}
                                 className="w-fit self-end text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
                               >
-                                <HugeiconsIcon icon={DeleteIcon} size={16} />
+                                <HugeiconsIcon icon={Delete01Icon} size={16} />
                               </button>
                             </div>
                           ))}
