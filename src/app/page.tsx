@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone, Terminal, Keyboard } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
 import BookingModal from "@/components/landing/BookingModal";
 
 // --- Scroll Reveal Helper Component ---
