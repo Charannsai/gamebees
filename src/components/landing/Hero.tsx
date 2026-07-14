@@ -38,10 +38,10 @@ export default function Hero({ onRentClick }: HeroProps) {
         </div>
       </div>
 
-      {/* ---- PS5 CONSOLE CENTERED (Large size preserved) ---- */}
+      {/* ---- PS5 CONSOLE CENTERED (Large size preserved, static - no animation) ---- */}
       <div className="absolute inset-0 flex items-center justify-center z-[2] pointer-events-none">
         <div
-          className="relative animate-float pointer-events-auto"
+          className="relative pointer-events-auto"
           style={{ width: "clamp(320px, 35vw, 480px)", height: "clamp(420px, 45vw, 640px)" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
