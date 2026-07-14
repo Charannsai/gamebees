@@ -22,8 +22,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} h-full antialiased dark`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white grainy-overlay">
+      <body
+        className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-pink-highlight selection:text-white grainy-overlay"
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
