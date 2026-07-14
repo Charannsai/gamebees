@@ -9,7 +9,7 @@ interface NavbarProps {
 
 export default function Navbar({ onRentClick }: NavbarProps) {
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 w-full bg-transparent border-none">
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-transparent border-none">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           

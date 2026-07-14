@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ArrowRight } from "lucide-react";
 
 interface HeroProps {
   onRentClick: () => void;
@@ -8,7 +9,7 @@ interface HeroProps {
 
 export default function Hero({ onRentClick }: HeroProps) {
   return (
-    <header className="relative z-10 w-full overflow-hidden flex flex-col justify-between items-center py-24 sm:py-28" style={{ height: "100vh", minHeight: 680 }}>
+    <header className="relative z-10 w-full overflow-hidden flex items-center justify-center" style={{ height: "100vh", minHeight: 720 }}>
       
       {/* ---- SMOOTH SCATTERED GLOW ---- */}
       <div 
@@ -30,7 +31,7 @@ export default function Hero({ onRentClick }: HeroProps) {
       <div className="absolute inset-0 flex items-center justify-center z-[1] pointer-events-none select-none">
         <div 
           className="text-behind text-center px-4"
-          style={{ fontSize: "clamp(68px, 12vw, 190px)" }}
+          style={{ fontSize: "clamp(72px, 13vw, 210px)" }}
         >
           <div>GAMING</div>
           <div>BEYOND</div>
@@ -38,33 +39,45 @@ export default function Hero({ onRentClick }: HeroProps) {
         </div>
       </div>
 
-      {/* spacer to push visual element below navbar */}
-      <div className="h-8 w-full z-10"></div>
-
-      {/* ---- PS5 CONSOLE CENTERED ---- */}
-      <div className="flex-1 flex items-center justify-center z-[2] relative w-full">
+      {/* ---- PS5 CONSOLE CENTERED (Large size preserved) ---- */}
+      <div className="absolute inset-0 flex items-center justify-center z-[2] pointer-events-none">
         <div
-          className="relative animate-float"
-          style={{ width: "clamp(220px, 24vw, 320px)", height: "clamp(290px, 32vw, 420px)" }}
+          className="relative animate-float pointer-events-auto"
+          style={{ width: "clamp(320px, 35vw, 480px)", height: "clamp(420px, 45vw, 640px)" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/ps5.png"
             alt="PlayStation 5 Pro Console"
-            className="w-full h-full object-contain drop-shadow-[0_12px_45px_rgba(94, 159, 208, 0.22)]"
+            className="w-full h-full object-contain drop-shadow-[0_15px_60px_rgba(94, 159, 208, 0.20)]"
           />
         </div>
       </div>
 
-      {/* ---- BRAND TEXT CONTAINER AT THE BOTTOM (Inside Hero Viewport) ---- */}
-      <div className="w-full text-center relative z-10 px-6 mt-4">
-        <div className="space-y-2 max-w-xl mx-auto">
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none drop-shadow-[0_2px_12px_rgba(20,20,20,0.9)]">
-            Rent Your Experience
-          </h1>
-          <p className="text-sm sm:text-base text-gamebees-accent-lavender/60 font-light leading-relaxed drop-shadow-[0_2px_8px_rgba(20,20,20,0.9)]">
-            Shipped same-day in a premium travel case.
-          </p>
+      {/* ---- FLOATING TEXT OVERLAY CARD (Bottom-Left Side, Clean & Premium) ---- */}
+      <div className="absolute bottom-12 left-6 sm:left-12 lg:left-24 max-w-[340px] z-10 animate-fadeInUp">
+        <div className="card-polished p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse"></span>
+            <span className="text-[10px] tracking-[0.2em] font-semibold text-gamebees-glow-blue uppercase">
+              Now Dispatching
+            </span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight leading-snug">
+              Rent Your Experience
+            </h1>
+            <p className="text-xs text-gamebees-accent-lavender/50 font-light mt-1.5 leading-relaxed">
+              Shipped same-day in a premium travel case.
+            </p>
+          </div>
+          <button 
+            onClick={onRentClick}
+            className="flex items-center gap-1.5 text-[10px] font-bold text-white uppercase tracking-wider hover:text-gamebees-glow-blue transition-colors w-max group"
+          >
+            <span>Reserve Console</span>
+            <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </div>
 
