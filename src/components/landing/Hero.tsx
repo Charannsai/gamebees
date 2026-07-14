@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ArrowRight } from "lucide-react";
 
 interface HeroProps {
   onRentClick: () => void;
@@ -54,30 +53,15 @@ export default function Hero({ onRentClick }: HeroProps) {
         </div>
       </div>
 
-      {/* ---- FLOATING TEXT OVERLAY CARD (Bottom-Left Side, Clean & Premium) ---- */}
-      <div className="absolute bottom-12 left-6 sm:left-12 lg:left-24 max-w-[340px] z-10 animate-fadeInUp">
-        <div className="card-polished p-6 flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse"></span>
-            <span className="text-[10px] tracking-[0.2em] font-semibold text-gamebees-glow-blue uppercase">
-              Now Dispatching
-            </span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight leading-snug">
-              Rent Your Experience
-            </h1>
-            <p className="text-xs text-gamebees-accent-lavender/50 font-light mt-1.5 leading-relaxed">
-              Shipped same-day in a premium travel case.
-            </p>
-          </div>
-          <button 
-            onClick={onRentClick}
-            className="flex items-center gap-1.5 text-[10px] font-bold text-white uppercase tracking-wider hover:text-gamebees-glow-blue transition-colors w-max group"
-          >
-            <span>Reserve Console</span>
-            <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-          </button>
+      {/* ---- CLEAN TEXT OVERLAY (No background, just pure minimal typography) ---- */}
+      <div className="absolute bottom-16 left-6 sm:left-12 lg:left-24 max-w-[340px] z-10 animate-fadeInUp select-none pointer-events-none">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-extrabold text-white tracking-tight leading-snug drop-shadow-[0_4px_16px_rgba(20,20,20,0.6)]">
+            Rent Your Experience
+          </h1>
+          <p className="text-sm text-gamebees-accent-lavender/55 font-light leading-relaxed drop-shadow-[0_4px_12px_rgba(20,20,20,0.6)]">
+            Shipped same-day in a premium travel case.
+          </p>
         </div>
       </div>
 
