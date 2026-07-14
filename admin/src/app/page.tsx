@@ -11,29 +11,28 @@ import {
   adminFetchBookings,
   adminUpdateBookingStatus 
 } from "./actions";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { 
-  ShoppingBag, 
-  Compass, 
-  Plus, 
-  Trash2, 
-  ShieldCheck, 
-  User, 
-  MapPin, 
-  Check, 
-  X, 
-  AlertCircle,
-  Truck,
-  LogOut,
-  Image as ImageIcon,
-  DollarSign,
-  Package,
-  Clock,
-  Layers,
-  Sparkles,
-  ExternalLink,
-  Lock
-} from "lucide-react";
-import Link from "next/link";
+  ShoppingBag01Icon, 
+  Compass01Icon, 
+  PlusIcon, 
+  DeleteIcon, 
+  Shield01Icon, 
+  UserIcon, 
+  Location01Icon, 
+  CheckmarkCircle01Icon, 
+  Cancel01Icon, 
+  AlertCircleIcon,
+  DeliveryTruck01Icon,
+  Logout01Icon,
+  Image01Icon,
+  DollarIcon,
+  PackageIcon,
+  Time01Icon,
+  SparklesIcon,
+  ArrowUpRight01Icon,
+  LockIcon
+} from "@hugeicons/core-free-icons";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -178,7 +177,7 @@ export default function AdminPage() {
 
         <div className="w-full max-w-md p-8 rounded-3xl bg-zinc-950/40 border border-gamebees-accent-blue/15 backdrop-blur-2xl shadow-[0_0_50px_rgba(36,101,150,0.1)] z-10 space-y-6">
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-black tracking-tight text-white title-glow">
+            <h1 className="text-2xl font-black tracking-tight text-white title-glow animate-fadeInUp">
               GameBees Admin Console
             </h1>
             <p className="text-white/40 text-xs font-light">
@@ -191,7 +190,7 @@ export default function AdminPage() {
               <label className="text-xs font-semibold text-white/70 block">System Email</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                  <User className="h-4 w-4" />
+                  <HugeiconsIcon icon={UserIcon} size={16} />
                 </span>
                 <input
                   type="email"
@@ -208,7 +207,7 @@ export default function AdminPage() {
               <label className="text-xs font-semibold text-white/70 block">Security Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                  <Lock className="h-4 w-4" />
+                  <HugeiconsIcon icon={LockIcon} size={16} />
                 </span>
                 <input
                   type="password"
@@ -223,7 +222,7 @@ export default function AdminPage() {
 
             {loginError && (
               <p className="text-xs text-red-400 flex items-center gap-1.5 bg-red-500/10 p-3.5 rounded-xl border border-red-500/20 font-light">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-red-400 flex-shrink-0" />
                 <span>{loginError}</span>
               </p>
             )}
@@ -237,7 +236,7 @@ export default function AdminPage() {
                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <Lock className="h-4 w-4" />
+                  <HugeiconsIcon icon={LockIcon} size={16} />
                   <span>Authenticate Session</span>
                 </>
               )}
@@ -250,7 +249,7 @@ export default function AdminPage() {
 
   // --- Render Admin Dashboard ---
   return (
-    <div className="min-h-screen bg-[#141414] text-white flex flex-col relative overflow-hidden">
+    <div className="flex-1 flex flex-col relative overflow-x-hidden w-full pb-10">
       {/* Background glow backdrops */}
       <div 
         className="absolute w-[600px] h-[600px] right-[-200px] top-[-100px] pointer-events-none z-0"
@@ -279,14 +278,14 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/[0.04] text-xs text-white/70">
               <div className="h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse" />
-              <span>Admin Profile: <strong>gamebeesofficial@gmail.com</strong></span>
+              <span>Admin: <strong>gamebeesofficial@gmail.com</strong></span>
             </div>
 
             <button 
               onClick={handleLogout}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold transition-all cursor-pointer"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <HugeiconsIcon icon={Logout01Icon} size={15} />
               <span>Exit Console</span>
             </button>
           </div>
@@ -311,7 +310,7 @@ export default function AdminPage() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <Compass className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={Compass01Icon} size={18} />
               <span>Reservations Board</span>
               {bookings.filter(b => b.status === "booked").length > 0 && (
                 <span className="ml-auto bg-amber-500 text-black font-black text-[9px] h-4.5 w-4.5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.2)]">
@@ -328,7 +327,7 @@ export default function AdminPage() {
                   : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
-              <ShoppingBag className="h-4.5 w-4.5" />
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} />
               <span>Catalog Inventory</span>
             </button>
           </div>
@@ -366,7 +365,7 @@ export default function AdminPage() {
                 <div className="space-y-6 animate-fadeInUp">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
-                      Reservations Manager
+                      Reservations Board
                     </h3>
                     <p className="text-white/50 text-xs mt-1 font-light">
                       Audit identity KYC, verify captured selfies, and dispatch active console orders.
@@ -375,7 +374,7 @@ export default function AdminPage() {
 
                   {bookings.length === 0 ? (
                     <div className="card-polished p-16 text-center space-y-3">
-                      <Package className="h-10 w-10 text-white/10 mx-auto" />
+                      <HugeiconsIcon icon={PackageIcon} size={40} className="text-white/10 mx-auto" />
                       <p className="text-sm text-white/50 font-light">No customer bookings have been logged yet.</p>
                     </div>
                   ) : (
@@ -451,7 +450,7 @@ export default function AdminPage() {
                                   <span className="text-white/40">eKYC Check:</span>
                                   {booking.aadhaar_verified ? (
                                     <span className="text-green-400 font-semibold flex items-center gap-1">
-                                      <ShieldCheck className="h-3.5 w-3.5" />
+                                      <HugeiconsIcon icon={Shield01Icon} size={14} />
                                       <span>OTP Verified</span>
                                     </span>
                                   ) : (
@@ -473,7 +472,7 @@ export default function AdminPage() {
                                   className="text-gamebees-glow-blue hover:underline flex items-center gap-0.5 font-semibold text-[10px]"
                                 >
                                   <span>Map Link</span>
-                                  <ExternalLink className="h-3 w-3" />
+                                  <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} />
                                 </a>
                               </div>
                             </div>
@@ -527,7 +526,7 @@ export default function AdminPage() {
                     {/* Add Item Form Card */}
                     <div className="lg:col-span-1 card-polished p-5 border border-white/[0.03] h-fit bg-zinc-950/20">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-3 mb-4 flex items-center gap-1.5">
-                        <Plus className="h-4.5 w-4.5 text-gamebees-glow-blue" />
+                        <HugeiconsIcon icon={PlusIcon} size={16} className="text-gamebees-glow-blue" />
                         <span>Add Product Listing</span>
                       </h4>
 
@@ -600,7 +599,7 @@ export default function AdminPage() {
                             <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <>
-                              <Plus className="h-4 w-4" />
+                              <HugeiconsIcon icon={PlusIcon} size={15} />
                               <span>Add to Listings</span>
                             </>
                           )}
@@ -641,7 +640,7 @@ export default function AdminPage() {
                                 onClick={() => handleDeleteItem(item.id)}
                                 className="w-fit self-end text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <HugeiconsIcon icon={DeleteIcon} size={16} />
                               </button>
                             </div>
                           ))}

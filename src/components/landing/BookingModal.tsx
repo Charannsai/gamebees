@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { X, User, Phone, MapPin, CheckCircle, Camera, Shield, ShieldCheck, Check, AlertCircle, RefreshCw } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { 
+  Cancel01Icon, 
+  UserIcon, 
+  CallingIcon, 
+  Location01Icon, 
+  CheckmarkCircle01Icon, 
+  Camera01Icon, 
+  Shield01Icon, 
+  AlertCircleIcon, 
+  RefreshIcon,
+  CheckmarkCircle02Icon
+} from "@hugeicons/core-free-icons";
 import { createBooking } from "@/app/actions";
 
 interface BookingModalProps {
@@ -245,14 +257,14 @@ export default function BookingModal({
       <div onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 overflow-y-auto max-h-[90vh] z-10 border border-gamebees-accent-blue/30 shadow-[0_0_50px_rgba(36,101,150,0.15)]">
+      <div className="relative w-full max-w-lg rounded-[24px] card-polished p-6 sm:p-8 overflow-y-auto max-h-[90vh] z-10 border border-gamebees-accent-blue/30 shadow-[0_0_50px_rgba(36,101,150,0.15)] animate-fadeInUp">
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/50 hover:text-white rounded-full hover:bg-white/5 transition-all"
+          className="absolute top-4 right-4 p-2 text-white/50 hover:text-white rounded-full hover:bg-white/5 transition-all cursor-pointer"
         >
-          <X className="h-5 w-5" />
+          <HugeiconsIcon icon={Cancel01Icon} size={20} />
         </button>
 
         {/* Step Indicator */}
@@ -267,7 +279,9 @@ export default function BookingModal({
                     ? "bg-green-500/20 text-green-400 border border-green-500/40"
                     : "bg-white/5 text-white/40"
                 }`}>
-                  {step > s ? <Check className="h-3 w-3 stroke-[3]" /> : s}
+                  {step > s ? (
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
+                  ) : s}
                 </div>
                 {s < 4 && <div className={`flex-1 h-[1px] ${step > s ? "bg-green-500/40" : "bg-white/5"}`}></div>}
               </React.Fragment>
@@ -294,7 +308,7 @@ export default function BookingModal({
                     <label className="text-xs font-semibold text-white/70 block">Full Name</label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                        <User className="h-4 w-4" />
+                        <HugeiconsIcon icon={UserIcon} size={16} />
                       </span>
                       <input
                         type="text"
@@ -311,7 +325,7 @@ export default function BookingModal({
                     <label className="text-xs font-semibold text-white/70 block">Mobile Number</label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                        <Phone className="h-4 w-4" />
+                        <HugeiconsIcon icon={CallingIcon} size={16} />
                       </span>
                       <input
                         type="tel"
@@ -328,7 +342,7 @@ export default function BookingModal({
                     <label className="text-xs font-semibold text-white/70 block">Delivery Address</label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                        <MapPin className="h-4 w-4" />
+                        <HugeiconsIcon icon={Location01Icon} size={16} />
                       </span>
                       <input
                         type="text"
@@ -348,7 +362,7 @@ export default function BookingModal({
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                        <MapPin className="h-4 w-4 text-gamebees-glow-blue" />
+                        <HugeiconsIcon icon={Location01Icon} size={16} className="text-gamebees-glow-blue" />
                       </span>
                       <input
                         type="url"
@@ -367,7 +381,7 @@ export default function BookingModal({
                   disabled={!name || !phone || !address || !mapLink}
                   className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Continue to Identity Verification
+                  <span>Continue to Identity Verification</span>
                 </button>
               </div>
             )}
@@ -377,7 +391,7 @@ export default function BookingModal({
               <div className="space-y-5">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                    <Shield className="h-6 w-6 text-gamebees-glow-blue" />
+                    <HugeiconsIcon icon={Shield01Icon} size={22} className="text-gamebees-glow-blue" />
                     <span>Identity KYC Status</span>
                   </h3>
                   <p className="text-white/50 text-xs mt-1 font-light">
@@ -395,7 +409,7 @@ export default function BookingModal({
                   <div className="space-y-6">
                     <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-center space-y-4 animate-fadeInUp">
                       <div className="mx-auto h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                        <ShieldCheck className="h-7 w-7" />
+                        <HugeiconsIcon icon={Shield01Icon} size={20} />
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-white">Identity KYC Verified</h4>
@@ -421,7 +435,7 @@ export default function BookingModal({
                   <div className="space-y-6">
                     <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
                       <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
-                        <AlertCircle className="h-7 w-7" />
+                        <HugeiconsIcon icon={AlertCircleIcon} size={20} />
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-white">KYC Verification Required</h4>
@@ -447,7 +461,7 @@ export default function BookingModal({
               <div className="space-y-5">
                 <div>
                   <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                    <Camera className="h-6 w-6 text-gamebees-glow-blue" />
+                    <HugeiconsIcon icon={Camera01Icon} size={22} className="text-gamebees-glow-blue" />
                     <span>Liveness & Selfie Verification</span>
                   </h3>
                   <p className="text-white/50 text-xs mt-1 font-light">
@@ -513,7 +527,7 @@ export default function BookingModal({
                       onClick={handleRetake}
                       className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center gap-1.5 hover:bg-white/10 transition-colors cursor-pointer"
                     >
-                      <RefreshCw className="h-3.5 w-3.5" />
+                      <HugeiconsIcon icon={RefreshIcon} size={15} />
                       <span>Retake Selfie</span>
                     </button>
                   ) : (
@@ -570,14 +584,14 @@ export default function BookingModal({
                   <div className="flex justify-between items-center text-white/50">
                     <span>Identity Proof</span>
                     <span className="text-green-400 font-semibold flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <HugeiconsIcon icon={Shield01Icon} size={14} />
                       <span>Verified KYC Profile</span>
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-white/50">
                     <span>Liveness Selfie</span>
                     <span className="text-green-400 font-semibold flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5" />
+                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
                       <span>Matched</span>
                     </span>
                   </div>
@@ -644,7 +658,7 @@ export default function BookingModal({
           /* Success Screen */
           <div className="text-center py-8 space-y-6">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gamebees-accent-blue/10 border border-gamebees-accent-blue/20">
-              <CheckCircle className="h-10 w-10 text-gamebees-accent-blue" />
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={40} className="text-gamebees-accent-blue" />
             </div>
 
             <div className="space-y-2">
