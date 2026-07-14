@@ -130,7 +130,7 @@ body {
   transform: translateY(0);
 }
 
-/* ---- GIANT BEHIND-TEXT (Faded, soft blend into background) ---- */
+/* ---- GIANT BEHIND-TEXT (Deeply faded, barely visible blend) ---- */
 .text-behind {
   font-weight: 900;
   line-height: 0.85;
@@ -138,9 +138,9 @@ body {
   color: transparent;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(94, 159, 208, 0.035) 50%,
-    rgba(36, 101, 150, 0.025) 100%
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(94, 159, 208, 0.015) 50%,
+    rgba(36, 101, 150, 0.005) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
