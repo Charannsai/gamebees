@@ -806,24 +806,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
 
-                    <div className="card-polished p-5 space-y-4">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
-                        <HugeiconsIcon icon={File01Icon} size={16} className="text-gamebees-glow-blue" />
-                        <span>Rental Agreement & Policies</span>
-                      </h4>
 
-                      <div className="space-y-2.5 text-[11px] text-white/50 leading-relaxed font-light">
-                        <p>
-                          <strong>1. Fair Usage:</strong> Standard console rentals are intended for residential private usage. Commercial gaming setups require custom license configurations.
-                        </p>
-                        <p>
-                          <strong>2. Hardware Protection:</strong> All console kits include damage warranty buffers. High gravity falls or liquid exposure will incur fee coverage up to actual device replacement rates.
-                        </p>
-                        <p>
-                          <strong>3. Timely Return:</strong> Extensions must be logged in the system at least 24 hours prior to the return window check.
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
