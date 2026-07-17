@@ -330,16 +330,7 @@ html.light .border-white\/\[0\.02\] {
   border-color: rgba(15, 23, 42, 0.02) !important;
 }
 
-/* Hardcoded dark BG overrides */
-html.light .bg-\[\#141414\] {
-  background-color: var(--gamebees-bg) !important;
-}
-html.light .bg-\[\#141414\]\/85 {
-  background-color: rgba(248, 250, 252, 0.85) !important;
-}
-html.light .bg-\[\#141414\]\/80 {
-  background-color: rgba(248, 250, 252, 0.8) !important;
-}
+
 
 /* Behind text adjustment */
 html.light .text-behind {
