@@ -860,6 +860,7 @@ export default function UserDashboard() {
                         </button>
                       </div>
                     </div>
+                  </div>
                 </div>
               )}
             </>
