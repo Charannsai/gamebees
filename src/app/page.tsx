@@ -111,7 +111,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#141414] text-white selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
+    <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
       
       {/* ================================================================
           SCATTERED GLOW BACKDROPS (Interpolated to target background color to eliminate banding rings)
@@ -327,7 +327,7 @@ export default function Home() {
                     }}
                   >
                     {/* Phone notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#141414] rounded-b-2xl z-20"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gamebees-bg rounded-b-2xl z-20"></div>
 
                     {/* Phone Screen */}
                     <div className="relative h-full p-4 pt-8 flex flex-col justify-between">

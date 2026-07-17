@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Sun, Moon } from "lucide-react";
 import { 
   DashboardSquare01Icon, 
   ShoppingBag01Icon, 
