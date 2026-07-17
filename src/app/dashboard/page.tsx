@@ -49,6 +49,27 @@ export default function UserDashboard() {
   const [aadhaarError, setAadhaarError] = useState("");
   const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
 
+  // Theme State
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    // Read theme preference on mount
+    const savedTheme = (localStorage.getItem("gamebees-theme") as "dark" | "light") || "dark";
+    setTheme(savedTheme);
+  }, []);
+
+  const handleThemeChange = (newTheme: "dark" | "light") => {
+    setTheme(newTheme);
+    localStorage.setItem("gamebees-theme", newTheme);
+    if (newTheme === "light") {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    }
+  };
+
   // Booking modal controls
   const [modalOpen, setModalOpen] = useState(false);
   const [modalConsoleName, setModalConsoleName] = useState("");
