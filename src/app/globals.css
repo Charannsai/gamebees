@@ -3,16 +3,49 @@
 :root {
   --background: #141414;
   --foreground: #FFFFFF;
+  
+  --gamebees-bg: #141414;
+  --gamebees-dark-navy: #10324D;
+  --gamebees-medium-blue: #1D496B;
+  --gamebees-accent-blue: #246596;
+  --gamebees-glow-blue: #5E9FD0;
+  --gamebees-accent-lavender: #A4CBE8;
+  --gamebees-pill: rgba(255, 255, 255, 0.04);
+  
+  --gamebees-card-bg: rgba(20, 20, 20, 0.6);
+  --gamebees-border: rgba(94, 159, 208, 0.1);
+  --gamebees-border-hover: rgba(94, 159, 208, 0.25);
+  --gamebees-title-glow: linear-gradient(180deg, #FFFFFF 20%, #A4CBE8 65%, #5E9FD0 100%);
+  --gamebees-input-bg: rgba(16, 50, 77, 0.15);
+}
+
+html.light {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  
+  --gamebees-bg: #F8FAFC;
+  --gamebees-dark-navy: #E2E8F0;
+  --gamebees-medium-blue: #93C5FD;
+  --gamebees-accent-blue: #1D4ED8;
+  --gamebees-glow-blue: #2563EB;
+  --gamebees-accent-lavender: #1E3A8A;
+  --gamebees-pill: rgba(15, 23, 42, 0.05);
+  
+  --gamebees-card-bg: rgba(255, 255, 255, 0.85);
+  --gamebees-border: rgba(15, 23, 42, 0.08);
+  --gamebees-border-hover: rgba(15, 23, 42, 0.15);
+  --gamebees-title-glow: linear-gradient(180deg, #0F172A 20%, #1D496B 65%, #246596 100%);
+  --gamebees-input-bg: rgba(15, 23, 42, 0.04);
 }
 
 @theme {
-  --color-gamebees-bg: #141414;
-  --color-gamebees-dark-navy: #10324D;
-  --color-gamebees-medium-blue: #1D496B;
-  --color-gamebees-accent-blue: #246596;
-  --color-gamebees-glow-blue: #5E9FD0;
-  --color-gamebees-accent-lavender: #A4CBE8;
-  --color-gamebees-pill: rgba(255, 255, 255, 0.04);
+  --color-gamebees-bg: var(--gamebees-bg);
+  --color-gamebees-dark-navy: var(--gamebees-dark-navy);
+  --color-gamebees-medium-blue: var(--gamebees-medium-blue);
+  --color-gamebees-accent-blue: var(--gamebees-accent-blue);
+  --color-gamebees-glow-blue: var(--gamebees-glow-blue);
+  --color-gamebees-accent-lavender: var(--gamebees-accent-lavender);
+  --color-gamebees-pill: var(--gamebees-pill);
   
   --animate-float: float 6s ease-in-out infinite;
   --animate-fadeInUp: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -42,7 +75,7 @@
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #141414;
+  background: var(--gamebees-bg);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(36, 101, 150, 0.3);
@@ -54,11 +87,10 @@
 }
 
 /* ============================================================
-   GAMEBEES — SEAMLESS CONSTANT DARK BG AESTHETIC
+   GAMEBEES — SEAMLESS CONSTANT BG AESTHETIC
    ============================================================ */
-
 body {
-  background-color: #141414;
+  background-color: var(--gamebees-bg);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -82,22 +114,22 @@ body {
 
 /* ---- CARDS ---- */
 .card-polished {
-  background: rgba(20, 20, 20, 0.6);
+  background: var(--gamebees-card-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(94, 159, 208, 0.1);
+  border: 1px solid var(--gamebees-border);
   border-radius: 20px;
   transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .card-polished:hover {
-  border-color: rgba(94, 159, 208, 0.25);
+  border-color: var(--gamebees-border-hover);
   box-shadow: 0 10px 30px rgba(36, 101, 150, 0.08);
 }
 
 /* ---- BUTTONS ---- */
 .btn-glow-pill {
-  background: linear-gradient(135deg, #246596 0%, #1D496B 100%);
+  background: linear-gradient(135deg, var(--gamebees-accent-blue) 0%, var(--gamebees-medium-blue) 100%);
   border: 1px solid rgba(94, 159, 208, 0.3);
   color: #FFFFFF;
   font-weight: 600;
@@ -106,7 +138,7 @@ body {
 }
 
 .btn-glow-pill:hover {
-  background: linear-gradient(135deg, #5E9FD0 0%, #246596 100%);
+  background: linear-gradient(135deg, var(--gamebees-glow-blue) 0%, var(--gamebees-accent-blue) 100%);
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-1.5px);
   box-shadow: 0 6px 20px rgba(94, 159, 208, 0.3);
@@ -150,7 +182,7 @@ body {
 
 /* ---- PREMIUM TITLE GLOW EFFECT ---- */
 .title-glow {
-  background: linear-gradient(180deg, #FFFFFF 20%, #A4CBE8 65%, #5E9FD0 100%);
+  background: var(--gamebees-title-glow);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -161,9 +193,9 @@ body {
 /* ---- GRADIENT BORDER CARD (CTA) ---- */
 .card-gradient-border {
   position: relative;
-  background: rgba(20, 20, 20, 0.6);
+  background: var(--gamebees-card-bg);
   border-radius: 24px;
-  border: 1px solid rgba(94, 159, 208, 0.15);
+  border: 1px solid var(--gamebees-border);
   overflow: hidden;
 }
 
@@ -190,16 +222,162 @@ body {
 .form-input {
   width: 100%;
   border-radius: 12px;
-  background-color: rgba(16, 50, 77, 0.15);
-  border: 1px solid rgba(94, 159, 208, 0.1);
+  background-color: var(--gamebees-input-bg);
+  border: 1px solid var(--gamebees-border);
   padding: 12px 16px;
   font-size: 14px;
-  color: #FFFFFF;
+  color: var(--foreground);
   outline: none;
   transition: all 0.3s ease;
 }
 
 .form-input:focus {
-  border-color: rgba(94, 159, 208, 0.35);
-  background-color: rgba(16, 50, 77, 0.25);
+  border-color: var(--gamebees-glow-blue);
+  background-color: var(--gamebees-input-bg);
+}
+
+/* ============================================================
+   LIGHT MODE SELECTIVE OVERRIDES (Maintains clean codebase)
+   ============================================================ */
+html.light body {
+  background-color: var(--gamebees-bg);
+  color: var(--foreground);
+}
+
+/* Overriding Webkit Scrollbars for Light Mode */
+html.light ::-webkit-scrollbar-track {
+  background: var(--gamebees-bg);
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(36, 101, 150, 0.2);
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(36, 101, 150, 0.4);
+}
+
+/* Overriding text and opacity classes */
+html.light .text-white {
+  color: #0F172A !important;
+}
+html.light .text-white\/90 {
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+html.light .text-white\/80 {
+  color: rgba(15, 23, 42, 0.8) !important;
+}
+html.light .text-white\/70 {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.light .text-white\/60 {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.light .text-white\/50 {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+html.light .text-white\/45 {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+html.light .text-white\/40 {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+html.light .text-white\/30 {
+  color: rgba(15, 23, 42, 0.3) !important;
+}
+html.light .text-white\/25 {
+  color: rgba(15, 23, 42, 0.25) !important;
+}
+html.light .text-white\/20 {
+  color: rgba(15, 23, 42, 0.2) !important;
+}
+html.light .text-white\/10 {
+  color: rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Accent lavender mapping */
+html.light .text-gamebees-accent-lavender {
+  color: #1D4ED8 !important;
+}
+html.light .text-gamebees-accent-lavender\/45 {
+  color: rgba(29, 78, 216, 0.7) !important;
+}
+html.light .text-gamebees-accent-lavender\/40 {
+  color: rgba(29, 78, 216, 0.6) !important;
+}
+
+/* Background/Border transparency overrides for light theme compatibility */
+html.light .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.05) !important;
+}
+html.light .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+html.light .bg-white\/\[0\.02\] {
+  background-color: rgba(15, 23, 42, 0.02) !important;
+}
+html.light .bg-white\/\[0\.015\] {
+  background-color: rgba(15, 23, 42, 0.015) !important;
+}
+html.light .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+html.light .border-white\/\[0\.04\] {
+  border-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.light .border-white\/\[0\.05\] {
+  border-color: rgba(15, 23, 42, 0.05) !important;
+}
+html.light .border-white\/\[0\.02\] {
+  border-color: rgba(15, 23, 42, 0.02) !important;
+}
+
+/* Hardcoded dark BG overrides */
+html.light .bg-\[\#141414\] {
+  background-color: var(--gamebees-bg) !important;
+}
+html.light .bg-\[\#141414\]\/85 {
+  background-color: rgba(248, 250, 252, 0.85) !important;
+}
+html.light .bg-\[\#141414\]\/80 {
+  background-color: rgba(248, 250, 252, 0.8) !important;
+}
+
+/* Behind text adjustment */
+html.light .text-behind {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.03) 0%,
+    rgba(36, 101, 150, 0.015) 50%,
+    rgba(36, 101, 150, 0.005) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Drop shadow adjustment */
+html.light .title-glow {
+  filter: drop-shadow(0 2px 8px rgba(36, 101, 150, 0.15));
+}
+
+/* Exclude interactive elements that need to stay white text on dark/blue background */
+html.light .btn-glow-pill,
+html.light .btn-glow-pill *,
+html.light .bg-gamebees-accent-blue,
+html.light .bg-gamebees-accent-blue *,
+html.light .bg-gamebees-glow-blue,
+html.light .bg-gamebees-glow-blue *,
+html.light .bg-green-500,
+html.light .bg-green-500 *,
+html.light .bg-red-500,
+html.light .bg-red-500 *,
+html.light .bg-blue-500,
+html.light .bg-blue-500 *,
+html.light .bg-indigo-600,
+html.light .bg-indigo-600 *,
+html.light .cl-userButtonPopoverCard * {
+  color: inherit;
+}
+
+/* Force standard white text on premium active components */
+html.light .btn-glow-pill {
+  color: #FFFFFF !important;
 }

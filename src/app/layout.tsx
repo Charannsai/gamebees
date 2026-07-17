@@ -22,11 +22,31 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased dark`}
+      className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('gamebees-theme') || 'dark';
+                  if (theme === 'light') {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
+                  } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                  }
+                } catch (e) {}
+              })();
+            `
+          }}
+        />
+      </head>
       <body
-        className="min-h-full flex flex-col bg-gamebees-bg text-white selection:bg-gamebees-accent-blue selection:text-white grainy-overlay"
+        className="min-h-full flex flex-col bg-gamebees-bg selection:bg-gamebees-accent-blue selection:text-white grainy-overlay"
         suppressHydrationWarning
       >
         <ClerkProvider>
