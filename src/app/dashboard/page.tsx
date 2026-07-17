@@ -805,9 +805,61 @@ export default function UserDashboard() {
                         </div>
                       </div>
                     </div>
+                    <div className="card-polished p-5 space-y-4">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={File01Icon} size={16} className="text-gamebees-glow-blue" />
+                        <span>Rental Agreement & Policies</span>
+                      </h4>
 
+                      <div className="space-y-2.5 text-[11px] text-white/50 leading-relaxed font-light">
+                        <p>
+                          <strong>1. Fair Usage:</strong> Standard console rentals are intended for residential private usage. Commercial gaming setups require custom license configurations.
+                        </p>
+                        <p>
+                          <strong>2. Hardware Protection:</strong> All console kits include damage warranty buffers. High gravity falls or liquid exposure will incur fee coverage up to actual device replacement rates.
+                        </p>
+                        <p>
+                          <strong>3. Timely Return:</strong> Extensions must be logged in the system at least 24 hours prior to the return window check.
+                        </p>
+                      </div>
+                    </div>
 
-                  </div>
+                    <div className="card-polished p-5 space-y-4">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
+                        <Sun className="h-4 w-4 text-gamebees-glow-blue" />
+                        <span>Display Theme</span>
+                      </h4>
+
+                      <p className="text-white/50 text-[11px] font-light leading-relaxed">
+                        Customize the visual aesthetic of the platform. Choose between the premium dark immersive interface or the clean light layout.
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <button
+                          onClick={() => handleThemeChange("dark")}
+                          className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                            theme === "dark"
+                              ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
+                              : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
+                          }`}
+                        >
+                          <Moon className="h-4 w-4" />
+                          <span>Dark Theme</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleThemeChange("light")}
+                          className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                            theme === "light"
+                              ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
+                              : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
+                          }`}
+                        >
+                          <Sun className="h-4 w-4" />
+                          <span>White Theme</span>
+                        </button>
+                      </div>
+                    </div>
                 </div>
               )}
             </>
