@@ -378,7 +378,7 @@ export default function BookingModal({
                     <div className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
                     <p className="text-white/60 text-xs font-light">Querying KYC database... Please wait.</p>
                   </div>
-                ) : kycVerifiedProp ? (
+                ) : dbKycStatus === 'approved' || dbKycVerified ? (
                   // KYC is completed
                   <div className="space-y-6">
                     <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-center space-y-4 animate-fadeInUp">
@@ -393,7 +393,7 @@ export default function BookingModal({
                       <div className="text-left text-[11px] text-white/50 space-y-1.5 p-3.5 bg-black/20 rounded-lg font-light">
                         <div className="flex justify-between"><span>eKYC Registry:</span><span className="text-green-400 font-semibold">Matched</span></div>
                         <div className="flex justify-between"><span>User Profile:</span><span className="text-white/80">{name}</span></div>
-                        <div className="flex justify-between"><span>Liveness match:</span><span className="text-green-400 font-semibold">Ready</span></div>
+                        <div className="flex justify-between"><span>Status Check:</span><span className="text-green-400 font-semibold">Verified</span></div>
                       </div>
                     </div>
 
@@ -404,8 +404,52 @@ export default function BookingModal({
                       Continue to Live Selfie Verification
                     </button>
                   </div>
+                ) : dbKycStatus === 'pending' ? (
+                  // KYC is pending admin review
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 animate-pulse">
+                        <HugeiconsIcon icon={Shield01Icon} size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">KYC Verification Under Review</h4>
+                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
+                          Your profile has been submitted and is currently being manually audited by our admins. You can complete booking once approved.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      disabled
+                      className="w-full py-4 rounded-xl bg-white/5 text-xs font-bold text-white/40 flex items-center justify-center gap-2 cursor-not-allowed"
+                    >
+                      Awaiting Manual Admin Approval
+                    </button>
+                  </div>
+                ) : dbKycStatus === 'declined' ? (
+                  // KYC check was declined
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-xl bg-red-500/10 border border-red-500/20 text-center space-y-4 animate-fadeInUp">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
+                        <HugeiconsIcon icon={AlertCircleIcon} size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">KYC Verification Declined</h4>
+                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
+                          Your previous KYC details check has failed manual verification. Please re-apply in the dashboard.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={onRedirectToKyc}
+                      className="w-full py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer animate-fadeInUp"
+                    >
+                      Re-Apply KYC in Dashboard
+                    </button>
+                  </div>
                 ) : (
-                  // KYC is NOT completed
+                  // KYC is NOT completed/applied
                   <div className="space-y-6">
                     <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
                       <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
@@ -414,7 +458,7 @@ export default function BookingModal({
                       <div>
                         <h4 className="text-sm font-bold text-white">KYC Verification Required</h4>
                         <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
-                          You must verify your Aadhaar card identity before checking out. This process only needs to be completed once.
+                          You must verify your Aadhaar card and live location coordinates before checking out console rentals.
                         </p>
                       </div>
                     </div>

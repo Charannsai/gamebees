@@ -9,7 +9,10 @@ import {
   adminAddProduct, 
   adminDeleteProduct,
   adminFetchBookings,
-  adminUpdateBookingStatus 
+  adminUpdateBookingStatus,
+  adminFetchKycProfiles,
+  adminApproveKyc,
+  adminDeclineKyc
 } from "./actions";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
@@ -21,15 +24,9 @@ import {
   UserIcon, 
   Location01Icon, 
   CheckmarkCircle01Icon, 
-  Cancel01Icon, 
   AlertCircleIcon,
-  DeliveryTruck01Icon,
   Logout01Icon,
-  Image01Icon,
-  DollarIcon,
   PackageIcon,
-  Time01Icon,
-  SparklesIcon,
   ArrowUpRight01Icon,
   LockIcon
 } from "@hugeicons/core-free-icons";
@@ -41,11 +38,12 @@ export default function AdminPage() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<"items" | "bookings">("bookings");
+  const [activeTab, setActiveTab] = useState<"items" | "bookings" | "kyc">("bookings");
 
   // Database Data State
   const [items, setItems] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [kycProfiles, setKycProfiles] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
   // Form State for Adding Item
@@ -68,12 +66,14 @@ export default function AdminPage() {
 
   const loadData = async () => {
     setLoadingData(true);
-    const [itemsRes, bookingsRes] = await Promise.all([
+    const [itemsRes, bookingsRes, kycRes] = await Promise.all([
       adminFetchItems(),
-      adminFetchBookings()
+      adminFetchBookings(),
+      adminFetchKycProfiles()
     ]);
     if (itemsRes.success) setItems(itemsRes.data || []);
     if (bookingsRes.success) setBookings(bookingsRes.data || []);
+    if (kycRes.success) setKycProfiles(kycRes.data || []);
     setLoadingData(false);
   };
 
@@ -143,21 +143,41 @@ export default function AdminPage() {
     }
   };
 
+  const handleApproveKyc = async (userId: string) => {
+    if (!confirm("Are you sure you want to APPROVE this user's KYC profile?")) return;
+    const res = await adminApproveKyc(userId);
+    if (res.success) {
+      loadData();
+    } else {
+      alert("Error approving KYC: " + res.error);
+    }
+  };
+
+  const handleDeclineKyc = async (userId: string) => {
+    if (!confirm("Are you sure you want to DECLINE this user's KYC profile?")) return;
+    const res = await adminDeclineKyc(userId);
+    if (res.success) {
+      loadData();
+    } else {
+      alert("Error declining KYC: " + res.error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "booked": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "dispatched": return "bg-amber-500/20 text-amber-400 border-amber-500/30";
-      case "delivered": return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "discarded": return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "completed": return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
-      default: return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
+      case "booked": return "bg-blue-100 text-blue-800 border-blue-300";
+      case "dispatched": return "bg-amber-100 text-amber-800 border-amber-300";
+      case "delivered": return "bg-green-100 text-green-800 border-green-300";
+      case "discarded": return "bg-red-100 text-red-800 border-red-300";
+      case "completed": return "bg-neutral-100 text-neutral-800 border-neutral-300";
+      default: return "bg-neutral-100 text-neutral-800 border-neutral-300";
     }
   };
 
   if (checkingAuth) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#141414]">
-        <div className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="h-6 w-6 border-2 border-[#141414] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -165,32 +185,23 @@ export default function AdminPage() {
   // --- Render Login Form ---
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#141414] px-6 text-white relative overflow-hidden">
-        {/* Glow spots */}
-        <div 
-          className="absolute w-[500px] h-[500px] left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none z-0"
-          style={{
-            background: "radial-gradient(circle, rgba(36, 101, 150, 0.12) 0%, rgba(20, 20, 20, 0) 75%)",
-            filter: "blur(120px)",
-          }}
-        />
-
-        <div className="w-full max-w-md p-8 rounded-3xl bg-zinc-950/40 border border-gamebees-accent-blue/15 backdrop-blur-2xl shadow-[0_0_50px_rgba(36,101,150,0.1)] z-10 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-black tracking-tight text-white title-glow animate-fadeInUp">
+      <div className="flex min-h-screen items-center justify-center bg-white px-6 text-[#141414] relative overflow-hidden">
+        <div className="w-full max-w-sm p-6 rounded border border-[#141414] bg-white z-10 space-y-6 shadow-sm">
+          <div className="text-center space-y-1">
+            <h1 className="text-xl font-bold tracking-tight text-[#141414]">
               GameBees Admin Console
             </h1>
-            <p className="text-white/40 text-xs font-light">
+            <p className="text-neutral-500 text-xs font-light">
               Secure authorization gateway. Enter credentials to proceed.
             </p>
           </div>
 
-          <form onSubmit={handleLoginSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-white/70 block">System Email</label>
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold text-neutral-600 block uppercase">System Email</label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                  <HugeiconsIcon icon={UserIcon} size={16} />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
+                  <HugeiconsIcon icon={UserIcon} size={14} />
                 </span>
                 <input
                   type="email"
@@ -198,16 +209,16 @@ export default function AdminPage() {
                   required
                   defaultValue="gamebeesofficial@gmail.com"
                   placeholder="gamebeesofficial@gmail.com"
-                  className="form-input pl-10"
+                  className="form-input pl-8"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-white/70 block">Security Password</label>
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Security Password</label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40">
-                  <HugeiconsIcon icon={LockIcon} size={16} />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
+                  <HugeiconsIcon icon={LockIcon} size={14} />
                 </span>
                 <input
                   type="password"
@@ -215,14 +226,14 @@ export default function AdminPage() {
                   required
                   defaultValue="Iamnithish@02"
                   placeholder="••••••••"
-                  className="form-input pl-10"
+                  className="form-input pl-8"
                 />
               </div>
             </div>
 
             {loginError && (
-              <p className="text-xs text-red-400 flex items-center gap-1.5 bg-red-500/10 p-3.5 rounded-xl border border-red-500/20 font-light">
-                <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-red-400 flex-shrink-0" />
+              <p className="text-xs text-red-600 flex items-center gap-1.5 bg-red-50 p-2.5 rounded border border-red-200 font-light">
+                <HugeiconsIcon icon={AlertCircleIcon} size={14} className="text-red-500 flex-shrink-0" />
                 <span>{loginError}</span>
               </p>
             )}
@@ -230,13 +241,13 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loggingIn}
-              className="w-full py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-2 cursor-pointer"
+              className="w-full py-2.5 rounded btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               {loggingIn ? (
-                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <HugeiconsIcon icon={LockIcon} size={16} />
+                  <HugeiconsIcon icon={LockIcon} size={14} />
                   <span>Authenticate Session</span>
                 </>
               )}
@@ -249,103 +260,103 @@ export default function AdminPage() {
 
   // --- Render Admin Dashboard ---
   return (
-    <div className="flex-1 flex flex-col relative overflow-x-hidden w-full pb-10">
-      {/* Background glow backdrops */}
-      <div 
-        className="absolute w-[600px] h-[600px] right-[-200px] top-[-100px] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(36, 101, 150, 0.1) 0%, rgba(20, 20, 20, 0) 75%)",
-          filter: "blur(140px)",
-        }}
-      />
-      <div 
-        className="absolute w-[600px] h-[600px] left-[-200px] bottom-[-100px] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.08) 0%, rgba(20, 20, 20, 0) 75%)",
-          filter: "blur(140px)",
-        }}
-      />
-
+    <div className="flex-1 flex flex-col relative bg-white min-h-screen text-[#141414] pb-10">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[#141414]/80 backdrop-blur-md border-b border-white/[0.04]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-16 w-auto object-contain select-none" />
-            <span className="text-[9px] uppercase tracking-[0.25em] font-black bg-gamebees-dark-navy/40 border border-gamebees-accent-blue/30 px-2 py-0.5 rounded text-gamebees-glow-blue">ADMIN CONSOLE</span>
+      <header className="sticky top-0 z-30 bg-white border-b border-[#141414]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base font-black tracking-tight text-[#141414]">GAMEBEES</span>
+            <span className="text-[8px] uppercase tracking-wider font-bold border border-[#141414] px-1.5 py-0.5 rounded">ADMIN CONSOLE</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/[0.04] text-xs text-white/70">
-              <div className="h-2 w-2 rounded-full bg-gamebees-glow-blue animate-pulse" />
-              <span>Admin: <strong>gamebeesofficial@gmail.com</strong></span>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F5F5F5] border border-[#141414]/10 text-[10px] text-neutral-700">
+              <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span>Session Active: <strong>gamebeesofficial@gmail.com</strong></span>
             </div>
 
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold transition-all cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-semibold transition-all cursor-pointer"
             >
-              <HugeiconsIcon icon={Logout01Icon} size={15} />
-              <span>Exit Console</span>
+              <HugeiconsIcon icon={Logout01Icon} size={12} />
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Main Layout Grid */}
-      <div className="flex-1 mx-auto max-w-7xl w-full px-6 lg:px-8 py-10 relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Sidebar */}
-        <aside className="lg:col-span-1 space-y-3">
-          <div className="card-polished p-4 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-wider text-white/30 font-bold px-3 pb-2 border-b border-white/[0.04] mb-2">
-              Console Menu
+        <aside className="lg:col-span-1 space-y-4">
+          <div className="card-polished p-3.5 space-y-1">
+            <p className="text-[9px] uppercase tracking-wider text-neutral-400 font-bold pb-1.5 border-b border-[#141414]/10 mb-1.5">
+              Menu Navigation
             </p>
 
             <button
               onClick={() => setActiveTab("bookings")}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "bookings"
-                  ? "bg-gamebees-accent-blue text-white shadow-[0_4px_12px_rgba(36,101,150,0.2)]"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
+                  ? "bg-[#141414] text-white"
+                  : "text-[#141414] hover:bg-[#F5F5F5]"
               }`}
             >
-              <HugeiconsIcon icon={Compass01Icon} size={18} />
+              <HugeiconsIcon icon={Compass01Icon} size={15} />
               <span>Reservations Board</span>
               {bookings.filter(b => b.status === "booked").length > 0 && (
-                <span className="ml-auto bg-amber-500 text-black font-black text-[9px] h-4.5 w-4.5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                <span className="ml-auto bg-amber-500 text-black font-black text-[9px] h-4 w-4 rounded-full flex items-center justify-center">
                   {bookings.filter(b => b.status === "booked").length}
                 </span>
               )}
             </button>
 
             <button
-              onClick={() => setActiveTab("items")}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "items"
-                  ? "bg-gamebees-accent-blue text-white shadow-[0_4px_12px_rgba(36,101,150,0.2)]"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
+              onClick={() => setActiveTab("kyc")}
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "kyc"
+                  ? "bg-[#141414] text-white"
+                  : "text-[#141414] hover:bg-[#F5F5F5]"
               }`}
             >
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} />
+              <HugeiconsIcon icon={Shield01Icon} size={15} />
+              <span>KYC Approvals</span>
+              {kycProfiles.filter(p => p.kyc_status === "pending").length > 0 && (
+                <span className="ml-auto bg-amber-500 text-black font-black text-[9px] h-4 w-4 rounded-full flex items-center justify-center">
+                  {kycProfiles.filter(p => p.kyc_status === "pending").length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("items")}
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "items"
+                  ? "bg-[#141414] text-white"
+                  : "text-[#141414] hover:bg-[#F5F5F5]"
+              }`}
+            >
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
               <span>Catalog Inventory</span>
             </button>
           </div>
 
           {/* Quick Metrics Widget */}
-          <div className="card-polished p-5 space-y-4">
-            <h4 className="text-[10px] uppercase tracking-wider text-white/30 font-bold border-b border-white/[0.04] pb-2">
-              Console Metrics
+          <div className="card-polished p-4 space-y-3">
+            <h4 className="text-[9px] uppercase tracking-wider text-neutral-400 font-bold border-b border-[#141414]/10 pb-1.5">
+              Statistics
             </h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] text-white/40 block">All Orders</span>
-                <span className="text-xl font-black text-white">{bookings.length}</span>
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-2 bg-[#F5F5F5] rounded border border-[#141414]/5">
+                <span className="text-[8px] text-neutral-500 block uppercase">All Bookings</span>
+                <span className="text-base font-black text-[#141414]">{bookings.length}</span>
               </div>
-              <div className="space-y-1">
-                <span className="text-[10px] text-white/40 block">Pending Reviews</span>
-                <span className="text-xl font-black text-amber-400">
-                  {bookings.filter(b => b.status === "booked").length}
+              <div className="p-2 bg-[#F5F5F5] rounded border border-[#141414]/5">
+                <span className="text-[8px] text-neutral-500 block uppercase">KYC Requests</span>
+                <span className="text-base font-black text-amber-600">
+                  {kycProfiles.filter(p => p.kyc_status === "pending").length}
                 </span>
               </div>
             </div>
@@ -355,8 +366,8 @@ export default function AdminPage() {
         {/* Content Panel */}
         <main className="lg:col-span-3 space-y-6">
           {loadingData ? (
-            <div className="card-polished p-20 flex justify-center items-center">
-              <div className="h-6 w-6 border-2 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
+            <div className="card-polished p-16 flex justify-center items-center">
+              <div className="h-5 w-5 border-2 border-[#141414] border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
             <>
@@ -364,53 +375,53 @@ export default function AdminPage() {
               {activeTab === "bookings" && (
                 <div className="space-y-6 animate-fadeInUp">
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
+                    <h3 className="text-lg font-bold text-[#141414]">
                       Reservations Board
                     </h3>
-                    <p className="text-white/50 text-xs mt-1 font-light">
-                      Audit identity KYC, verify captured selfies, and dispatch active console orders.
+                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                      Audit bookings, review verified customer identities, and manage active console rentals.
                     </p>
                   </div>
 
                   {bookings.length === 0 ? (
-                    <div className="card-polished p-16 text-center space-y-3">
-                      <HugeiconsIcon icon={PackageIcon} size={40} className="text-white/10 mx-auto" />
-                      <p className="text-sm text-white/50 font-light">No customer bookings have been logged yet.</p>
+                    <div className="card-polished p-12 text-center space-y-2">
+                      <HugeiconsIcon icon={PackageIcon} size={32} className="text-neutral-300 mx-auto" />
+                      <p className="text-xs text-neutral-500 font-light">No customer bookings have been logged yet.</p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {bookings.map((booking) => (
-                        <div key={booking.id} className="card-polished p-5.5 space-y-5 border border-white/[0.03]">
+                        <div key={booking.id} className="card-polished p-4 space-y-3 border border-[#141414] hover:shadow-sm transition-shadow">
                           
                           {/* Title / Header bar */}
-                          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b border-white/[0.04]">
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 pb-3 border-b border-[#141414]/10">
                             <div>
                               <div className="flex items-center gap-2">
-                                <h4 className="text-base font-bold text-white">{booking.full_name}</h4>
-                                <span className={`text-[9px] uppercase tracking-wider font-semibold border rounded-full px-2.5 py-0.5 ${getStatusColor(booking.status)}`}>
+                                <h4 className="text-xs font-bold text-[#141414]">{booking.full_name}</h4>
+                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
                                   {booking.status}
                                 </span>
                               </div>
-                              <span className="text-[10px] text-white/35 font-mono block mt-1">
-                                Ref ID: #{booking.id.slice(-8).toUpperCase()} • Contact: {booking.phone}
+                              <span className="text-[9px] text-neutral-500 font-mono block mt-0.5">
+                                ID: #{booking.id.slice(-8).toUpperCase()} • Phone: {booking.phone}
                               </span>
                             </div>
 
                             {/* Status controls */}
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1.5">
                               {booking.status === "booked" && (
                                 <>
                                   <button
                                     onClick={() => handleUpdateStatus(booking.id, "dispatched", "shipped")}
-                                    className="px-3.5 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                                    className="px-2.5 py-1 bg-[#141414] text-white hover:bg-neutral-800 rounded text-[10px] font-semibold transition-all cursor-pointer"
                                   >
                                     Approve & Dispatch
                                   </button>
                                   <button
                                     onClick={() => handleUpdateStatus(booking.id, "discarded", "returned")}
-                                    className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                                    className="px-2.5 py-1 border border-red-500 text-red-600 hover:bg-red-50 rounded text-[10px] font-semibold transition-all cursor-pointer"
                                   >
-                                    Discard Booking
+                                    Discard
                                   </button>
                                 </>
                               )}
@@ -418,16 +429,16 @@ export default function AdminPage() {
                               {booking.status === "dispatched" && (
                                 <button
                                   onClick={() => handleUpdateStatus(booking.id, "delivered", "delivered")}
-                                  className="px-3.5 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                                  className="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-semibold transition-all cursor-pointer"
                                 >
-                                  Mark as Delivered
+                                  Deliver Order
                                 </button>
                               )}
 
                               {booking.status === "delivered" && (
                                 <button
                                   onClick={() => handleUpdateStatus(booking.id, "completed", "returned")}
-                                  className="px-3.5 py-2 bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                                  className="px-2.5 py-1 bg-[#141414] text-white hover:bg-neutral-800 rounded text-[10px] font-semibold transition-all cursor-pointer"
                                 >
                                   Mark Returned
                                 </button>
@@ -436,51 +447,48 @@ export default function AdminPage() {
                           </div>
 
                           {/* Data details layout */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             
                             {/* Verification Data */}
-                            <div className="space-y-2 text-xs">
-                              <span className="text-[10px] text-white/30 uppercase tracking-wider font-bold block">Aadhaar Proof</span>
-                              <div className="space-y-1.5 p-3 bg-white/[0.015] border border-white/[0.03] rounded-xl font-light">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-white/40">Number:</span>
-                                  <span className="font-mono text-white/80">xxxx-xxxx-{booking.aadhaar_number.slice(-4)}</span>
+                            <div className="space-y-1 text-xs">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Aadhaar Verification</span>
+                              <div className="space-y-1 p-2 bg-[#F5F5F5] rounded border border-[#141414]/10 font-mono text-[9px]">
+                                <div className="flex justify-between">
+                                  <span>Number:</span>
+                                  <span>xxxx-xxxx-{booking.aadhaar_number.slice(-4)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-white/40">eKYC Check:</span>
+                                  <span>Status:</span>
                                   {booking.aadhaar_verified ? (
-                                    <span className="text-green-400 font-semibold flex items-center gap-1">
-                                      <HugeiconsIcon icon={Shield01Icon} size={14} />
-                                      <span>OTP Verified</span>
-                                    </span>
+                                    <span className="text-green-700 font-bold">Verified</span>
                                   ) : (
-                                    <span className="text-amber-400 font-semibold">Unverified</span>
+                                    <span className="text-amber-600 font-bold">Unverified</span>
                                   )}
                                 </div>
                               </div>
                             </div>
 
                             {/* Location Details */}
-                            <div className="space-y-2 text-xs">
-                              <span className="text-[10px] text-white/30 uppercase tracking-wider font-bold block">Location Coordinates</span>
-                              <div className="p-3 bg-white/[0.015] border border-white/[0.03] rounded-xl font-light h-[55px] flex items-center justify-between">
-                                <span className="text-white/60 truncate max-w-[110px] block">{booking.address}</span>
+                            <div className="space-y-1 text-xs">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Delivery Address</span>
+                              <div className="p-2 bg-[#F5F5F5] rounded border border-[#141414]/10 text-[9px] h-[36px] flex items-center justify-between">
+                                <span className="truncate max-w-[130px] block">{booking.address}</span>
                                 <a 
                                   href={booking.map_link} 
                                   target="_blank" 
                                   rel="noopener noreferrer" 
-                                  className="text-gamebees-glow-blue hover:underline flex items-center gap-0.5 font-semibold text-[10px]"
+                                  className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
                                 >
-                                  <span>Map Link</span>
-                                  <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} />
+                                  <span>Maps</span>
+                                  <HugeiconsIcon icon={ArrowUpRight01Icon} size={10} />
                                 </a>
                               </div>
                             </div>
 
                             {/* Selfie captured image */}
-                            <div className="space-y-2">
-                              <span className="text-[10px] text-white/30 uppercase tracking-wider font-bold block">Captured Selfie Match</span>
-                              <div className="h-[55px] w-full bg-black/40 rounded-xl overflow-hidden border border-white/[0.03] flex items-center justify-center relative group">
+                            <div className="space-y-1">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Selfie Match</span>
+                              <div className="h-[36px] w-full bg-neutral-100 rounded border border-[#141414]/10 overflow-hidden flex items-center justify-center relative group">
                                 {booking.selfie_url && booking.selfie_url.startsWith("data:image") ? (
                                   <>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -490,14 +498,188 @@ export default function AdminPage() {
                                       className="w-full h-full object-cover cursor-zoom-in group-hover:scale-105 transition-transform" 
                                       onClick={() => {
                                         const w = window.open();
-                                        w?.document.write(`<img src="${booking.selfie_url}" style="max-width:100%;height:auto;border-radius:12px;"/>`);
+                                        w?.document.write(`<img src="${booking.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
                                       }}
                                     />
-                                    <span className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-[8px] font-semibold uppercase">View Larger</span>
                                   </>
                                 ) : (
-                                  <span className="text-white/20 text-[9px]">No selfie found</span>
+                                  <span className="text-neutral-400 text-[8px]">No selfie</span>
                                 )}
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab: KYC Approvals */}
+              {activeTab === "kyc" && (
+                <div className="space-y-6 animate-fadeInUp">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#141414]">
+                      KYC Manual Approvals Board
+                    </h3>
+                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                      Verify coordinate location, Aadhaar card front/back, and customer selfie uploads.
+                    </p>
+                  </div>
+
+                  {kycProfiles.length === 0 ? (
+                    <div className="card-polished p-12 text-center space-y-2">
+                      <HugeiconsIcon icon={Shield01Icon} size={32} className="text-neutral-300 mx-auto" />
+                      <p className="text-xs text-neutral-500 font-light">No manual KYC requests have been logged yet.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {kycProfiles.map((profile) => (
+                        <div key={profile.id} className="card-polished p-4 space-y-3 border border-[#141414]">
+                          
+                          {/* Header / Actions */}
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 pb-3 border-b border-[#141414]/10">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-bold text-[#141414]">{profile.full_name}</h4>
+                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${
+                                  profile.kyc_status === 'approved' ? 'bg-green-100 text-green-800 border-green-300' :
+                                  profile.kyc_status === 'declined' ? 'bg-red-100 text-red-800 border-red-300' :
+                                  'bg-amber-100 text-amber-800 border-amber-300'
+                                }`}>
+                                  {profile.kyc_status}
+                                </span>
+                              </div>
+                              <span className="text-[9px] text-neutral-500 font-mono block mt-0.5">
+                                User ID: {profile.id} • Phone: {profile.phone}
+                              </span>
+                            </div>
+
+                            {/* Verification status updates */}
+                            <div className="flex gap-2">
+                              {profile.kyc_status !== "approved" && (
+                                <button
+                                  onClick={() => handleApproveKyc(profile.id)}
+                                  className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-semibold cursor-pointer transition-all"
+                                >
+                                  Approve
+                                </button>
+                              )}
+                              {profile.kyc_status !== "declined" && (
+                                <button
+                                  onClick={() => handleDeclineKyc(profile.id)}
+                                  className="px-3 py-1 border border-[#141414] hover:bg-neutral-100 rounded text-[10px] font-semibold cursor-pointer transition-all"
+                                >
+                                  Decline
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Detail fields layout */}
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            
+                            {/* Aadhaar text field */}
+                            <div className="space-y-1 text-xs">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Aadhaar card</span>
+                              <div className="space-y-1 p-2 bg-[#F5F5F5] rounded border border-[#141414]/10 font-mono text-[9px]">
+                                <div className="flex justify-between">
+                                  <span>Number:</span>
+                                  <span className="font-bold">{profile.aadhaar_number}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Applied:</span>
+                                  <span>{new Date(profile.created_at || Date.now()).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Location GPS field */}
+                            <div className="space-y-1 text-xs">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Live Location</span>
+                              <div className="space-y-1 p-2 bg-[#F5F5F5] rounded border border-[#141414]/10 text-[9px]">
+                                <div className="flex justify-between font-mono">
+                                  <span>GPS:</span>
+                                  <span>{profile.latitude?.toFixed(4)}, {profile.longitude?.toFixed(4)}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span>Google Maps:</span>
+                                  <a 
+                                    href={`https://www.google.com/maps/search/?api=1&query=${profile.latitude},${profile.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline font-bold"
+                                  >
+                                    Exact Location
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Documents Grid */}
+                            <div className="md:col-span-2 space-y-1">
+                              <span className="text-[8px] text-neutral-400 uppercase font-bold block">Documents Front / Back / Selfie</span>
+                              <div className="flex gap-1.5">
+                                {/* Front thumbnail */}
+                                <div className="flex-1 text-center">
+                                  <div className="h-14 bg-neutral-50 border border-[#141414]/10 rounded overflow-hidden relative group">
+                                    {profile.aadhaar_front_url ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img 
+                                        src={profile.aadhaar_front_url} 
+                                        alt="Front" 
+                                        className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
+                                        onClick={() => {
+                                          const w = window.open();
+                                          w?.document.write(`<img src="${profile.aadhaar_front_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Back thumbnail */}
+                                <div className="flex-1 text-center">
+                                  <div className="h-14 bg-neutral-50 border border-[#141414]/10 rounded overflow-hidden relative group">
+                                    {profile.aadhaar_back_url ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img 
+                                        src={profile.aadhaar_back_url} 
+                                        alt="Back" 
+                                        className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
+                                        onClick={() => {
+                                          const w = window.open();
+                                          w?.document.write(`<img src="${profile.aadhaar_back_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Selfie thumbnail */}
+                                <div className="flex-1 text-center">
+                                  <div className="h-14 bg-neutral-50 border border-[#141414]/10 rounded overflow-hidden relative group">
+                                    {profile.selfie_url ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img 
+                                        src={profile.selfie_url} 
+                                        alt="Selfie" 
+                                        className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
+                                        onClick={() => {
+                                          const w = window.open();
+                                          w?.document.write(`<img src="${profile.selfie_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
@@ -513,10 +695,10 @@ export default function AdminPage() {
               {activeTab === "items" && (
                 <div className="space-y-6 animate-fadeInUp">
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
+                    <h3 className="text-lg font-bold text-[#141414]">
                       Catalog Inventory
                     </h3>
-                    <p className="text-white/50 text-xs mt-1 font-light">
+                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
                       Add, view, and delete rental hardware packages.
                     </p>
                   </div>
@@ -524,82 +706,82 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     {/* Add Item Form Card */}
-                    <div className="lg:col-span-1 card-polished p-5 border border-white/[0.03] h-fit bg-zinc-950/20">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-3 mb-4 flex items-center gap-1.5">
-                        <HugeiconsIcon icon={PlusSignIcon} size={16} className="text-gamebees-glow-blue" />
+                    <div className="lg:col-span-1 card-polished p-4 border border-[#141414] h-fit bg-white">
+                      <h4 className="text-xs font-bold text-[#141414] uppercase border-b border-[#141414]/10 pb-2 mb-3 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={PlusSignIcon} size={14} />
                         <span>Add Product Listing</span>
                       </h4>
 
-                      <form onSubmit={handleAddItem} className="space-y-4">
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-semibold text-white/50 uppercase">Product Name</label>
+                      <form onSubmit={handleAddItem} className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Product Name</label>
                           <input
                             type="text"
                             required
                             value={itemName}
                             onChange={(e) => setItemName(e.target.value)}
                             placeholder="E.g., PlayStation 5 Pro"
-                            className="form-input text-xs py-2.5"
+                            className="form-input text-xs py-2"
                           />
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-semibold text-white/50 uppercase">Category</label>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Category</label>
                           <select
                             value={itemCategory}
                             onChange={(e) => setItemCategory(e.target.value)}
-                            className="w-full rounded-xl bg-[#10324D]/30 border border-white/10 px-3 py-2.5 text-xs text-white outline-none cursor-pointer"
+                            className="w-full rounded border border-[#141414] px-2.5 py-2 text-xs text-[#141414] outline-none bg-white cursor-pointer"
                           >
-                            <option value="Consoles" className="bg-[#141414]">Consoles</option>
-                            <option value="Accessories" className="bg-[#141414]">Accessories</option>
-                            <option value="Audio" className="bg-[#141414]">Audio</option>
+                            <option value="Consoles" className="bg-white text-[#141414]">Consoles</option>
+                            <option value="Accessories" className="bg-white text-[#141414]">Accessories</option>
+                            <option value="Audio" className="bg-white text-[#141414]">Audio</option>
                           </select>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-semibold text-white/50 uppercase">Price per Day ($)</label>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Price per Day ($)</label>
                           <input
                             type="number"
                             required
                             value={itemPrice}
                             onChange={(e) => setItemPrice(e.target.value)}
                             placeholder="12"
-                            className="form-input text-xs py-2.5"
+                            className="form-input text-xs py-2"
                           />
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-semibold text-white/50 uppercase">Image URL (Optional)</label>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Image URL (Optional)</label>
                           <input
                             type="url"
                             value={itemImage}
                             onChange={(e) => setItemImage(e.target.value)}
                             placeholder="https://..."
-                            className="form-input text-xs py-2.5"
+                            className="form-input text-xs py-2"
                           />
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-semibold text-white/50 uppercase">Description</label>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Description</label>
                           <textarea
                             rows={3}
                             value={itemDesc}
                             onChange={(e) => setItemDesc(e.target.value)}
                             placeholder="Specifications, controller bundles, pre-installed games..."
-                            className="w-full rounded-xl bg-[#10324D]/30 border border-white/10 px-3 py-2.5 text-xs text-white placeholder-white/20 outline-none resize-none"
+                            className="w-full rounded border border-[#141414] px-2.5 py-2 text-xs text-[#141414] placeholder-neutral-300 outline-none resize-none bg-white"
                           />
                         </div>
 
                         <button
                           type="submit"
                           disabled={addingItem}
-                          className="w-full py-3.5 rounded-xl btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="w-full py-2.5 rounded btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           {addingItem ? (
                             <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <>
-                              <HugeiconsIcon icon={PlusSignIcon} size={15} />
+                              <HugeiconsIcon icon={PlusSignIcon} size={14} />
                               <span>Add to Listings</span>
                             </>
                           )}
@@ -608,39 +790,39 @@ export default function AdminPage() {
                     </div>
 
                     {/* Active Inventory Listings Grid */}
-                    <div className="lg:col-span-2 space-y-4">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-3 mb-2">
+                    <div className="lg:col-span-2 space-y-3">
+                      <h4 className="text-xs font-bold text-[#141414] uppercase border-b border-[#141414]/10 pb-2 mb-2">
                         Active Products ({items.length})
                       </h4>
 
                       {items.length === 0 ? (
-                        <div className="card-polished p-10 text-center text-white/30 text-xs">
+                        <div className="card-polished p-10 text-center text-neutral-400 text-xs">
                           No product entries found in the database.
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {items.map((item) => (
-                            <div key={item.id} className="card-polished p-5 flex flex-col justify-between h-[180px] border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-colors">
-                              <div className="space-y-2">
+                            <div key={item.id} className="card-polished p-4 flex flex-col justify-between h-[150px] border border-[#141414] group hover:shadow-sm transition-shadow bg-white">
+                              <div className="space-y-1.5">
                                 <div className="flex justify-between items-start">
-                                  <span className="text-[9px] font-bold text-gamebees-glow-blue uppercase tracking-widest bg-gamebees-dark-navy/40 px-2.5 py-0.5 rounded-full border border-gamebees-accent-blue/20">
+                                  <span className="text-[8px] font-bold text-[#141414] uppercase tracking-wider bg-neutral-100 px-2 py-0.5 rounded border border-[#141414]/10">
                                     {item.category}
                                   </span>
                                   <div className="text-right">
-                                    <span className="text-sm font-black text-white">${item.price}</span>
-                                    <span className="text-[8px] text-white/30 block">/ day</span>
+                                    <span className="text-xs font-black text-[#141414]">${item.price}</span>
+                                    <span className="text-[8px] text-neutral-400 block">/ day</span>
                                   </div>
                                 </div>
 
-                                <h5 className="text-sm font-bold text-white truncate">{item.name}</h5>
-                                <p className="text-[11px] text-white/40 font-light line-clamp-3 leading-relaxed">{item.description}</p>
+                                <h5 className="text-xs font-bold text-[#141414] truncate">{item.name}</h5>
+                                <p className="text-[10px] text-neutral-500 font-light line-clamp-3 leading-tight">{item.description}</p>
                               </div>
 
                               <button
                                 onClick={() => handleDeleteItem(item.id)}
-                                className="w-fit self-end text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
+                                className="w-fit self-end text-red-600 hover:bg-red-50 p-1.5 rounded border border-transparent hover:border-red-200 transition-all cursor-pointer"
                               >
-                                <HugeiconsIcon icon={Delete01Icon} size={16} />
+                                <HugeiconsIcon icon={Delete01Icon} size={14} />
                               </button>
                             </div>
                           ))}

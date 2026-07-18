@@ -1,315 +1,148 @@
 @import "tailwindcss";
 
 :root {
-  --background: #141414;
-  --foreground: #FFFFFF;
+  --background: #FFFFFF;
+  --foreground: #141414;
   
-  --gamebees-bg: #141414;
-  --gamebees-dark-navy: #10324D;
-  --gamebees-medium-blue: #1D496B;
-  --gamebees-accent-blue: #246596;
-  --gamebees-glow-blue: #5E9FD0;
-  --gamebees-accent-lavender: #A4CBE8;
-  --gamebees-pill: rgba(255, 255, 255, 0.04);
+  --gamebees-bg: #FFFFFF;
+  --gamebees-dark-navy: #FFFFFF;
+  --gamebees-medium-blue: #E5E5E5;
+  --gamebees-accent-blue: #141414;
+  --gamebees-glow-blue: #141414;
+  --gamebees-accent-lavender: #333333;
+  --gamebees-pill: #F5F5F5;
   
-  --gamebees-card-bg: rgba(20, 20, 20, 0.6);
-  --gamebees-border: rgba(94, 159, 208, 0.1);
-  --gamebees-border-hover: rgba(94, 159, 208, 0.25);
-  --gamebees-title-glow: linear-gradient(180deg, #FFFFFF 20%, #A4CBE8 65%, #5E9FD0 100%);
-  --gamebees-input-bg: rgba(16, 50, 77, 0.15);
-}
-
-html.light {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  
-  --gamebees-bg: #F8FAFC;
-  --gamebees-dark-navy: #E2E8F0;
-  --gamebees-medium-blue: #93C5FD;
-  --gamebees-accent-blue: #1D4ED8;
-  --gamebees-glow-blue: #2563EB;
-  --gamebees-accent-lavender: #1E3A8A;
-  --gamebees-pill: rgba(15, 23, 42, 0.05);
-  
-  --gamebees-card-bg: rgba(255, 255, 255, 0.85);
-  --gamebees-border: rgba(15, 23, 42, 0.08);
-  --gamebees-border-hover: rgba(15, 23, 42, 0.15);
-  --gamebees-title-glow: linear-gradient(180deg, #0F172A 20%, #1D496B 65%, #246596 100%);
-  --gamebees-input-bg: rgba(15, 23, 42, 0.04);
-}
-
-@theme {
-  --color-gamebees-bg: var(--gamebees-bg);
-  --color-gamebees-dark-navy: var(--gamebees-dark-navy);
-  --color-gamebees-medium-blue: var(--gamebees-medium-blue);
-  --color-gamebees-accent-blue: var(--gamebees-accent-blue);
-  --color-gamebees-glow-blue: var(--gamebees-glow-blue);
-  --color-gamebees-accent-lavender: var(--gamebees-accent-lavender);
-  --color-gamebees-pill: var(--gamebees-pill);
-  
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-fadeInUp: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-pulse-glow: pulseGlow 5s ease-in-out infinite;
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
-
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
-  }
+  --gamebees-card-bg: #FFFFFF;
+  --gamebees-border: #141414;
+  --gamebees-border-hover: #141414;
+  --gamebees-title-glow: #141414;
+  --gamebees-input-bg: #FFFFFF;
 }
 
 /* ============================================================
    SLIM CUSTOM SCROLLBAR
    ============================================================ */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--gamebees-bg);
+  background: #FFFFFF;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(36, 101, 150, 0.3);
-  border-radius: 10px;
-  transition: background 0.3s;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(94, 159, 208, 0.5);
+  background: #141414;
+  border-radius: 2px;
 }
 
-/* ============================================================
-   GAMEBEES — SEAMLESS CONSTANT BG AESTHETIC
-   ============================================================ */
 body {
-  background-color: var(--gamebees-bg);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FFFFFF;
+  color: #141414;
+  font-family: ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
   margin: 0;
 }
 
-/* Film-grain overlay - extremely subtle */
-.grainy-overlay::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  opacity: 0.02;
-  pointer-events: none;
-  z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-}
-
-/* ---- CARDS ---- */
+/* ---- DENSE MINIMAL CARDS ---- */
 .card-polished {
-  background: var(--gamebees-card-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--gamebees-border);
-  border-radius: 20px;
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  background: #FFFFFF;
+  border: 1px solid #141414;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .card-polished:hover {
-  border-color: var(--gamebees-border-hover);
-  box-shadow: 0 10px 30px rgba(36, 101, 150, 0.08);
+  box-shadow: 2px 2px 0px #141414;
 }
 
-/* ---- BUTTONS ---- */
+/* ---- MINIMAL SOLID BUTTONS ---- */
 .btn-glow-pill {
-  background: linear-gradient(135deg, var(--gamebees-accent-blue) 0%, var(--gamebees-medium-blue) 100%);
-  border: 1px solid rgba(94, 159, 208, 0.3);
-  color: #FFFFFF;
+  background: #141414;
+  border: 1px solid #141414;
+  color: #FFFFFF !important;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(36, 101, 150, 0.15);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .btn-glow-pill:hover {
-  background: linear-gradient(135deg, var(--gamebees-glow-blue) 0%, var(--gamebees-accent-blue) 100%);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px rgba(94, 159, 208, 0.3);
+  background: #333333;
+  border-color: #333333;
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0px #141414;
 }
 
-/* ---- PREMIUM TITLE GLOW EFFECT ---- */
-.title-glow {
-  background: var(--gamebees-title-glow);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 2px 24px rgba(94, 159, 208, 0.4));
-  letter-spacing: -0.015em;
+.btn-secondary {
+  background: #FFFFFF;
+  border: 1px solid #141414;
+  color: #141414 !important;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #F5F5F5;
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0px #141414;
 }
 
 /* ---- FORM INPUTS ---- */
 .form-input {
   width: 100%;
-  border-radius: 12px;
-  background-color: var(--gamebees-input-bg);
-  border: 1px solid var(--gamebees-border);
-  padding: 12px 16px;
-  font-size: 14px;
-  color: var(--foreground);
+  border-radius: 4px;
+  background-color: #FFFFFF;
+  border: 1px solid #141414;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #141414;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .form-input:focus {
-  border-color: var(--gamebees-glow-blue);
-  background-color: var(--gamebees-input-bg);
+  box-shadow: 2px 2px 0px #141414;
 }
 
-/* ============================================================
-   LIGHT MODE SELECTIVE OVERRIDES (Maintains clean codebase)
-   ============================================================ */
-html.light body {
-  background-color: var(--gamebees-bg);
-  color: var(--foreground);
+/* Override utility classes to enforce high contrast */
+.text-white\/90, .text-white\/80, .text-white\/70, .text-white\/60, .text-white\/50, .text-white\/40, .text-white\/30, .text-white {
+  color: #141414 !important;
 }
 
-/* Overriding Webkit Scrollbars for Light Mode */
-html.light ::-webkit-scrollbar-track {
-  background: var(--gamebees-bg);
-}
-html.light ::-webkit-scrollbar-thumb {
-  background: rgba(36, 101, 150, 0.2);
-}
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(36, 101, 150, 0.4);
+.bg-white\/5, .bg-white\/10, .bg-white\/\[0\.02\], .bg-white\/\[0\.015\] {
+  background-color: #F5F5F5 !important;
 }
 
-/* Overriding text and opacity classes */
-html.light .text-white {
-  color: #0F172A !important;
-}
-html.light .text-white\/90 {
-  color: rgba(15, 23, 42, 0.9) !important;
-}
-html.light .text-white\/80 {
-  color: rgba(15, 23, 42, 0.8) !important;
-}
-html.light .text-white\/70 {
-  color: rgba(15, 23, 42, 0.7) !important;
-}
-html.light .text-white\/60 {
-  color: rgba(15, 23, 42, 0.6) !important;
-}
-html.light .text-white\/50 {
-  color: rgba(15, 23, 42, 0.5) !important;
-}
-html.light .text-white\/45 {
-  color: rgba(15, 23, 42, 0.45) !important;
-}
-html.light .text-white\/40 {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-html.light .text-white\/30 {
-  color: rgba(15, 23, 42, 0.3) !important;
-}
-html.light .text-white\/25 {
-  color: rgba(15, 23, 42, 0.25) !important;
-}
-html.light .text-white\/20 {
-  color: rgba(15, 23, 42, 0.2) !important;
-}
-html.light .text-white\/10 {
-  color: rgba(15, 23, 42, 0.1) !important;
+.border-white\/10, .border-white\/\[0\.04\], .border-white\/\[0\.05\], .border-white\/\[0\.02\] {
+  border-color: #141414 !important;
 }
 
-/* Accent lavender mapping */
-html.light .text-gamebees-accent-lavender {
-  color: #1D4ED8 !important;
-}
-html.light .text-gamebees-accent-lavender\/45 {
-  color: rgba(29, 78, 216, 0.7) !important;
-}
-html.light .text-gamebees-accent-lavender\/40 {
-  color: rgba(29, 78, 216, 0.6) !important;
+.bg-\[\#141414\] {
+  background-color: #FFFFFF !important;
 }
 
-/* Background/Border transparency overrides for light theme compatibility */
-html.light .bg-white\/5 {
-  background-color: rgba(15, 23, 42, 0.05) !important;
-}
-html.light .bg-white\/10 {
-  background-color: rgba(15, 23, 42, 0.08) !important;
-}
-html.light .bg-white\/\[0\.02\] {
-  background-color: rgba(15, 23, 42, 0.02) !important;
-}
-html.light .bg-white\/\[0\.015\] {
-  background-color: rgba(15, 23, 42, 0.015) !important;
-}
-html.light .border-white\/10 {
-  border-color: rgba(15, 23, 42, 0.08) !important;
-}
-html.light .border-white\/\[0\.04\] {
-  border-color: rgba(15, 23, 42, 0.04) !important;
-}
-html.light .border-white\/\[0\.05\] {
-  border-color: rgba(15, 23, 42, 0.05) !important;
-}
-html.light .border-white\/\[0\.02\] {
-  border-color: rgba(15, 23, 42, 0.02) !important;
-}
-/* Hardcoded dark BG overrides */
-html.light .bg-\[\#141414\] {
-  background-color: var(--gamebees-bg) !important;
-}
-html.light .bg-\[\#141414\]\/85 {
-  background-color: rgba(248, 250, 252, 0.85) !important;
-}
-html.light .bg-\[\#141414\]\/80 {
-  background-color: rgba(248, 250, 252, 0.8) !important;
-}
-html.light .bg-zinc-950\/40 {
-  background-color: rgba(255, 255, 255, 0.7) !important;
-}
-html.light .bg-zinc-950\/80 {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-}
-html.light .bg-zinc-950 {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+.bg-zinc-950\/40, .bg-zinc-950\/80, .bg-zinc-950 {
+  background-color: #FFFFFF !important;
+  border: 1px solid #141414;
 }
 
-/* Drop shadow adjustment */
-html.light .title-glow {
-  filter: drop-shadow(0 2px 8px rgba(36, 101, 150, 0.15));
+/* Congested grid layout additions */
+.dense-table th {
+  background-color: #141414;
+  color: #FFFFFF;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  border: 1px solid #141414;
 }
 
-/* Exclude interactive elements that need to stay white text on dark/blue background */
-html.light .btn-glow-pill,
-html.light .btn-glow-pill *,
-html.light .bg-gamebees-accent-blue,
-html.light .bg-gamebees-accent-blue *,
-html.light .bg-gamebees-glow-blue,
-html.light .bg-gamebees-glow-blue *,
-html.light .bg-green-500,
-html.light .bg-green-500 *,
-html.light .bg-red-500,
-html.light .bg-red-500 *,
-html.light .bg-blue-500,
-html.light .bg-blue-500 *,
-html.light .bg-indigo-600,
-html.light .bg-indigo-600 *,
-html.light .cl-userButtonPopoverCard * {
-  color: inherit;
+.dense-table td {
+  padding: 6px 10px;
+  border: 1px solid #141414;
+  font-size: 11px;
 }
 
-/* Force standard white text on premium active components */
-html.light .btn-glow-pill {
-  color: #FFFFFF !important;
+.dense-table tr:hover {
+  background-color: #F9F9F9;
 }
