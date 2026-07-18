@@ -14,7 +14,7 @@ import {
   RefreshIcon,
   CheckmarkCircle02Icon
 } from "@hugeicons/core-free-icons";
-import { createBooking } from "@/app/actions";
+import { createBooking, getKycStatus } from "@/app/actions";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -49,6 +49,8 @@ export default function BookingModal({
   
   // Step 2: Automated KYC status check
   const [checkingKyc, setCheckingKyc] = useState(true);
+  const [dbKycStatus, setDbKycStatus] = useState<"pending" | "approved" | "declined" | "not_applied">("not_applied");
+  const [dbKycVerified, setDbKycVerified] = useState(false);
 
   // Step 3: Selfie Capture
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -101,14 +103,25 @@ export default function BookingModal({
     }
   }, [step, isOpen]);
 
-  // Trigger automated KYC status spinner when reaching step 2
+  // Fetch actual KYC status from DB when reaching step 2
   useEffect(() => {
     if (step === 2) {
       setCheckingKyc(true);
-      const timer = setTimeout(() => {
-        setCheckingKyc(false);
-      }, 1200);
-      return () => clearTimeout(timer);
+      getKycStatus()
+        .then((res) => {
+          if (res.success && res.profile) {
+            setDbKycStatus(res.profile.kyc_status || "pending");
+            setDbKycVerified(res.verified);
+          } else {
+            setDbKycStatus("not_applied");
+            setDbKycVerified(false);
+          }
+          setCheckingKyc(false);
+        })
+        .catch((err) => {
+          console.error("BookingModal KYC lookup error:", err);
+          setCheckingKyc(false);
+        });
     }
   }, [step]);
 

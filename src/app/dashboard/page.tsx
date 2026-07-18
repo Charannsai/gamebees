@@ -42,12 +42,25 @@ export default function UserDashboard() {
   const [kycLoading, setKycLoading] = useState(true);
   const [kycProfile, setKycProfile] = useState<any>(null);
   
-  // Local Aadhaar Verification Form (in KYC Tab)
+  // New Manual KYC state
+  const [kycName, setKycName] = useState("");
+  const [kycPhone, setKycPhone] = useState("");
   const [aadhaarNum, setAadhaarNum] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [aadhaarOtp, setAadhaarOtp] = useState("");
-  const [aadhaarError, setAadhaarError] = useState("");
-  const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const [aadhaarFront, setAadhaarFront] = useState<string | null>(null);
+  const [aadhaarBack, setAadhaarBack] = useState<string | null>(null);
+  const [selfie, setSelfie] = useState<string | null>(null);
+  const [kycError, setKycError] = useState("");
+  const [submittingKyc, setSubmittingKyc] = useState(false);
+
+  // Camera capture state
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   // Theme State
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -57,6 +70,22 @@ export default function UserDashboard() {
     const savedTheme = (localStorage.getItem("gamebees-theme") as "dark" | "light") || "dark";
     setTheme(savedTheme);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setKycName(user.fullName || "");
+      setKycPhone(user.primaryPhoneNumber?.phoneNumber || "");
+    }
+  }, [user]);
+
+  // Clean up camera on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [cameraStream]);
 
   const handleThemeChange = (newTheme: "dark" | "light") => {
     setTheme(newTheme);
@@ -89,16 +118,12 @@ export default function UserDashboard() {
       if (itemsRes.success) setItems(itemsRes.data || []);
       if (bookingsRes.success) setBookings(bookingsRes.data || []);
       
-      if (kycRes.success) {
+      if (kycRes.success && kycRes.profile) {
         setKycVerified(kycRes.verified);
         setKycProfile(kycRes.profile);
       } else {
-        // LocalStorage fallback for sandbox testing if DB fails/is missing
-        const cachedKyc = localStorage.getItem(`kyc_verified_${user?.id}`);
-        if (cachedKyc) {
-          setKycVerified(true);
-          setKycProfile(JSON.parse(cachedKyc));
-        }
+        setKycVerified(false);
+        setKycProfile(null);
       }
     } catch (err) {
       console.error("Error loading dashboard data:", err);
@@ -122,49 +147,154 @@ export default function UserDashboard() {
     setModalOpen(true);
   };
 
-  // Local Aadhaar Sandbox Handlers
-  const handleSendAadhaarOtp = () => {
-    if (aadhaarNum.length !== 12 || !/^\d+$/.test(aadhaarNum)) {
-      setAadhaarError("Please enter a valid 12-digit Aadhaar number.");
+  // Manual KYC Handlers
+  const handleGetLocation = () => {
+    setGettingLocation(true);
+    setLocationError("");
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      setGettingLocation(false);
       return;
     }
-    setAadhaarError("");
-    setVerifyingAadhaar(true);
-    
-    setTimeout(() => {
-      setVerifyingAadhaar(false);
-      setOtpSent(true);
-    }, 1000);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setGettingLocation(false);
+      },
+      (err) => {
+        console.error("Location error:", err);
+        setLocationError("Permission denied or location lookup failed.");
+        setGettingLocation(false);
+      }
+    );
   };
 
-  const handleVerifyAadhaarOtp = async () => {
-    if (aadhaarOtp !== "123456") {
-      setAadhaarError("Invalid OTP. Enter '123456' for sandbox verification.");
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 640;
+          const MAX_HEIGHT = 480;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          setter(dataUrl);
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      setCameraActive(true);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: 640, height: 480 },
+        audio: false
+      });
+      setCameraStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      console.error("Camera error:", err);
+      alert("Could not start camera. Please upload a picture instead.");
+      setCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(t => t.stop());
+      setCameraStream(null);
+    }
+    setCameraActive(false);
+  };
+
+  const captureSelfie = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const data = canvas.toDataURL("image/jpeg", 0.7);
+        setSelfie(data);
+        stopCamera();
+      }
+    }
+  };
+
+  const handleSubmitKyc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setKycError("");
+    if (!kycName || !kycPhone || !aadhaarNum || aadhaarNum.length !== 12 || !/^\d+$/.test(aadhaarNum)) {
+      setKycError("Please provide all fields and a valid 12-digit Aadhaar number.");
       return;
     }
-    setAadhaarError("");
-    setVerifyingAadhaar(true);
+    if (latitude === null || longitude === null) {
+      setKycError("Please allow live location tracking coordinates.");
+      return;
+    }
+    if (!aadhaarFront || !aadhaarBack) {
+      setKycError("Please upload both front and back sides of your Aadhaar card.");
+      return;
+    }
+    if (!selfie) {
+      setKycError("Please capture a live verification selfie.");
+      return;
+    }
 
-    const profileData = {
-      fullName: user?.fullName || "Verified User",
-      phone: user?.primaryPhoneNumber?.phoneNumber || "9988776655",
-      aadhaarNumber: aadhaarNum,
-      aadhaarVerified: true,
-      selfieUrl: "data:image/png;base64,mockselfie"
-    };
-
+    setSubmittingKyc(true);
     try {
-      const res = await saveKyc(profileData);
-      
-      // Save locally in all cases for safety & immediate use
-      localStorage.setItem(`kyc_verified_${user?.id}`, JSON.stringify(profileData));
-      
-      setKycVerified(true);
-      setKycProfile(profileData);
-    } catch (err) {
-      console.error("KYC save error:", err);
+      const res = await saveKyc({
+        fullName: kycName,
+        phone: kycPhone,
+        aadhaarNumber: aadhaarNum,
+        aadhaarVerified: false,
+        selfieUrl: selfie,
+        aadhaarFrontUrl: aadhaarFront,
+        aadhaarBackUrl: aadhaarBack,
+        latitude,
+        longitude
+      });
+
+      if (res.success) {
+        await loadDashboardData();
+      } else {
+        setKycError(res.error || "Failed to submit KYC data.");
+      }
+    } catch (err: any) {
+      setKycError(err.message || "An unexpected error occurred.");
     } finally {
-      setVerifyingAadhaar(false);
+      setSubmittingKyc(false);
     }
   };
 
@@ -665,7 +795,7 @@ export default function UserDashboard() {
                     </p>
                   </div>
 
-                  {kycVerified ? (
+                  {kycProfile?.kyc_status === 'approved' ? (
                     <div className="card-polished p-8 text-center space-y-5 border border-green-500/10 bg-green-500/[0.01]">
                       <div className="mx-auto h-16 w-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.1)]">
                         <HugeiconsIcon icon={Shield01Icon} size={32} />
@@ -673,14 +803,14 @@ export default function UserDashboard() {
                       <div>
                         <h4 className="text-lg font-bold text-white">Your Identity is KYC Verified</h4>
                         <p className="text-white/50 text-xs mt-1 font-light">
-                          Verified Name: <strong className="text-white/80">{kycProfile?.fullName || user?.fullName}</strong>
+                          Verified Name: <strong className="text-white/80">{kycProfile?.full_name}</strong>
                         </p>
                       </div>
 
                       <div className="max-w-md mx-auto text-left text-xs text-white/50 space-y-2 p-4 bg-black/30 rounded-2xl border border-white/[0.04] font-light">
-                        <div className="flex justify-between"><span>Aadhaar status:</span><span className="text-green-400 font-bold uppercase tracking-wider">SUCCESS</span></div>
-                        <div className="flex justify-between"><span>Document ID:</span><span className="font-mono text-white/70">XXXXXXXX{kycProfile?.aadhaarNumber ? kycProfile.aadhaarNumber.slice(-4) : "XXXX"}</span></div>
-                        <div className="flex justify-between"><span>KYC Verification Date:</span><span className="text-white/70">{new Date().toLocaleDateString()}</span></div>
+                        <div className="flex justify-between"><span>Aadhaar status:</span><span className="text-green-400 font-bold uppercase tracking-wider">APPROVED</span></div>
+                        <div className="flex justify-between"><span>Document ID:</span><span className="font-mono text-white/70">XXXXXXXX{kycProfile?.aadhaar_number ? kycProfile.aadhaar_number.slice(-4) : "XXXX"}</span></div>
+                        <div className="flex justify-between"><span>KYC Verification Date:</span><span className="text-white/70">{new Date(kycProfile?.updated_at || Date.now()).toLocaleDateString()}</span></div>
                       </div>
                       
                       <button
@@ -691,25 +821,74 @@ export default function UserDashboard() {
                         <HugeiconsIcon icon={ArrowRight01Icon} size={15} />
                       </button>
                     </div>
+                  ) : kycProfile?.kyc_status === 'pending' ? (
+                    <div className="card-polished p-8 text-center space-y-5 border border-amber-500/10 bg-amber-500/[0.01]">
+                      <div className="mx-auto h-16 w-16 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.1)] animate-pulse">
+                        <HugeiconsIcon icon={Shield01Icon} size={32} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white">KYC Verification Pending</h4>
+                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light max-w-sm mx-auto">
+                          Your application has been received and is currently under review by our administration team. Check back shortly.
+                        </p>
+                      </div>
+
+                      <div className="max-w-md mx-auto text-left text-xs text-white/50 space-y-2 p-4 bg-black/30 rounded-2xl border border-white/[0.04] font-light">
+                        <div className="flex justify-between"><span>Status:</span><span className="text-amber-400 font-bold uppercase tracking-wider">UNDER REVIEW</span></div>
+                        <div className="flex justify-between"><span>Name:</span><span className="text-white/80">{kycProfile?.full_name}</span></div>
+                        <div className="flex justify-between"><span>Aadhaar:</span><span className="font-mono text-white/70">XXXXXXXX{kycProfile?.aadhaar_number?.slice(-4)}</span></div>
+                      </div>
+                    </div>
                   ) : (
                     <div className="card-polished p-5 sm:p-8 space-y-6">
                       <div className="space-y-1">
                         <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                           <HugeiconsIcon icon={Shield01Icon} size={18} className="text-gamebees-glow-blue" />
-                          <span>Aadhaar eKYC Sandbox</span>
+                          <span>Manual KYC Submission Form</span>
                         </h4>
                         <p className="text-white/40 text-xs font-light">
-                          Enter your 12-digit Aadhaar to simulate eKYC matching. Use sandbox test code <strong>123456</strong> when prompted.
+                          {kycProfile?.kyc_status === 'declined' ? (
+                            <span className="text-red-400 font-bold block mb-2 bg-red-500/10 p-2.5 rounded-lg border border-red-500/25">
+                              Previous submission was declined. Please re-upload valid details.
+                            </span>
+                          ) : null}
+                          Verify your identity manually by uploading your coordinates, Aadhaar card front/back, and a live webcam selfie.
                         </p>
                       </div>
 
-                      <div className="space-y-4">
+                      <form onSubmit={handleSubmitKyc} className="space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/70 block">Full Name</label>
+                            <input
+                              type="text"
+                              required
+                              value={kycName}
+                              onChange={(e) => setKycName(e.target.value)}
+                              placeholder="Enter your full name"
+                              className="form-input"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-xs font-semibold text-white/70 block">Contact Phone</label>
+                            <input
+                              type="tel"
+                              required
+                              value={kycPhone}
+                              onChange={(e) => setKycPhone(e.target.value)}
+                              placeholder="E.g., +91 99887 76655"
+                              className="form-input"
+                            />
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
-                          <label className="text-xs font-semibold text-white/70 block">Aadhaar Card Number</label>
+                          <label className="text-xs font-semibold text-white/70 block">12-Digit Aadhaar Card Number</label>
                           <input
                             type="text"
                             maxLength={12}
-                            disabled={otpSent}
+                            required
                             value={aadhaarNum}
                             onChange={(e) => setAadhaarNum(e.target.value.replace(/\D/g, ""))}
                             placeholder="1234 5678 9012"
@@ -717,59 +896,176 @@ export default function UserDashboard() {
                           />
                         </div>
 
-                        {otpSent && (
-                          <div className="space-y-2 animate-fadeInUp">
-                            <label className="text-xs font-semibold text-white/70 block">Enter 6-Digit OTP</label>
-                            <input
-                              type="text"
-                              maxLength={6}
-                              value={aadhaarOtp}
-                              onChange={(e) => setAadhaarOtp(e.target.value.replace(/\D/g, ""))}
-                              placeholder="------"
-                              className="form-input tracking-[0.4em] font-mono text-center text-lg border-green-500/30"
-                            />
-                          </div>
-                        )}
-
-                        {aadhaarError && (
-                          <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2 font-light">
-                            <HugeiconsIcon icon={AlertCircleIcon} size={14} />
-                            <span>{aadhaarError}</span>
-                          </p>
-                        )}
-
-                        <div className="pt-2">
-                          {verifyingAadhaar ? (
-                            <div className="flex justify-center py-2">
-                              <div className="h-6 w-6 border-2 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
+                        {/* Live Location Block */}
+                        <div className="p-4.5 rounded-xl bg-white/[0.015] border border-white/[0.04] space-y-3">
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div>
+                              <span className="text-xs font-bold text-white block">1. Live Location Coordinates</span>
+                              <span className="text-[10px] text-white/30 font-light block mt-0.5">We must verify your current dispatch location.</span>
                             </div>
-                          ) : !otpSent ? (
-                            <button
-                              onClick={handleSendAadhaarOtp}
-                              disabled={aadhaarNum.length !== 12}
-                              className="w-full py-3.5 rounded-xl bg-gamebees-accent-blue/80 hover:bg-gamebees-accent-blue text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-                            >
-                              Send OTP Code
-                            </button>
+                            
+                            {latitude !== null && longitude !== null ? (
+                              <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 font-mono text-[10px] text-center">
+                                GPS: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={handleGetLocation}
+                                disabled={gettingLocation}
+                                className="px-4 py-2 bg-gamebees-accent-blue/80 hover:bg-gamebees-accent-blue text-xs font-semibold rounded-lg transition-all text-white flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                {gettingLocation ? (
+                                  <div className="h-3 w-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <>
+                                    <HugeiconsIcon icon={Location01Icon} size={14} />
+                                    <span>Get GPS Coordinates</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                          {locationError && (
+                            <p className="text-[10px] text-red-400 font-light">{locationError}</p>
+                          )}
+                        </div>
+
+                        {/* Aadhaar Images Upload Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Aadhaar Front */}
+                          <div className="p-4.5 rounded-xl bg-white/[0.015] border border-white/[0.04] flex flex-col items-center justify-center gap-3 text-center min-h-[160px]">
+                            <span className="text-xs font-bold text-white block">2. Aadhaar Front Page</span>
+                            {aadhaarFront ? (
+                              <div className="relative h-20 w-32 border border-white/10 rounded-lg overflow-hidden group">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={aadhaarFront} alt="Aadhaar Front" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => setAadhaarFront(null)}
+                                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-red-400 transition-opacity"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg text-xs font-semibold text-white/80 hover:text-white cursor-pointer transition-all">
+                                <span>Choose Image</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleFileChange(e, setAadhaarFront)}
+                                />
+                              </label>
+                            )}
+                          </div>
+
+                          {/* Aadhaar Back */}
+                          <div className="p-4.5 rounded-xl bg-white/[0.015] border border-white/[0.04] flex flex-col items-center justify-center gap-3 text-center min-h-[160px]">
+                            <span className="text-xs font-bold text-white block">3. Aadhaar Back Page</span>
+                            {aadhaarBack ? (
+                              <div className="relative h-20 w-32 border border-white/10 rounded-lg overflow-hidden group">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={aadhaarBack} alt="Aadhaar Back" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => setAadhaarBack(null)}
+                                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-red-400 transition-opacity"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg text-xs font-semibold text-white/80 hover:text-white cursor-pointer transition-all">
+                                <span>Choose Image</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleFileChange(e, setAadhaarBack)}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Selfie Camera Capture Block */}
+                        <div className="p-4.5 rounded-xl bg-white/[0.015] border border-white/[0.04] flex flex-col items-center justify-center gap-3 text-center min-h-[180px]">
+                          <span className="text-xs font-bold text-white block">4. Live Camera Selfie</span>
+                          {cameraActive ? (
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="relative h-40 aspect-video rounded-lg overflow-hidden border border-white/10 bg-black">
+                                <video ref={videoRef} className="w-full h-full object-cover scale-x-[-1]" muted playsInline />
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={captureSelfie}
+                                  className="px-3.5 py-1.5 bg-green-500 hover:bg-green-600 rounded-lg text-[10px] font-bold text-white cursor-pointer"
+                                >
+                                  Take Photo
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={stopCamera}
+                                  className="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold text-white/80 cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : selfie ? (
+                            <div className="relative h-28 aspect-video border border-white/10 rounded-lg overflow-hidden group">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={selfie} alt="Selfie preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => setSelfie(null)}
+                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-bold text-red-400 transition-opacity"
+                              >
+                                Remove
+                              </button>
+                            </div>
                           ) : (
                             <div className="flex gap-3">
                               <button
-                                onClick={() => { setOtpSent(false); setAadhaarOtp(""); }}
-                                className="flex-1 py-3.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all cursor-pointer"
+                                type="button"
+                                onClick={startCamera}
+                                className="px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg text-xs font-semibold text-white/80 hover:text-white cursor-pointer"
                               >
-                                Back
+                                Capture Selfie Camera
                               </button>
-                              <button
-                                onClick={handleVerifyAadhaarOtp}
-                                disabled={aadhaarOtp.length !== 6}
-                                className="flex-1 py-3.5 rounded-xl bg-green-500/80 hover:bg-green-500 text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-                              >
-                                Complete KYC
-                              </button>
+                              <label className="px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg text-xs font-semibold text-white/80 hover:text-white cursor-pointer transition-all">
+                                <span>Upload Selfie File</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleFileChange(e, setSelfie)}
+                                />
+                              </label>
                             </div>
                           )}
+                          <canvas ref={canvasRef} className="hidden" />
                         </div>
-                      </div>
+
+                        {kycError && (
+                          <p className="text-xs text-red-400 font-light text-center">{kycError}</p>
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={submittingKyc || !kycName || !kycPhone || !aadhaarNum || latitude === null || !aadhaarFront || !aadhaarBack || !selfie}
+                          className="w-full py-3.5 rounded-xl btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          {submittingKyc ? (
+                            <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <span>Submit Manual KYC Application</span>
+                          )}
+                        </button>
+                      </form>
                     </div>
                   )}
                 </div>
