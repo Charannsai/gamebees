@@ -21,12 +21,12 @@ import {
   PlusSignIcon, 
   Delete01Icon, 
   Shield01Icon, 
-  CheckmarkCircle01Icon, 
   AlertCircleIcon,
   Logout01Icon,
   PackageIcon,
   ArrowUpRight01Icon,
-  LockIcon
+  LockIcon,
+  Cancel01Icon
 } from "@hugeicons/core-free-icons";
 
 export default function AdminPage() {
@@ -43,6 +43,10 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [kycProfiles, setKycProfiles] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+
+  // Detail view state variables
+  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [selectedKycProfile, setSelectedKycProfile] = useState<any | null>(null);
 
   // Form State for Adding Item
   const [itemName, setItemName] = useState("");
@@ -142,7 +146,6 @@ export default function AdminPage() {
   };
 
   const handleApproveKyc = async (userId: string) => {
-    if (!confirm("Are you sure you want to APPROVE this user's KYC profile?")) return;
     const res = await adminApproveKyc(userId);
     if (res.success) {
       loadData();
@@ -152,7 +155,6 @@ export default function AdminPage() {
   };
 
   const handleDeclineKyc = async (userId: string) => {
-    if (!confirm("Are you sure you want to DECLINE this user's KYC profile?")) return;
     const res = await adminDeclineKyc(userId);
     if (res.success) {
       loadData();
@@ -367,7 +369,7 @@ export default function AdminPage() {
                       Reservations Board
                     </h3>
                     <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                      Audit bookings, review verified customer identities, and manage active console rentals.
+                      Click customer names to inspect detailed delivery coordinates, selfies, and manage console rentals.
                     </p>
                   </div>
 
@@ -382,11 +384,11 @@ export default function AdminPage() {
                         <thead>
                           <tr>
                             <th>Ref ID / Date</th>
-                            <th>Customer info</th>
-                            <th>Aadhaar Status</th>
-                            <th>Address & Location</th>
-                            <th>Selfie Match</th>
-                            <th>Status & Actions</th>
+                            <th>Customer Name</th>
+                            <th>Item Category</th>
+                            <th>Price Total</th>
+                            <th>Status Badge</th>
+                            <th>Open Detail</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -397,91 +399,35 @@ export default function AdminPage() {
                                 <span className="block text-[8px] text-neutral-400 mt-0.5">{new Date(booking.created_at).toLocaleDateString()}</span>
                               </td>
                               <td>
-                                <span className="font-semibold block text-xs">{booking.full_name}</span>
-                                <span className="text-[10px] text-neutral-500 block">{booking.phone}</span>
+                                <button
+                                  onClick={() => setSelectedBooking(booking)}
+                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
+                                >
+                                  {booking.full_name}
+                                </button>
+                                <span className="text-[10px] text-neutral-400 block mt-0.5">{booking.phone}</span>
                               </td>
                               <td>
-                                {booking.aadhaar_verified ? (
-                                  <span className="text-green-700 font-semibold text-[10px] bg-green-50 px-2 py-0.5 rounded border border-green-200">Verified</span>
-                                ) : (
-                                  <span className="text-amber-600 font-semibold text-[10px] bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Unverified</span>
-                                )}
-                                <span className="block font-mono text-[9px] text-neutral-400 mt-1">
-                                  xxxx-xxxx-{booking.aadhaar_number.slice(-4)}
+                                <span className="text-[10px] font-semibold text-neutral-600 block">
+                                  {booking.items?.name || "Rental Hardware"}
+                                </span>
+                                <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
+                              </td>
+                              <td className="font-mono text-xs font-bold text-[#141414]">
+                                ${booking.total_price}
+                              </td>
+                              <td>
+                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
+                                  {booking.status}
                                 </span>
                               </td>
-                              <td className="max-w-[150px]">
-                                <span className="truncate block text-xs" title={booking.address}>{booking.address}</span>
-                                <a 
-                                  href={booking.map_link} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
-                                  className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold text-[9px] mt-1"
+                              <td>
+                                <button
+                                  onClick={() => setSelectedBooking(booking)}
+                                  className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
                                 >
-                                  <span>View Google Map</span>
-                                  <HugeiconsIcon icon={ArrowUpRight01Icon} size={10} />
-                                </a>
-                              </td>
-                              <td>
-                                <div className="h-8 w-12 bg-neutral-100 rounded border border-neutral-200 overflow-hidden flex items-center justify-center relative group">
-                                  {booking.selfie_url && booking.selfie_url.startsWith("data:image") ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img 
-                                      src={booking.selfie_url} 
-                                      alt="Selfie" 
-                                      className="w-full h-full object-cover cursor-zoom-in group-hover:scale-105 transition-transform" 
-                                      onClick={() => {
-                                        const w = window.open();
-                                        w?.document.write(`<img src="${booking.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
-                                      }}
-                                    />
-                                  ) : (
-                                    <span className="text-neutral-400 text-[8px]">No photo</span>
-                                  )}
-                                </div>
-                              </td>
-                              <td>
-                                <div className="flex flex-col gap-1 items-start">
-                                  <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
-                                    {booking.status}
-                                  </span>
-                                  <div className="flex gap-1 mt-1">
-                                    {booking.status === "booked" && (
-                                      <>
-                                        <button
-                                          onClick={() => handleUpdateStatus(booking.id, "dispatched", "shipped")}
-                                          className="px-2 py-0.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-[9px] font-semibold transition-all cursor-pointer"
-                                        >
-                                          Dispatch
-                                        </button>
-                                        <button
-                                          onClick={() => handleUpdateStatus(booking.id, "discarded", "returned")}
-                                          className="px-2 py-0.5 border border-red-500 text-red-600 hover:bg-red-50 rounded text-[9px] font-semibold transition-all cursor-pointer"
-                                        >
-                                          Discard
-                                        </button>
-                                      </>
-                                    )}
-
-                                    {booking.status === "dispatched" && (
-                                      <button
-                                        onClick={() => handleUpdateStatus(booking.id, "delivered", "delivered")}
-                                        className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white rounded text-[9px] font-semibold transition-all cursor-pointer"
-                                      >
-                                        Deliver
-                                      </button>
-                                    )}
-
-                                    {booking.status === "delivered" && (
-                                      <button
-                                        onClick={() => handleUpdateStatus(booking.id, "completed", "returned")}
-                                        className="px-2 py-0.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-[9px] font-semibold transition-all cursor-pointer"
-                                      >
-                                        Return
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
+                                  Open Details
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -500,7 +446,7 @@ export default function AdminPage() {
                       KYC Manual Approvals Board
                     </h3>
                     <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                      Verify coordinate location, Aadhaar card front/back, and customer selfie uploads.
+                      Click names to verify coordinates maps, Aadhaar documents, and match selfies.
                     </p>
                   </div>
 
@@ -514,132 +460,47 @@ export default function AdminPage() {
                       <table className="dense-table">
                         <thead>
                           <tr>
-                            <th>User details</th>
-                            <th>Aadhaar text</th>
-                            <th>Coordinates</th>
-                            <th>Uploaded Docs (Front / Back / Selfie)</th>
-                            <th>Status & Actions</th>
+                            <th>Customer Name</th>
+                            <th>Aadhaar Registry</th>
+                            <th>Applied Date</th>
+                            <th>Review Status</th>
+                            <th>Audit Details</th>
                           </tr>
                         </thead>
                         <tbody>
                           {kycProfiles.map((profile) => (
                             <tr key={profile.id}>
                               <td>
-                                <span className="font-semibold block text-xs">{profile.full_name}</span>
-                                <span className="text-[9px] text-neutral-400 font-mono block mt-0.5">ID: {profile.id}</span>
-                                <span className="text-[10px] text-neutral-500 block mt-0.5">Ph: {profile.phone}</span>
-                              </td>
-                              <td className="font-mono text-xs font-bold text-[#141414]">
-                                {profile.aadhaar_number}
-                              </td>
-                              <td>
-                                <span className="font-mono text-[10px] block">
-                                  {profile.latitude?.toFixed(4)}, {profile.longitude?.toFixed(4)}
-                                </span>
-                                <a 
-                                  href={`https://www.google.com/maps/search/?api=1&query=${profile.latitude},${profile.longitude}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold text-[9px] mt-1"
+                                <button
+                                  onClick={() => setSelectedKycProfile(profile)}
+                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
                                 >
-                                  <span>Open In Map</span>
-                                  <HugeiconsIcon icon={ArrowUpRight01Icon} size={10} />
-                                </a>
+                                  {profile.full_name}
+                                </button>
+                                <span className="text-[10px] text-neutral-400 block mt-0.5">Ph: {profile.phone}</span>
+                              </td>
+                              <td className="font-mono text-xs text-neutral-600">
+                                xxxx-xxxx-{profile.aadhaar_number.slice(-4)}
+                              </td>
+                              <td className="text-[10px] text-neutral-500">
+                                {new Date(profile.created_at || Date.now()).toLocaleDateString()}
                               </td>
                               <td>
-                                <div className="flex gap-1.5">
-                                  {/* Front */}
-                                  <div className="text-center">
-                                    <div className="h-9 w-12 bg-neutral-50 border border-neutral-200 rounded overflow-hidden relative group">
-                                      {profile.aadhaar_front_url ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img 
-                                          src={profile.aadhaar_front_url} 
-                                          alt="Front" 
-                                          className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
-                                          onClick={() => {
-                                            const w = window.open();
-                                            w?.document.write(`<img src="${profile.aadhaar_front_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
-                                          }}
-                                        />
-                                      ) : (
-                                        <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
-                                      )}
-                                    </div>
-                                    <span className="text-[7px] text-neutral-400 block mt-0.5">Front</span>
-                                  </div>
-
-                                  {/* Back */}
-                                  <div className="text-center">
-                                    <div className="h-9 w-12 bg-neutral-50 border border-neutral-200 rounded overflow-hidden relative group">
-                                      {profile.aadhaar_back_url ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img 
-                                          src={profile.aadhaar_back_url} 
-                                          alt="Back" 
-                                          className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
-                                          onClick={() => {
-                                            const w = window.open();
-                                            w?.document.write(`<img src="${profile.aadhaar_back_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
-                                          }}
-                                        />
-                                      ) : (
-                                        <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
-                                      )}
-                                    </div>
-                                    <span className="text-[7px] text-neutral-400 block mt-0.5">Back</span>
-                                  </div>
-
-                                  {/* Selfie */}
-                                  <div className="text-center">
-                                    <div className="h-9 w-12 bg-neutral-50 border border-neutral-200 rounded overflow-hidden relative group">
-                                      {profile.selfie_url ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img 
-                                          src={profile.selfie_url} 
-                                          alt="Selfie" 
-                                          className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform" 
-                                          onClick={() => {
-                                            const w = window.open();
-                                            w?.document.write(`<img src="${profile.selfie_url}" style="max-width:100%;height:auto;border-radius:4px;"/>`);
-                                          }}
-                                        />
-                                      ) : (
-                                        <span className="text-[8px] text-neutral-400 flex items-center justify-center h-full">N/A</span>
-                                      )}
-                                    </div>
-                                    <span className="text-[7px] text-neutral-400 block mt-0.5">Selfie</span>
-                                  </div>
-                                </div>
+                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${
+                                  profile.kyc_status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
+                                  profile.kyc_status === 'declined' ? 'bg-red-50 text-red-700 border-red-200' :
+                                  'bg-amber-50 text-amber-700 border-amber-200'
+                                }`}>
+                                  {profile.kyc_status}
+                                </span>
                               </td>
                               <td>
-                                <div className="flex flex-col gap-1 items-start">
-                                  <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${
-                                    profile.kyc_status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
-                                    profile.kyc_status === 'declined' ? 'bg-red-50 text-red-700 border-red-200' :
-                                    'bg-amber-50 text-amber-700 border-amber-200'
-                                  }`}>
-                                    {profile.kyc_status}
-                                  </span>
-                                  <div className="flex gap-1 mt-1">
-                                    {profile.kyc_status !== "approved" && (
-                                      <button
-                                        onClick={() => handleApproveKyc(profile.id)}
-                                        className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white rounded text-[9px] font-semibold cursor-pointer transition-all"
-                                      >
-                                        Approve
-                                      </button>
-                                    )}
-                                    {profile.kyc_status !== "declined" && (
-                                      <button
-                                        onClick={() => handleDeclineKyc(profile.id)}
-                                        className="px-2 py-0.5 border border-red-500 text-red-600 hover:bg-red-50 rounded text-[9px] font-semibold cursor-pointer transition-all"
-                                      >
-                                        Decline
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
+                                <button
+                                  onClick={() => setSelectedKycProfile(profile)}
+                                  className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
+                                >
+                                  Review Application
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -808,6 +669,350 @@ export default function AdminPage() {
         </main>
       </div>
 
+      {/* Modal: Booking Detail View */}
+      {selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fadeInUp">
+          <div className="bg-white border border-[#E4E4E7] rounded-lg shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-[#141414]">Booking Details: #{selectedBooking.id.slice(-8).toUpperCase()}</h3>
+                <span className="text-[10px] text-neutral-400">Created on {new Date(selectedBooking.created_at).toLocaleString()}</span>
+              </div>
+              <button 
+                onClick={() => setSelectedBooking(null)}
+                className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Customer & Item info */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Customer Info</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
+                      <div className="flex justify-between"><span>Name:</span><span className="font-bold text-[#141414]">{selectedBooking.full_name}</span></div>
+                      <div className="flex justify-between"><span>Phone:</span><span className="font-mono">{selectedBooking.phone}</span></div>
+                      <div className="flex justify-between"><span>Clerk ID:</span><span className="font-mono text-[10px] truncate max-w-[150px]">{selectedBooking.user_id}</span></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[9px] text-neutral-455 font-bold uppercase block tracking-wider mb-1">Hardware Listing</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
+                      <div className="flex justify-between"><span>Product:</span><span className="font-bold">{selectedBooking.items?.name || "Console Hardware"}</span></div>
+                      <div className="flex justify-between"><span>Category:</span><span>{selectedBooking.items?.category || "Consoles"}</span></div>
+                      <div className="flex justify-between"><span>Price per Day:</span><span>${selectedBooking.items?.price || selectedBooking.total_price / selectedBooking.duration_days}</span></div>
+                      <div className="flex justify-between"><span>Duration:</span><span>{selectedBooking.duration_days} Days</span></div>
+                      <div className="flex justify-between border-t border-neutral-200 pt-1.5 font-bold"><span>Total Paid:</span><span>${selectedBooking.total_price}</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address & Verifications */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Delivery Address</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-2">
+                      <p className="leading-relaxed">{selectedBooking.address}</p>
+                      <a 
+                        href={selectedBooking.map_link} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
+                      >
+                        <span>Google Maps Link</span>
+                        <HugeiconsIcon icon={ArrowUpRight01Icon} size={11} />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Aadhaar Proof</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
+                      <div className="flex justify-between"><span>Aadhaar Number:</span><span className="font-mono">xxxx-xxxx-{selectedBooking.aadhaar_number.slice(-4)}</span></div>
+                      <div className="flex justify-between">
+                        <span>Identity Status:</span>
+                        {selectedBooking.aadhaar_verified ? (
+                          <span className="text-green-700 font-bold">Verified</span>
+                        ) : (
+                          <span className="text-amber-600 font-bold">Unverified</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Selfie image */}
+              <div>
+                <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Captured Selfie Match</span>
+                <div className="h-44 bg-neutral-50 rounded border border-neutral-200 flex items-center justify-center overflow-hidden">
+                  {selectedBooking.selfie_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img 
+                      src={selectedBooking.selfie_url} 
+                      alt="Selfie Match" 
+                      className="h-full object-contain cursor-zoom-in" 
+                      onClick={() => {
+                        const w = window.open();
+                        w?.document.write(`<img src="${selectedBooking.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
+                      }}
+                    />
+                  ) : (
+                    <span className="text-neutral-400">No selfie uploaded for this booking.</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-4 border-t border-neutral-200 bg-[#F8F8FA] flex justify-between items-center">
+              <div className="flex gap-2">
+                {selectedBooking.status === "booked" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        handleUpdateStatus(selectedBooking.id, "dispatched", "shipped");
+                        setSelectedBooking(null);
+                      }}
+                      className="px-4 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
+                    >
+                      Approve & Dispatch
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleUpdateStatus(selectedBooking.id, "discarded", "returned");
+                        setSelectedBooking(null);
+                      }}
+                      className="px-4 py-1.5 border border-red-500 text-red-600 hover:bg-red-50 rounded text-xs font-semibold cursor-pointer"
+                    >
+                      Discard Booking
+                    </button>
+                  </>
+                )}
+
+                {selectedBooking.status === "dispatched" && (
+                  <button
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking.id, "delivered", "delivered");
+                      setSelectedBooking(null);
+                    }}
+                    className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-semibold cursor-pointer"
+                  >
+                    Mark Delivered
+                  </button>
+                )}
+
+                {selectedBooking.status === "delivered" && (
+                  <button
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking.id, "completed", "returned");
+                      setSelectedBooking(null);
+                    }}
+                    className="px-4 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
+                  >
+                    Mark Returned
+                  </button>
+                )}
+              </div>
+
+              <button 
+                onClick={() => setSelectedBooking(null)}
+                className="px-4 py-1.5 btn-secondary text-xs font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: KYC Detail View */}
+      {selectedKycProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fadeInUp">
+          <div className="bg-white border border-[#E4E4E7] rounded-lg shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-[#141414]">KYC Application: {selectedKycProfile.full_name}</h3>
+                <span className="text-[10px] text-neutral-400">Submitted on {new Date(selectedKycProfile.created_at).toLocaleString()}</span>
+              </div>
+              <button 
+                onClick={() => setSelectedKycProfile(null)}
+                className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* User details */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Customer Profile</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
+                      <div className="flex justify-between"><span>Name:</span><span className="font-bold text-[#141414]">{selectedKycProfile.full_name}</span></div>
+                      <div className="flex justify-between"><span>Phone:</span><span className="font-mono">{selectedKycProfile.phone}</span></div>
+                      <div className="flex justify-between"><span>User Account ID:</span><span className="font-mono text-[10px] truncate max-w-[150px]">{selectedKycProfile.id}</span></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[9px] text-neutral-455 font-bold uppercase block tracking-wider mb-1">Aadhaar Card details</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
+                      <div className="flex justify-between"><span>Aadhaar Number:</span><span className="font-mono font-bold text-sm text-[#141414] tracking-wide">{selectedKycProfile.aadhaar_number}</span></div>
+                      <div className="flex justify-between border-t border-neutral-200 pt-1.5 font-bold">
+                        <span>Current Status:</span>
+                        <span className={`font-semibold border rounded px-1.5 py-0.5 text-[10px] ${
+                          selectedKycProfile.kyc_status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
+                          selectedKycProfile.kyc_status === 'declined' ? 'bg-red-50 text-red-700 border-red-200' :
+                          'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {selectedKycProfile.kyc_status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coordinates / Map details */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Live Coordinates Tracking</span>
+                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-2">
+                      <div className="flex justify-between font-mono"><span>Latitude:</span><span>{selectedKycProfile.latitude?.toFixed(6) || "N/A"}</span></div>
+                      <div className="flex justify-between font-mono"><span>Longitude:</span><span>{selectedKycProfile.longitude?.toFixed(6) || "N/A"}</span></div>
+                      
+                      {selectedKycProfile.latitude && selectedKycProfile.longitude && (
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${selectedKycProfile.latitude},${selectedKycProfile.longitude}`}
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold mt-1"
+                        >
+                          <span>Show Exact Location on Map</span>
+                          <HugeiconsIcon icon={ArrowUpRight01Icon} size={11} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document verification uploads */}
+              <div>
+                <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1.5">Verification Documents</span>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Front */}
+                  <div className="space-y-1.5 text-center">
+                    <span className="text-[10px] text-neutral-500 font-semibold block">Aadhaar Front</span>
+                    <div className="h-28 bg-neutral-50 rounded border border-neutral-200 flex items-center justify-center overflow-hidden relative group">
+                      {selectedKycProfile.aadhaar_front_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={selectedKycProfile.aadhaar_front_url} 
+                          alt="Aadhaar Front" 
+                          className="h-full w-full object-cover cursor-zoom-in" 
+                          onClick={() => {
+                            const w = window.open();
+                            w?.document.write(`<img src="${selectedKycProfile.aadhaar_front_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
+                          }}
+                        />
+                      ) : (
+                        <span className="text-neutral-300 text-[10px]">N/A</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Back */}
+                  <div className="space-y-1.5 text-center">
+                    <span className="text-[10px] text-neutral-500 font-semibold block">Aadhaar Back</span>
+                    <div className="h-28 bg-neutral-50 rounded border border-neutral-200 flex items-center justify-center overflow-hidden relative group">
+                      {selectedKycProfile.aadhaar_back_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={selectedKycProfile.aadhaar_back_url} 
+                          alt="Aadhaar Back" 
+                          className="h-full w-full object-cover cursor-zoom-in" 
+                          onClick={() => {
+                            const w = window.open();
+                            w?.document.write(`<img src="${selectedKycProfile.aadhaar_back_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
+                          }}
+                        />
+                      ) : (
+                        <span className="text-neutral-300 text-[10px]">N/A</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Selfie */}
+                  <div className="space-y-1.5 text-center">
+                    <span className="text-[10px] text-neutral-500 font-semibold block">User Selfie</span>
+                    <div className="h-28 bg-neutral-50 rounded border border-neutral-200 flex items-center justify-center overflow-hidden relative group">
+                      {selectedKycProfile.selfie_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={selectedKycProfile.selfie_url} 
+                          alt="User Selfie" 
+                          className="h-full w-full object-cover cursor-zoom-in" 
+                          onClick={() => {
+                            const w = window.open();
+                            w?.document.write(`<img src="${selectedKycProfile.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
+                          }}
+                        />
+                      ) : (
+                        <span className="text-neutral-300 text-[10px]">N/A</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-4 border-t border-neutral-200 bg-[#F8F8FA] flex justify-between items-center">
+              <div className="flex gap-2">
+                {selectedKycProfile.kyc_status !== "approved" && (
+                  <button
+                    onClick={() => {
+                      handleApproveKyc(selectedKycProfile.id);
+                      setSelectedKycProfile(null);
+                    }}
+                    className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-semibold cursor-pointer"
+                  >
+                    Approve KYC
+                  </button>
+                )}
+                {selectedKycProfile.kyc_status !== "declined" && (
+                  <button
+                    onClick={() => {
+                      handleDeclineKyc(selectedKycProfile.id);
+                      setSelectedKycProfile(null);
+                    }}
+                    className="px-4 py-1.5 border border-red-500 text-red-600 hover:bg-red-50 rounded text-xs font-semibold cursor-pointer"
+                  >
+                    Decline KYC
+                  </button>
+                )}
+              </div>
+
+              <button 
+                onClick={() => setSelectedKycProfile(null)}
+                className="px-4 py-1.5 btn-secondary text-xs font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
