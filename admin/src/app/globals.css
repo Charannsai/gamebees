@@ -37,7 +37,7 @@
 body {
   background-color: #FFFFFF;
   color: #141414;
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
   margin: 0;
 }
@@ -101,28 +101,6 @@ body {
 
 .form-input:focus {
   box-shadow: 2px 2px 0px #141414;
-}
-
-/* Override utility classes to enforce high contrast */
-.text-white\/90, .text-white\/80, .text-white\/70, .text-white\/60, .text-white\/50, .text-white\/40, .text-white\/30, .text-white {
-  color: #141414 !important;
-}
-
-.bg-white\/5, .bg-white\/10, .bg-white\/\[0\.02\], .bg-white\/\[0\.015\] {
-  background-color: #F5F5F5 !important;
-}
-
-.border-white\/10, .border-white\/\[0\.04\], .border-white\/\[0\.05\], .border-white\/\[0\.02\] {
-  border-color: #141414 !important;
-}
-
-.bg-\[\#141414\] {
-  background-color: #FFFFFF !important;
-}
-
-.bg-zinc-950\/40, .bg-zinc-950\/80, .bg-zinc-950 {
-  background-color: #FFFFFF !important;
-  border: 1px solid #141414;
 }
 
 /* Congested grid layout additions */

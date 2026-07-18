@@ -199,36 +199,26 @@ export default function AdminPage() {
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[10px] font-semibold text-neutral-600 block uppercase">System Email</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
-                  <HugeiconsIcon icon={UserIcon} size={14} />
-                </span>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  defaultValue="gamebeesofficial@gmail.com"
-                  placeholder="gamebeesofficial@gmail.com"
-                  className="form-input pl-8"
-                />
-              </div>
+              <input
+                type="email"
+                name="email"
+                required
+                defaultValue="gamebeesofficial@gmail.com"
+                placeholder="gamebeesofficial@gmail.com"
+                className="form-input"
+              />
             </div>
 
             <div className="space-y-1">
               <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Security Password</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
-                  <HugeiconsIcon icon={LockIcon} size={14} />
-                </span>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  defaultValue="Iamnithish@02"
-                  placeholder="••••••••"
-                  className="form-input pl-8"
-                />
-              </div>
+              <input
+                type="password"
+                name="password"
+                required
+                defaultValue="Iamnithish@02"
+                placeholder="••••••••"
+                className="form-input"
+              />
             </div>
 
             {loginError && (
