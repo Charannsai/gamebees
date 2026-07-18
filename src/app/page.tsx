@@ -320,7 +320,7 @@ export default function Home() {
 
                 {/* Right — Phone Mockup */}
                 <div className="flex justify-center">
-                  <div className="relative w-[280px] h-[550px] rounded-[40px] overflow-hidden select-none"
+                  <div className="relative w-[280px] h-[550px] rounded-[40px] overflow-hidden select-none dark-theme-container"
                     style={{
                       background: "rgba(20, 20, 20, 0.6)",
                       border: "1px solid rgba(94, 159, 208, 0.15)"

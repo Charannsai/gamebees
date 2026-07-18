@@ -17,6 +17,28 @@
   --gamebees-border-hover: rgba(94, 159, 208, 0.25);
   --gamebees-title-glow: linear-gradient(180deg, #FFFFFF 20%, #A4CBE8 65%, #5E9FD0 100%);
   --gamebees-input-bg: rgba(16, 50, 77, 0.15);
+
+  /* Color overrides variables */
+  --white-override: #FFFFFF;
+  --white-override-90: rgba(255, 255, 255, 0.9);
+  --white-override-80: rgba(255, 255, 255, 0.8);
+  --white-override-70: rgba(255, 255, 255, 0.7);
+  --white-override-60: rgba(255, 255, 255, 0.6);
+  --white-override-55: rgba(255, 255, 255, 0.55);
+  --white-override-50: rgba(255, 255, 255, 0.5);
+  --white-override-45: rgba(255, 255, 255, 0.45);
+  --white-override-40: rgba(255, 255, 255, 0.4);
+  --white-override-35: rgba(255, 255, 255, 0.35);
+  --white-override-30: rgba(255, 255, 255, 0.3);
+  --white-override-25: rgba(255, 255, 255, 0.25);
+  --white-override-20: rgba(255, 255, 255, 0.2);
+  --white-override-10: rgba(255, 255, 255, 0.1);
+
+  --lavender-override: var(--gamebees-accent-lavender);
+  --lavender-override-45: rgba(164, 203, 232, 0.45);
+  --lavender-override-40: rgba(164, 203, 232, 0.4);
+  --lavender-override-35: rgba(164, 203, 232, 0.35);
+  --lavender-override-30: rgba(164, 203, 232, 0.3);
 }
 
 html.light {
@@ -36,6 +58,28 @@ html.light {
   --gamebees-border-hover: rgba(15, 23, 42, 0.15);
   --gamebees-title-glow: linear-gradient(180deg, #0F172A 20%, #1D496B 65%, #246596 100%);
   --gamebees-input-bg: rgba(15, 23, 42, 0.04);
+
+  /* High-contrast light mode overrides */
+  --white-override: #0F172A;
+  --white-override-90: rgba(15, 23, 42, 0.94);
+  --white-override-80: rgba(15, 23, 42, 0.88);
+  --white-override-70: rgba(15, 23, 42, 0.82);
+  --white-override-60: rgba(15, 23, 42, 0.76);
+  --white-override-55: rgba(15, 23, 42, 0.73);
+  --white-override-50: rgba(15, 23, 42, 0.7);
+  --white-override-45: rgba(15, 23, 42, 0.65);
+  --white-override-40: rgba(15, 23, 42, 0.6);
+  --white-override-35: rgba(15, 23, 42, 0.55);
+  --white-override-30: rgba(15, 23, 42, 0.52);
+  --white-override-25: rgba(15, 23, 42, 0.5);
+  --white-override-20: rgba(15, 23, 42, 0.45);
+  --white-override-10: rgba(15, 23, 42, 0.25);
+
+  --lavender-override: #1D4ED8;
+  --lavender-override-45: rgba(29, 78, 216, 0.7);
+  --lavender-override-40: rgba(29, 78, 216, 0.65);
+  --lavender-override-35: rgba(29, 78, 216, 0.6);
+  --lavender-override-30: rgba(29, 78, 216, 0.55);
 }
 
 @theme {
@@ -255,53 +299,65 @@ html.light ::-webkit-scrollbar-thumb:hover {
   background: rgba(36, 101, 150, 0.4);
 }
 
-/* Overriding text and opacity classes */
+/* Overriding text and opacity classes with CSS variables */
 html.light .text-white {
-  color: #0F172A !important;
+  color: var(--white-override) !important;
 }
 html.light .text-white\/90 {
-  color: rgba(15, 23, 42, 0.9) !important;
+  color: var(--white-override-90) !important;
 }
 html.light .text-white\/80 {
-  color: rgba(15, 23, 42, 0.8) !important;
+  color: var(--white-override-80) !important;
 }
 html.light .text-white\/70 {
-  color: rgba(15, 23, 42, 0.7) !important;
+  color: var(--white-override-70) !important;
 }
 html.light .text-white\/60 {
-  color: rgba(15, 23, 42, 0.6) !important;
+  color: var(--white-override-60) !important;
+}
+html.light .text-white\/55 {
+  color: var(--white-override-55) !important;
 }
 html.light .text-white\/50 {
-  color: rgba(15, 23, 42, 0.5) !important;
+  color: var(--white-override-50) !important;
 }
 html.light .text-white\/45 {
-  color: rgba(15, 23, 42, 0.45) !important;
+  color: var(--white-override-45) !important;
 }
 html.light .text-white\/40 {
-  color: rgba(15, 23, 42, 0.4) !important;
+  color: var(--white-override-40) !important;
+}
+html.light .text-white\/35 {
+  color: var(--white-override-35) !important;
 }
 html.light .text-white\/30 {
-  color: rgba(15, 23, 42, 0.3) !important;
+  color: var(--white-override-30) !important;
 }
 html.light .text-white\/25 {
-  color: rgba(15, 23, 42, 0.25) !important;
+  color: var(--white-override-25) !important;
 }
 html.light .text-white\/20 {
-  color: rgba(15, 23, 42, 0.2) !important;
+  color: var(--white-override-20) !important;
 }
 html.light .text-white\/10 {
-  color: rgba(15, 23, 42, 0.1) !important;
+  color: var(--white-override-10) !important;
 }
 
 /* Accent lavender mapping */
 html.light .text-gamebees-accent-lavender {
-  color: #1D4ED8 !important;
+  color: var(--lavender-override) !important;
 }
 html.light .text-gamebees-accent-lavender\/45 {
-  color: rgba(29, 78, 216, 0.7) !important;
+  color: var(--lavender-override-45) !important;
 }
 html.light .text-gamebees-accent-lavender\/40 {
-  color: rgba(29, 78, 216, 0.6) !important;
+  color: var(--lavender-override-40) !important;
+}
+html.light .text-gamebees-accent-lavender\/35 {
+  color: var(--lavender-override-35) !important;
+}
+html.light .text-gamebees-accent-lavender\/30 {
+  color: var(--lavender-override-30) !important;
 }
 
 /* Background/Border transparency overrides for light theme compatibility */
@@ -389,4 +445,57 @@ html.light .cl-userButtonPopoverCard * {
 /* Force standard white text on premium active components */
 html.light .btn-glow-pill {
   color: #FFFFFF !important;
+}
+
+/* Dynamic restoration rules for white/lavender text within dark theme containers in light mode */
+html.light .dark-theme-container,
+html.light .dark-theme-container *,
+html.light .btn-glow-pill,
+html.light .btn-glow-pill *,
+html.light .bg-gamebees-accent-blue,
+html.light .bg-gamebees-accent-blue *,
+html.light .bg-gamebees-glow-blue,
+html.light .bg-gamebees-glow-blue *,
+html.light .bg-green-500,
+html.light .bg-green-500 *,
+html.light .bg-red-500,
+html.light .bg-red-500 *,
+html.light .bg-blue-500,
+html.light .bg-blue-500 *,
+html.light .bg-indigo-600,
+html.light .bg-indigo-600 *,
+html.light .cl-userButtonPopoverCard * {
+  --white-override: #FFFFFF !important;
+  --white-override-90: rgba(255, 255, 255, 0.9) !important;
+  --white-override-80: rgba(255, 255, 255, 0.8) !important;
+  --white-override-70: rgba(255, 255, 255, 0.7) !important;
+  --white-override-60: rgba(255, 255, 255, 0.6) !important;
+  --white-override-55: rgba(255, 255, 255, 0.55) !important;
+  --white-override-50: rgba(255, 255, 255, 0.5) !important;
+  --white-override-45: rgba(255, 255, 255, 0.45) !important;
+  --white-override-40: rgba(255, 255, 255, 0.4) !important;
+  --white-override-35: rgba(255, 255, 255, 0.35) !important;
+  --white-override-30: rgba(255, 255, 255, 0.3) !important;
+  --white-override-25: rgba(255, 255, 255, 0.25) !important;
+  --white-override-20: rgba(255, 255, 255, 0.2) !important;
+  --white-override-10: rgba(255, 255, 255, 0.1) !important;
+
+  --lavender-override: #A4CBE8 !important;
+  --lavender-override-45: rgba(164, 203, 232, 0.45) !important;
+  --lavender-override-40: rgba(164, 203, 232, 0.4) !important;
+  --lavender-override-35: rgba(164, 203, 232, 0.35) !important;
+  --lavender-override-30: rgba(164, 203, 232, 0.3) !important;
+}
+
+/* Global input placeholder styling for light mode */
+html.light ::placeholder {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Input placeholder styling for dark containers in light mode */
+html.light .dark-theme-container ::placeholder,
+html.light .btn-glow-pill ::placeholder,
+html.light .bg-gamebees-accent-blue ::placeholder,
+html.light .bg-gamebees-glow-blue ::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
 }
