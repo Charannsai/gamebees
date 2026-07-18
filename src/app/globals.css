@@ -141,6 +141,17 @@ body {
   margin: 0;
 }
 
+/* ---- BUTTON CURSOR STYLES ---- */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+button:disabled,
+[role="button"]:disabled {
+  cursor: not-allowed !important;
+}
+
+
 /* Film-grain overlay - extremely subtle */
 .grainy-overlay::before {
   content: "";
