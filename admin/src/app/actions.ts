@@ -169,3 +169,78 @@ export async function adminUpdateBookingStatus(
     return { success: false, error: error.message };
   }
 }
+
+export async function adminFetchKycProfiles() {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+
+  try {
+    const { data, error } = await supabaseServer
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminApproveKyc(userId: string) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+
+  try {
+    const { data, error } = await supabaseServer
+      .from("profiles")
+      .update({
+        kyc_status: "approved",
+        aadhaar_verified: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", userId)
+      .select();
+
+    if (error) throw error;
+
+    // Also update any bookings from this user to mark them verified if required
+    await supabaseServer
+      .from("bookings")
+      .update({ aadhaar_verified: true })
+      .eq("user_id", userId);
+
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminDeclineKyc(userId: string) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+
+  try {
+    const { data, error } = await supabaseServer
+      .from("profiles")
+      .update({
+        kyc_status: "declined",
+        aadhaar_verified: false,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", userId)
+      .select();
+
+    if (error) throw error;
+
+    // Also update bookings
+    await supabaseServer
+      .from("bookings")
+      .update({ aadhaar_verified: false })
+      .eq("user_id", userId);
+
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

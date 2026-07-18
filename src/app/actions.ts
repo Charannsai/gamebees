@@ -155,7 +155,8 @@ export async function getKycStatus() {
           full_name: bookings[0].full_name,
           phone: bookings[0].phone,
           aadhaar_number: bookings[0].aadhaar_number,
-          aadhaar_verified: true
+          aadhaar_verified: true,
+          kyc_status: 'approved'
         }
       };
     }
@@ -173,6 +174,10 @@ export async function saveKyc(formData: {
   aadhaarNumber: string;
   aadhaarVerified: boolean;
   selfieUrl: string;
+  aadhaarFrontUrl?: string;
+  aadhaarBackUrl?: string;
+  latitude?: number;
+  longitude?: number;
 }) {
   try {
     const { userId } = await auth();
@@ -189,15 +194,20 @@ export async function saveKyc(formData: {
         aadhaar_number: formData.aadhaarNumber,
         aadhaar_verified: formData.aadhaarVerified,
         selfie_url: formData.selfieUrl,
+        aadhaar_front_url: formData.aadhaarFrontUrl || null,
+        aadhaar_back_url: formData.aadhaarBackUrl || null,
+        latitude: formData.latitude || null,
+        longitude: formData.longitude || null,
+        kyc_status: formData.aadhaarVerified ? 'approved' : 'pending',
+        updated_at: new Date().toISOString()
       })
       .select();
 
     if (error) {
-      console.warn("Profiles table upsert failed (checking fallback):", error.message);
+      console.warn("Profiles table upsert failed:", error.message);
       return { 
         success: false, 
-        error: error.message, 
-        isTableMissing: error.code === "P0001" || error.message.includes("does not exist") 
+        error: error.message
       };
     }
 
