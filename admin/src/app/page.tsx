@@ -1064,6 +1064,62 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Dialog: Confirmation Modal */}
+      {confirmModal?.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fadeInUp">
+          <div className="bg-white border border-[#E4E4E7] rounded-lg shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div className="px-5 py-4 border-b border-neutral-100">
+              <h3 className="font-bold text-sm text-[#141414] flex items-center gap-1.5">
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-[#141414]" />
+                <span>{confirmModal.title}</span>
+              </h3>
+            </div>
+            <div className="p-5 text-xs text-neutral-600 leading-relaxed">
+              {confirmModal.message}
+            </div>
+            <div className="px-5 py-3 border-t border-neutral-100 bg-[#F8F8FA] flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="px-3.5 py-1.5 btn-secondary text-xs font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmModal.onConfirm}
+                className="px-3.5 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog: Alert Modal */}
+      {alertModal?.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fadeInUp">
+          <div className="bg-white border border-[#E4E4E7] rounded-lg shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div className="px-5 py-4 border-b border-neutral-100">
+              <h3 className="font-bold text-sm text-[#141414] flex items-center gap-1.5">
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-red-500" />
+                <span>{alertModal.title}</span>
+              </h3>
+            </div>
+            <div className="p-5 text-xs text-neutral-600 leading-relaxed">
+              {alertModal.message}
+            </div>
+            <div className="px-5 py-3 border-t border-neutral-100 bg-[#F8F8FA] flex justify-end">
+              <button
+                onClick={() => setAlertModal(null)}
+                className="px-3.5 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
