@@ -271,8 +271,7 @@ export default function AdminPage() {
                 type="email"
                 name="email"
                 required
-                defaultValue="gamebeesofficial@gmail.com"
-                placeholder="gamebeesofficial@gmail.com"
+                placeholder="admin@gamebees.com"
                 className="form-input"
               />
             </div>
@@ -283,7 +282,6 @@ export default function AdminPage() {
                 type="password"
                 name="password"
                 required
-                defaultValue="Iamnithish@02"
                 placeholder="••••••••"
                 className="form-input"
               />
