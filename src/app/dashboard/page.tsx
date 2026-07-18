@@ -36,6 +36,7 @@ export default function UserDashboard() {
   const [items, setItems] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   
   // KYC State
   const [kycVerified, setKycVerified] = useState(false);
@@ -107,7 +108,7 @@ export default function UserDashboard() {
   const [modalDuration, setModalDuration] = useState(3);
 
   const loadDashboardData = async () => {
-    setLoadingData(true);
+    if (initialLoad) setLoadingData(true);
     try {
       const [itemsRes, bookingsRes, kycRes] = await Promise.all([
         fetchItems(),
@@ -130,6 +131,7 @@ export default function UserDashboard() {
     } finally {
       setLoadingData(false);
       setKycLoading(false);
+      setInitialLoad(false);
     }
   };
 

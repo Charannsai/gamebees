@@ -29,6 +29,19 @@ import {
   Cancel01Icon
 } from "@hugeicons/core-free-icons";
 
+const TableSkeleton = () => (
+  <div className="w-full space-y-3 animate-pulse py-4">
+    <div className="h-8 bg-neutral-200/50 rounded w-full"></div>
+    <div className="space-y-2 pt-2">
+      <div className="h-7 bg-neutral-100/60 rounded w-full"></div>
+      <div className="h-7 bg-neutral-100/60 rounded w-full"></div>
+      <div className="h-7 bg-neutral-100/60 rounded w-full"></div>
+      <div className="h-7 bg-neutral-100/60 rounded w-full"></div>
+      <div className="h-7 bg-neutral-100/60 rounded w-full"></div>
+    </div>
+  </div>
+);
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -84,11 +97,14 @@ export default function AdminPage() {
 
   // Form State for Adding Item
   const [itemName, setItemName] = useState("");
-  const [itemCategory, setItemCategory] = useState("Consoles");
+  const [itemCategory, setItemCategory] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemDesc, setItemDesc] = useState("");
   const [itemImage, setItemImage] = useState("");
   const [addingItem, setAddingItem] = useState(false);
+  
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [isAddingListing, setIsAddingListing] = useState(false);
 
   const checkSession = async () => {
     setCheckingAuth(true);
@@ -101,7 +117,7 @@ export default function AdminPage() {
   };
 
   const loadData = async () => {
-    setLoadingData(true);
+    if (initialLoad) setLoadingData(true);
     const [itemsRes, bookingsRes, kycRes] = await Promise.all([
       adminFetchItems(),
       adminFetchBookings(),
@@ -111,6 +127,7 @@ export default function AdminPage() {
     if (bookingsRes.success) setBookings(bookingsRes.data || []);
     if (kycRes.success) setKycProfiles(kycRes.data || []);
     setLoadingData(false);
+    setInitialLoad(false);
   };
 
   useEffect(() => {
@@ -406,247 +423,274 @@ export default function AdminPage() {
 
         {/* Content Panel */}
         <main className="lg:col-span-3 space-y-6">
-          {loadingData ? (
-            <div className="card-polished p-16 flex justify-center items-center">
-              <div className="h-5 w-5 border-2 border-[#141414] border-t-transparent rounded-full animate-spin"></div>
+          {/* Tab: Reservations Manager */}
+          {activeTab === "bookings" && (
+            <div className="space-y-4 animate-fadeInUp">
+              <div>
+                <h3 className="text-lg font-bold text-[#141414]">
+                  Reservations Board
+                </h3>
+                <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                  Click customer names to inspect detailed delivery coordinates, selfies, and manage console rentals.
+                </p>
+              </div>
+
+              {loadingData ? (
+                <TableSkeleton />
+              ) : bookings.length === 0 ? (
+                <div className="card-polished p-12 text-center space-y-2">
+                  <HugeiconsIcon icon={PackageIcon} size={32} className="text-neutral-300 mx-auto" />
+                  <p className="text-xs text-neutral-500 font-light">No customer bookings have been logged yet.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto card-polished">
+                  <table className="dense-table">
+                    <thead>
+                      <tr>
+                        <th>Ref ID / Date</th>
+                        <th>Customer Name</th>
+                        <th>Item Category</th>
+                        <th>Price Total</th>
+                        <th>Status Badge</th>
+                        <th>Open Detail</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.map((booking) => (
+                        <tr key={booking.id}>
+                          <td className="font-mono text-[10px]">
+                            <span className="font-bold text-[#141414]">#{booking.id.slice(-8).toUpperCase()}</span>
+                            <span className="block text-[8px] text-neutral-400 mt-0.5">{new Date(booking.created_at).toLocaleDateString()}</span>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedBooking(booking)}
+                              className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
+                            >
+                              {booking.full_name}
+                            </button>
+                            <span className="text-[10px] text-neutral-400 block mt-0.5">{booking.phone}</span>
+                          </td>
+                          <td>
+                            <span className="text-[10px] font-semibold text-neutral-600 block">
+                              {booking.items?.name || "Rental Hardware"}
+                            </span>
+                            <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
+                          </td>
+                          <td className="font-mono text-xs font-bold text-[#141414]">
+                            ${booking.total_price}
+                          </td>
+                          <td>
+                            <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedBooking(booking)}
+                              className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
+                            >
+                              Open Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          ) : (
-            <>
-              {/* Tab: Reservations Manager */}
-              {activeTab === "bookings" && (
-                <div className="space-y-4 animate-fadeInUp">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#141414]">
-                      Reservations Board
-                    </h3>
-                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                      Click customer names to inspect detailed delivery coordinates, selfies, and manage console rentals.
-                    </p>
-                  </div>
+          )}
 
-                  {bookings.length === 0 ? (
-                    <div className="card-polished p-12 text-center space-y-2">
-                      <HugeiconsIcon icon={PackageIcon} size={32} className="text-neutral-300 mx-auto" />
-                      <p className="text-xs text-neutral-500 font-light">No customer bookings have been logged yet.</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto card-polished">
-                      <table className="dense-table">
-                        <thead>
-                          <tr>
-                            <th>Ref ID / Date</th>
-                            <th>Customer Name</th>
-                            <th>Item Category</th>
-                            <th>Price Total</th>
-                            <th>Status Badge</th>
-                            <th>Open Detail</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {bookings.map((booking) => (
-                            <tr key={booking.id}>
-                              <td className="font-mono text-[10px]">
-                                <span className="font-bold text-[#141414]">#{booking.id.slice(-8).toUpperCase()}</span>
-                                <span className="block text-[8px] text-neutral-400 mt-0.5">{new Date(booking.created_at).toLocaleDateString()}</span>
-                              </td>
-                              <td>
-                                <button
-                                  onClick={() => setSelectedBooking(booking)}
-                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
-                                >
-                                  {booking.full_name}
-                                </button>
-                                <span className="text-[10px] text-neutral-400 block mt-0.5">{booking.phone}</span>
-                              </td>
-                              <td>
-                                <span className="text-[10px] font-semibold text-neutral-600 block">
-                                  {booking.items?.name || "Rental Hardware"}
-                                </span>
-                                <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
-                              </td>
-                              <td className="font-mono text-xs font-bold text-[#141414]">
-                                ${booking.total_price}
-                              </td>
-                              <td>
-                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
-                                  {booking.status}
-                                </span>
-                              </td>
-                              <td>
-                                <button
-                                  onClick={() => setSelectedBooking(booking)}
-                                  className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
-                                >
-                                  Open Details
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+          {/* Tab: KYC Approvals */}
+          {activeTab === "kyc" && (
+            <div className="space-y-4 animate-fadeInUp">
+              <div>
+                <h3 className="text-lg font-bold text-[#141414]">
+                  KYC Manual Approvals Board
+                </h3>
+                <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                  Click names to verify coordinates maps, Aadhaar documents, and match selfies.
+                </p>
+              </div>
+
+              {loadingData ? (
+                <TableSkeleton />
+              ) : kycProfiles.length === 0 ? (
+                <div className="card-polished p-12 text-center space-y-2">
+                  <HugeiconsIcon icon={Shield01Icon} size={32} className="text-neutral-300 mx-auto" />
+                  <p className="text-xs text-neutral-500 font-light">No manual KYC requests have been logged yet.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto card-polished">
+                  <table className="dense-table">
+                    <thead>
+                      <tr>
+                        <th>Customer Name</th>
+                        <th>Aadhaar Registry</th>
+                        <th>Applied Date</th>
+                        <th>Review Status</th>
+                        <th>Audit Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {kycProfiles.map((profile) => (
+                        <tr key={profile.id}>
+                          <td>
+                            <button
+                              onClick={() => setSelectedKycProfile(profile)}
+                              className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
+                            >
+                              {profile.full_name}
+                            </button>
+                            <span className="text-[10px] text-neutral-400 block mt-0.5">Ph: {profile.phone}</span>
+                          </td>
+                          <td className="font-mono text-xs text-neutral-600">
+                            xxxx-xxxx-{profile.aadhaar_number.slice(-4)}
+                          </td>
+                          <td className="text-[10px] text-neutral-500">
+                            {new Date(profile.created_at || Date.now()).toLocaleDateString()}
+                          </td>
+                          <td>
+                            <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${
+                              profile.kyc_status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
+                              profile.kyc_status === 'declined' ? 'bg-red-50 text-red-700 border-red-200' :
+                              'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}>
+                              {profile.kyc_status}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedKycProfile(profile)}
+                              className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
+                            >
+                              Review Application
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* Tab: KYC Approvals */}
-              {activeTab === "kyc" && (
-                <div className="space-y-4 animate-fadeInUp">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#141414]">
-                      KYC Manual Approvals Board
-                    </h3>
-                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                      Click names to verify coordinates maps, Aadhaar documents, and match selfies.
-                    </p>
+          {/* Tab: Catalog Inventory */}
+          {activeTab === "items" && (
+            <div className="space-y-4 animate-fadeInUp">
+              {isAddingListing ? (
+                /* Add Product Sub-Screen */
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-1">
+                    <div>
+                      <h3 className="text-lg font-bold text-[#141414]">
+                        Add Product Listing
+                      </h3>
+                      <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                        Add a new hardware rental console, accessory, or bundle package.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsAddingListing(false)}
+                      className="px-3 py-1.5 btn-secondary text-xs font-semibold"
+                    >
+                      Back to Listings
+                    </button>
                   </div>
 
-                  {kycProfiles.length === 0 ? (
-                    <div className="card-polished p-12 text-center space-y-2">
-                      <HugeiconsIcon icon={Shield01Icon} size={32} className="text-neutral-300 mx-auto" />
-                      <p className="text-xs text-neutral-500 font-light">No manual KYC requests have been logged yet.</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto card-polished">
-                      <table className="dense-table">
-                        <thead>
-                          <tr>
-                            <th>Customer Name</th>
-                            <th>Aadhaar Registry</th>
-                            <th>Applied Date</th>
-                            <th>Review Status</th>
-                            <th>Audit Details</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {kycProfiles.map((profile) => (
-                            <tr key={profile.id}>
-                              <td>
-                                <button
-                                  onClick={() => setSelectedKycProfile(profile)}
-                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
-                                >
-                                  {profile.full_name}
-                                </button>
-                                <span className="text-[10px] text-neutral-400 block mt-0.5">Ph: {profile.phone}</span>
-                              </td>
-                              <td className="font-mono text-xs text-neutral-600">
-                                xxxx-xxxx-{profile.aadhaar_number.slice(-4)}
-                              </td>
-                              <td className="text-[10px] text-neutral-500">
-                                {new Date(profile.created_at || Date.now()).toLocaleDateString()}
-                              </td>
-                              <td>
-                                <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${
-                                  profile.kyc_status === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
-                                  profile.kyc_status === 'declined' ? 'bg-red-50 text-red-700 border-red-200' :
-                                  'bg-amber-50 text-amber-700 border-amber-200'
-                                }`}>
-                                  {profile.kyc_status}
-                                </span>
-                              </td>
-                              <td>
-                                <button
-                                  onClick={() => setSelectedKycProfile(profile)}
-                                  className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
-                                >
-                                  Review Application
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              )}
+                  <div className="card-polished p-6 border border-neutral-200 bg-white max-w-xl">
+                    <form onSubmit={async (e) => {
+                      await handleAddItem(e);
+                      setIsAddingListing(false);
+                    }} className="space-y-4">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Product Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={itemName}
+                          onChange={(e) => setItemName(e.target.value)}
+                          placeholder="E.g., PlayStation 5 Pro Console Bundle"
+                          className="form-input"
+                        />
+                      </div>
 
-              {/* Tab: Catalog Inventory */}
-              {activeTab === "items" && (
-                <div className="space-y-6 animate-fadeInUp">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#141414]">
-                      Catalog Inventory
-                    </h3>
-                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                      Add, view, and delete rental hardware packages.
-                    </p>
-                  </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Category</label>
+                        <input
+                          type="text"
+                          required
+                          value={itemCategory}
+                          onChange={(e) => setItemCategory(e.target.value)}
+                          placeholder="E.g., Consoles, Accessories, Audio..."
+                          className="form-input"
+                        />
+                        {/* Dynamic category suggestions list */}
+                        {Array.from(new Set(items.map(item => item.category).filter(Boolean))).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            <span className="text-[9px] text-neutral-450 font-bold block w-full">Previously Created Categories:</span>
+                            {Array.from(new Set(items.map(item => item.category).filter(Boolean))).map((cat: any) => (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() => setItemCategory(cat)}
+                                className="text-[10px] bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 rounded-md px-2 py-0.5 text-neutral-700 cursor-pointer font-medium"
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    {/* Add Item Form Card */}
-                    <div className="lg:col-span-1 card-polished p-4 border border-neutral-200 h-fit bg-white">
-                      <h4 className="text-xs font-bold text-[#141414] uppercase border-b border-neutral-200 pb-2 mb-3 flex items-center gap-1.5">
-                        <HugeiconsIcon icon={PlusSignIcon} size={14} />
-                        <span>Add Product Listing</span>
-                      </h4>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Price per Day ($)</label>
+                        <input
+                          type="number"
+                          required
+                          value={itemPrice}
+                          onChange={(e) => setItemPrice(e.target.value)}
+                          placeholder="12"
+                          className="form-input"
+                        />
+                      </div>
 
-                      <form onSubmit={handleAddItem} className="space-y-3">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Product Name</label>
-                          <input
-                            type="text"
-                            required
-                            value={itemName}
-                            onChange={(e) => setItemName(e.target.value)}
-                            placeholder="E.g., PlayStation 5 Pro"
-                            className="form-input text-xs py-2"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Image URL (Optional)</label>
+                        <input
+                          type="url"
+                          value={itemImage}
+                          onChange={(e) => setItemImage(e.target.value)}
+                          placeholder="https://..."
+                          className="form-input"
+                        />
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Category</label>
-                          <select
-                            value={itemCategory}
-                            onChange={(e) => setItemCategory(e.target.value)}
-                            className="w-full rounded border border-neutral-300 px-2.5 py-2 text-xs text-[#141414] outline-none bg-white cursor-pointer"
-                          >
-                            <option value="Consoles" className="bg-white text-[#141414]">Consoles</option>
-                            <option value="Accessories" className="bg-white text-[#141414]">Accessories</option>
-                            <option value="Audio" className="bg-white text-[#141414]">Audio</option>
-                          </select>
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Description</label>
+                        <textarea
+                          rows={4}
+                          value={itemDesc}
+                          onChange={(e) => setItemDesc(e.target.value)}
+                          placeholder="Controller attachments, dynamic specs, bundled game CD details..."
+                          className="w-full rounded border border-neutral-300 px-3 py-2 text-xs text-[#141414] placeholder-neutral-300 outline-none resize-none bg-white"
+                        />
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Price per Day ($)</label>
-                          <input
-                            type="number"
-                            required
-                            value={itemPrice}
-                            onChange={(e) => setItemPrice(e.target.value)}
-                            placeholder="12"
-                            className="form-input text-xs py-2"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Image URL (Optional)</label>
-                          <input
-                            type="url"
-                            value={itemImage}
-                            onChange={(e) => setItemImage(e.target.value)}
-                            placeholder="https://..."
-                            className="form-input text-xs py-2"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-neutral-500 uppercase">Description</label>
-                          <textarea
-                            rows={3}
-                            value={itemDesc}
-                            onChange={(e) => setItemDesc(e.target.value)}
-                            placeholder="Specifications, controller bundles, pre-installed games..."
-                            className="w-full rounded border border-neutral-300 px-2.5 py-2 text-xs text-[#141414] placeholder-neutral-300 outline-none resize-none bg-white"
-                          />
-                        </div>
-
+                      <div className="flex gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsAddingListing(false)}
+                          className="flex-1 py-2.5 btn-secondary text-xs font-semibold"
+                        >
+                          Cancel
+                        </button>
                         <button
                           type="submit"
                           disabled={addingItem}
-                          className="w-full py-2.5 rounded btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="flex-1 py-2.5 rounded btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           {addingItem ? (
                             <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -657,65 +701,80 @@ export default function AdminPage() {
                             </>
                           )}
                         </button>
-                      </form>
-                    </div>
-
-                    {/* Active Inventory Listings Grid */}
-                    <div className="lg:col-span-2 space-y-3">
-                      <h4 className="text-xs font-bold text-[#141414] uppercase border-b border-neutral-200 pb-2 mb-2">
-                        Active Products ({items.length})
-                      </h4>
-
-                      {items.length === 0 ? (
-                        <div className="card-polished p-10 text-center text-neutral-400 text-xs">
-                          No product entries found in the database.
-                        </div>
-                      ) : (
-                        <div className="overflow-x-auto card-polished">
-                          <table className="dense-table">
-                            <thead>
-                              <tr>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Price per Day</th>
-                                <th>Action</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {items.map((item) => (
-                                <tr key={item.id}>
-                                  <td>
-                                    <span className="font-semibold block text-xs">{item.name}</span>
-                                    <span className="text-[10px] text-neutral-500 block line-clamp-1 leading-tight">{item.description}</span>
-                                  </td>
-                                  <td>
-                                    <span className="text-[8px] font-bold text-[#141414] uppercase tracking-wider bg-neutral-100 px-2 py-0.5 rounded border border-neutral-200">
-                                      {item.category}
-                                    </span>
-                                  </td>
-                                  <td>
-                                    <span className="text-xs font-black text-[#141414]">${item.price}</span>
-                                  </td>
-                                  <td>
-                                    <button
-                                      onClick={() => handleDeleteItem(item.id)}
-                                      className="text-red-600 hover:bg-red-50 p-1.5 rounded border border-transparent hover:border-red-200 transition-all cursor-pointer"
-                                    >
-                                      <HugeiconsIcon icon={Delete01Icon} size={14} />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-
+                      </div>
+                    </form>
                   </div>
                 </div>
+              ) : (
+                /* Active Listings Sub-Screen */
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-1">
+                    <div>
+                      <h3 className="text-lg font-bold text-[#141414]">
+                        Catalog Inventory
+                      </h3>
+                      <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                        Add, view, and delete rental hardware packages.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsAddingListing(true)}
+                      className="px-3.5 py-2 btn-glow-pill text-xs font-bold flex items-center gap-1.5 cursor-pointer text-white"
+                    >
+                      <HugeiconsIcon icon={PlusSignIcon} size={13} />
+                      <span>Add Product</span>
+                    </button>
+                  </div>
+
+                  {loadingData ? (
+                    <TableSkeleton />
+                  ) : items.length === 0 ? (
+                    <div className="card-polished p-10 text-center text-neutral-400 text-xs">
+                      No product entries found in the database.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto card-polished">
+                      <table className="dense-table">
+                        <thead>
+                          <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Price per Day</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {items.map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <span className="font-semibold block text-xs">{item.name}</span>
+                                <span className="text-[10px] text-neutral-500 block line-clamp-1 leading-tight">{item.description}</span>
+                              </td>
+                              <td>
+                                <span className="text-[8px] font-bold text-[#141414] uppercase tracking-wider bg-neutral-100 px-2 py-0.5 rounded border border-neutral-200">
+                                  {item.category}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="text-xs font-black text-[#141414]">${item.price}</span>
+                              </td>
+                              <td>
+                                <button
+                                  onClick={() => handleDeleteItem(item.id)}
+                                  className="text-red-600 hover:bg-red-50 p-1.5 rounded border border-transparent hover:border-red-200 transition-all cursor-pointer"
+                                >
+                                  <HugeiconsIcon icon={Delete01Icon} size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               )}
-            </>
+            </div>
           )}
         </main>
       </div>
