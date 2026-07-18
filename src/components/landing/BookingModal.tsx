@@ -64,6 +64,7 @@ export default function BookingModal({
   const [agreeMarketing, setAgreeMarketing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // State sync from props
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function BookingModal({
       setAgreeTerms(false);
       setAgreeMarketing(false);
       setIsSuccess(false);
+      setSubmitError("");
     }
     return () => {
       stopCamera();
@@ -212,11 +214,11 @@ export default function BookingModal({
       if (res.success) {
         setIsSuccess(true);
       } else {
-        alert("Booking failed: " + res.error);
+        setSubmitError("Booking failed: " + res.error);
       }
     } catch (err: any) {
       console.error("Booking error:", err);
-      alert("An unexpected error occurred.");
+      setSubmitError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -646,6 +648,13 @@ export default function BookingModal({
                     </span>
                   </label>
                 </div>
+
+                {submitError && (
+                  <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2 font-light">
+                    <HugeiconsIcon icon={AlertCircleIcon} size={14} />
+                    <span>{submitError}</span>
+                  </p>
+                )}
 
                 <div className="flex gap-3 pt-2">
                   <button

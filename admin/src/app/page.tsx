@@ -48,6 +48,40 @@ export default function AdminPage() {
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [selectedKycProfile, setSelectedKycProfile] = useState<any | null>(null);
 
+  // Custom dialogs state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  } | null>(null);
+
+  const triggerConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmModal(null);
+      }
+    });
+  };
+
+  const triggerAlert = (title: string, message: string) => {
+    setAlertModal({
+      isOpen: true,
+      title,
+      message
+    });
+  };
+
   // Form State for Adding Item
   const [itemName, setItemName] = useState("");
   const [itemCategory, setItemCategory] = useState("Consoles");
@@ -122,18 +156,23 @@ export default function AdminPage() {
       setItemImage("");
       loadData();
     } else {
-      alert("Error adding item: " + res.error);
+      triggerAlert("Listing Add Failed", "Error adding item: " + res.error);
     }
   };
 
-  const handleDeleteItem = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    const res = await adminDeleteProduct(id);
-    if (res.success) {
-      loadData();
-    } else {
-      alert("Error deleting item: " + res.error);
-    }
+  const handleDeleteItem = (id: string) => {
+    triggerConfirm(
+      "Delete Product Listing",
+      "Are you sure you want to permanently delete this console hardware product listing from inventory?",
+      async () => {
+        const res = await adminDeleteProduct(id);
+        if (res.success) {
+          loadData();
+        } else {
+          triggerAlert("Delete Listing Failed", "Error deleting item: " + res.error);
+        }
+      }
+    );
   };
 
   const handleUpdateStatus = async (bookingId: string, status: string, trackingStatus: string) => {
@@ -141,26 +180,38 @@ export default function AdminPage() {
     if (res.success) {
       loadData();
     } else {
-      alert("Error updating status: " + res.error);
+      triggerAlert("Booking Status Sync Failed", "Error updating booking status: " + res.error);
     }
   };
 
-  const handleApproveKyc = async (userId: string) => {
-    const res = await adminApproveKyc(userId);
-    if (res.success) {
-      loadData();
-    } else {
-      alert("Error approving KYC: " + res.error);
-    }
+  const handleApproveKyc = (userId: string) => {
+    triggerConfirm(
+      "Approve Manual KYC",
+      "Are you sure you want to APPROVE this user's manual eKYC details and mark them verified?",
+      async () => {
+        const res = await adminApproveKyc(userId);
+        if (res.success) {
+          loadData();
+        } else {
+          triggerAlert("KYC Verification Failed", "Error approving KYC: " + res.error);
+        }
+      }
+    );
   };
 
-  const handleDeclineKyc = async (userId: string) => {
-    const res = await adminDeclineKyc(userId);
-    if (res.success) {
-      loadData();
-    } else {
-      alert("Error declining KYC: " + res.error);
-    }
+  const handleDeclineKyc = (userId: string) => {
+    triggerConfirm(
+      "Decline Manual KYC",
+      "Are you sure you want to DECLINE this user's manual eKYC verification? They will have to re-apply.",
+      async () => {
+        const res = await adminDeclineKyc(userId);
+        if (res.success) {
+          loadData();
+        } else {
+          triggerAlert("KYC Verification Failed", "Error declining KYC: " + res.error);
+        }
+      }
+    );
   };
 
   const getStatusColor = (status: string) => {

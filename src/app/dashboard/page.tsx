@@ -221,7 +221,7 @@ export default function UserDashboard() {
       }
     } catch (err) {
       console.error("Camera error:", err);
-      alert("Could not start camera. Please upload a picture instead.");
+      setKycError("Could not access camera. Please choose or drag-and-drop a selfie file instead.");
       setCameraActive(false);
     }
   };
