@@ -52,6 +52,19 @@ export default function BookingModal({
   const [dbKycStatus, setDbKycStatus] = useState<"pending" | "approved" | "declined" | "not_applied">("not_applied");
   const [dbKycVerified, setDbKycVerified] = useState(false);
 
+  const [isLightTheme, setIsLightTheme] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLightTheme(document.documentElement.classList.contains("light"));
+      
+      const observer = new MutationObserver(() => {
+        setIsLightTheme(document.documentElement.classList.contains("light"));
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      return () => observer.disconnect();
+    }
+  }, [isOpen]);
+
   // Step 3: Selfie Capture
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [selfieCaptured, setSelfieCaptured] = useState<string | null>(null);
@@ -224,42 +237,76 @@ export default function BookingModal({
     }
   }
 
-  // Input styling definition to override custom components & prevent text overlaps
-  const inputClassName = "w-full rounded-xl bg-[#10324d]/15 border border-[#5e9fd0]/10 py-3 pl-11 pr-4 text-sm text-white placeholder-white/20 outline-none transition-all focus:border-[#5e9fd0]/35 focus:bg-[#10324d]/25";
+  // Dynamic styling variables for light vs dark theme
+  const labelColor = isLightTheme ? "text-neutral-700 font-semibold" : "text-white/70 font-semibold";
+  const subTextColor = isLightTheme ? "text-neutral-500" : "text-white/50";
+  const headerColor = isLightTheme ? "text-neutral-900" : "text-white";
+  const textBodyColor = isLightTheme ? "text-neutral-700" : "text-white/70";
+  const cardBg = isLightTheme ? "bg-neutral-50 border border-neutral-200 text-neutral-800" : "bg-[#10324d]/10 border border-white/5 text-white";
+  const separatorBg = isLightTheme ? "bg-neutral-200" : "bg-white/10";
+  const backBtnClass = `flex-1 py-4 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+    isLightTheme
+      ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200"
+      : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+  }`;
+  
+  const inputClassName = `w-full rounded-xl py-3 pl-11 pr-4 text-sm outline-none transition-all ${
+    isLightTheme
+      ? "bg-neutral-50 border border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-neutral-950 focus:bg-white"
+      : "bg-[#10324d]/15 border border-[#5e9fd0]/10 text-white placeholder-white/20 focus:border-[#5e9fd0]/35 focus:bg-[#10324d]/25"
+  }`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Dark overlay backdrop */}
-      <div onClick={onClose} className="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+      <div onClick={onClose} className="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg rounded-[24px] card-polished pt-12 pb-6 px-6 sm:pt-14 sm:pb-8 sm:px-8 overflow-y-auto max-h-[90vh] z-10 border border-gamebees-accent-blue/30 shadow-[0_0_50px_rgba(36,101,150,0.15)] animate-fadeInUp">
+      <div className={`relative w-full max-w-lg rounded-[24px] pt-12 pb-6 px-6 sm:pt-14 sm:pb-8 sm:px-8 overflow-y-auto max-h-[90vh] z-10 border transition-colors duration-300 ${
+        isLightTheme 
+          ? "bg-white border-neutral-200 text-neutral-850 shadow-2xl" 
+          : "card-polished border-gamebees-accent-blue/30 text-white shadow-[0_0_50px_rgba(36,101,150,0.15)]"
+      }`}>
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-white/50 hover:text-white rounded-full hover:bg-white/5 transition-all cursor-pointer"
+          className={`absolute top-5 right-5 p-2 rounded-full transition-all cursor-pointer ${
+            isLightTheme 
+              ? "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800" 
+              : "text-white/50 hover:text-white hover:bg-white/5"
+          }`}
         >
           <HugeiconsIcon icon={Cancel01Icon} size={20} />
         </button>
 
         {/* Step Indicator */}
         {!isSuccess && (
-          <div className="flex items-center gap-2 mb-6 border-b border-white/[0.05] pb-4">
+          <div className={`flex items-center gap-2 mb-6 border-b pb-4 ${isLightTheme ? "border-neutral-200" : "border-white/[0.05]"}`}>
             {[1, 2, 3, 4].map((s) => (
               <React.Fragment key={s}>
                 <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   step === s
-                    ? "bg-gamebees-accent-blue text-white shadow-[0_0_12px_rgba(36,101,150,0.4)]"
+                    ? "bg-[#246596] text-white shadow-[0_0_12px_rgba(36,101,150,0.4)]"
                     : step > s
-                    ? "bg-green-500/20 text-green-400 border border-green-500/40"
+                    ? "bg-green-600/20 text-green-600 border border-green-500/40"
+                    : isLightTheme
+                    ? "bg-neutral-100 text-neutral-500 border border-neutral-200"
                     : "bg-white/5 text-white/40"
                 }`}>
                   {step > s ? (
                     <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                   ) : s}
                 </div>
-                {s < 4 && <div className={`flex-1 h-[1px] ${step > s ? "bg-green-500/40" : "bg-white/5"}`}></div>}
+                {s < 4 && (
+                  <div className={`flex-1 h-[1px] ${
+                    step > s 
+                      ? "bg-green-500/40" 
+                      : isLightTheme 
+                      ? "bg-neutral-200" 
+                      : "bg-white/5"
+                  }`}></div>
+                )}
               </React.Fragment>
             ))}
           </div>
@@ -271,19 +318,21 @@ export default function BookingModal({
             {step === 1 && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
+                  <h3 className={`text-xl sm:text-2xl font-black ${headerColor}`}>
                     Delivery Details
                   </h3>
-                  <p className="text-white/50 text-xs mt-1 font-light">
+                  <p className={`${subTextColor} text-xs mt-1 font-light`}>
                     Provide delivery location and contact information.
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-white/70 block">Full Name</label>
+                    <label className={`text-xs block ${labelColor}`}>Full Name</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
+                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                        isLightTheme ? "text-neutral-400" : "text-white/45"
+                      }`}>
                         <HugeiconsIcon icon={UserIcon} size={16} />
                       </span>
                       <input
@@ -298,9 +347,11 @@ export default function BookingModal({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-white/70 block">Mobile Number</label>
+                    <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
+                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                        isLightTheme ? "text-neutral-400" : "text-white/45"
+                      }`}>
                         <HugeiconsIcon icon={CallingIcon} size={16} />
                       </span>
                       <input
@@ -315,9 +366,11 @@ export default function BookingModal({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-white/70 block">Delivery Address</label>
+                    <label className={`text-xs block ${labelColor}`}>Delivery Address</label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/45 z-10">
+                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                        isLightTheme ? "text-neutral-400" : "text-white/45"
+                      }`}>
                         <HugeiconsIcon icon={Location01Icon} size={16} />
                       </span>
                       <input
@@ -332,12 +385,14 @@ export default function BookingModal({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-white/70 block flex justify-between">
+                    <label className={`text-xs block flex justify-between ${labelColor}`}>
                       <span>Google Maps Location Link</span>
-                      <span className="text-[10px] text-gamebees-glow-blue font-light">For accurate delivery routing</span>
+                      <span className="text-[10px] text-[#246596] font-light">For accurate delivery routing</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gamebees-glow-blue/80 z-10">
+                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                        isLightTheme ? "text-[#246596]" : "text-gamebees-glow-blue/80"
+                      }`}>
                         <HugeiconsIcon icon={Location01Icon} size={16} />
                       </span>
                       <input
@@ -366,36 +421,40 @@ export default function BookingModal({
             {step === 2 && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                    <HugeiconsIcon icon={Shield01Icon} size={22} className="text-gamebees-glow-blue" />
+                  <h3 className={`text-xl sm:text-2xl font-black flex items-center gap-2 ${headerColor}`}>
+                    <HugeiconsIcon icon={Shield01Icon} size={22} className="text-[#246596]" />
                     <span>Identity KYC Status</span>
                   </h3>
-                  <p className="text-white/50 text-xs mt-1 font-light">
+                  <p className={`${subTextColor} text-xs mt-1 font-light`}>
                     Verifying secure identity profile from database records.
                   </p>
                 </div>
 
                 {checkingKyc ? (
-                  <div className="card-polished p-12 text-center space-y-4">
-                    <div className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="text-white/60 text-xs font-light">Querying KYC database... Please wait.</p>
+                  <div className={`p-12 text-center space-y-4 rounded-xl ${
+                    isLightTheme ? "bg-neutral-50 border border-neutral-200" : "card-polished"
+                  }`}>
+                    <div className="h-8 w-8 border-4 border-[#246596] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className={`text-xs font-light ${subTextColor}`}>Querying KYC database... Please wait.</p>
                   </div>
-                ) : dbKycStatus === 'approved' || dbKycVerified ? (
+                ) : dbKycStatus === "approved" || dbKycVerified ? (
                   // KYC is completed
                   <div className="space-y-6">
                     <div className="p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-center space-y-4 animate-fadeInUp">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-600">
                         <HugeiconsIcon icon={Shield01Icon} size={20} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">Identity KYC Verified</h4>
-                        <p className="text-white/60 text-xs mt-1 font-light">Profile checks passed successfully.</p>
+                        <h4 className={`text-sm font-bold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>Identity KYC Verified</h4>
+                        <p className={`${subTextColor} text-xs mt-1 font-light`}>Profile checks passed successfully.</p>
                       </div>
 
-                      <div className="text-left text-[11px] text-white/50 space-y-1.5 p-3.5 bg-black/20 rounded-lg font-light">
-                        <div className="flex justify-between"><span>eKYC Registry:</span><span className="text-green-400 font-semibold">Matched</span></div>
-                        <div className="flex justify-between"><span>User Profile:</span><span className="text-white/80">{name}</span></div>
-                        <div className="flex justify-between"><span>Status Check:</span><span className="text-green-400 font-semibold">Verified</span></div>
+                      <div className={`text-left text-[11px] space-y-1.5 p-3.5 rounded-lg font-light ${
+                        isLightTheme ? "bg-neutral-100 text-neutral-600" : "bg-black/20 text-white/50"
+                      }`}>
+                        <div className="flex justify-between"><span>eKYC Registry:</span><span className="text-green-600 font-semibold">Matched</span></div>
+                        <div className="flex justify-between"><span>User Profile:</span><span className={isLightTheme ? "text-neutral-800 font-medium" : "text-white/80"}>{name}</span></div>
+                        <div className="flex justify-between"><span>Status Check:</span><span className="text-green-600 font-semibold">Verified</span></div>
                       </div>
                     </div>
 
@@ -406,16 +465,16 @@ export default function BookingModal({
                       Continue to Live Selfie Verification
                     </button>
                   </div>
-                ) : dbKycStatus === 'pending' ? (
+                ) : dbKycStatus === "pending" ? (
                   // KYC is pending admin review
                   <div className="space-y-6">
                     <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 animate-pulse">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-600 animate-pulse">
                         <HugeiconsIcon icon={Shield01Icon} size={20} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">KYC Verification Under Review</h4>
-                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
+                        <h4 className={`text-sm font-bold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>KYC Verification Under Review</h4>
+                        <p className={`${subTextColor} text-xs mt-1.5 leading-relaxed font-light`}>
                           Your profile has been submitted and is currently being manually audited by our admins. You can complete booking once approved.
                         </p>
                       </div>
@@ -423,21 +482,23 @@ export default function BookingModal({
 
                     <button
                       disabled
-                      className="w-full py-4 rounded-xl bg-white/5 text-xs font-bold text-white/40 flex items-center justify-center gap-2 cursor-not-allowed"
+                      className={`w-full py-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed ${
+                        isLightTheme ? "bg-neutral-100 text-neutral-400" : "bg-white/5 text-white/40"
+                      }`}
                     >
                       Awaiting Manual Admin Approval
                     </button>
                   </div>
-                ) : dbKycStatus === 'declined' ? (
+                ) : dbKycStatus === "declined" ? (
                   // KYC check was declined
                   <div className="space-y-6">
                     <div className="p-6 rounded-xl bg-red-500/10 border border-red-500/20 text-center space-y-4 animate-fadeInUp">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-600">
                         <HugeiconsIcon icon={AlertCircleIcon} size={20} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">KYC Verification Declined</h4>
-                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
+                        <h4 className={`text-sm font-bold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>KYC Verification Declined</h4>
+                        <p className={`${subTextColor} text-xs mt-1.5 leading-relaxed font-light`}>
                           Your previous KYC details check has failed manual verification. Please re-apply in the dashboard.
                         </p>
                       </div>
@@ -451,16 +512,16 @@ export default function BookingModal({
                     </button>
                   </div>
                 ) : (
-                  // KYC is NOT completed/applied
+                  // KYC check is not applied
                   <div className="space-y-6">
-                    <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-4 animate-fadeInUp">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400">
+                    <div className="p-6 rounded-xl bg-[#246596]/10 border border-[#246596]/20 text-center space-y-4 animate-fadeInUp">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-[#246596]/20 flex items-center justify-center text-[#246596]">
                         <HugeiconsIcon icon={AlertCircleIcon} size={20} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">KYC Verification Required</h4>
-                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed font-light">
-                          You must verify your Aadhaar card and live location coordinates before checking out console rentals.
+                        <h4 className={`text-sm font-bold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>KYC Profile Required</h4>
+                        <p className={`${subTextColor} text-xs mt-1.5 leading-relaxed font-light`}>
+                          Manual identity verification is required to complete console bookings. Please submit your info.
                         </p>
                       </div>
                     </div>
@@ -469,27 +530,29 @@ export default function BookingModal({
                       onClick={onRedirectToKyc}
                       className="w-full py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer animate-fadeInUp"
                     >
-                      Complete Your KYC in Dashboard
+                      Complete KYC Application
                     </button>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Step 3: Selfie Capture with Face Detection */}
+            {/* Step 3: Selfie Capture */}
             {step === 3 && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                    <HugeiconsIcon icon={Camera01Icon} size={22} className="text-gamebees-glow-blue" />
+                  <h3 className={`text-xl sm:text-2xl font-black flex items-center gap-2 ${headerColor}`}>
+                    <HugeiconsIcon icon={Camera01Icon} size={22} className="text-[#246596]" />
                     <span>Liveness & Selfie Verification</span>
                   </h3>
-                  <p className="text-white/50 text-xs mt-1 font-light">
-                    Ensure your face fits inside the guide and click the shutter button.
+                  <p className={`${subTextColor} text-xs mt-1 font-light`}>
+                    Ensure your face fits inside the camera view and click the shutter button.
                   </p>
                 </div>
 
-                <div className="relative aspect-video w-full max-w-sm mx-auto bg-black/60 rounded-2xl overflow-hidden border border-white/10 flex flex-col items-center justify-center">
+                <div className={`relative aspect-video w-full max-w-sm mx-auto bg-black/60 rounded-2xl overflow-hidden flex flex-col items-center justify-center ${
+                  isLightTheme ? "border border-neutral-300" : "border border-white/10"
+                }`}>
                   {!selfieCaptured ? (
                     <>
                       <video
@@ -499,11 +562,6 @@ export default function BookingModal({
                         className="w-full h-full object-cover scale-x-[-1]"
                       />
                       
-                      {/* Dotted Guide Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                        <div className="w-[150px] h-[200px] rounded-[100px] border-2 border-dashed border-gamebees-glow-blue/50 shadow-[0_0_15px_rgba(36,101,150,0.2)]" />
-                      </div>
-
                       {/* Shutter Button floating over bottom of the camera */}
                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
                         <button
@@ -526,14 +584,14 @@ export default function BookingModal({
                 </div>
 
                 {cameraStatus === "error" && (
-                  <div className="p-4 rounded-xl text-center text-xs bg-red-500/10 border border-red-500/20 text-red-300">
+                  <div className="p-4 rounded-xl text-center text-xs bg-red-500/10 border border-red-500/20 text-red-600">
                     Could not access selfie camera. Ensure permissions are granted.
                   </div>
                 )}
 
                 {selfieCaptured && (
                   <div className="space-y-4 pt-2">
-                    <div className="p-4 rounded-xl text-center text-xs bg-green-500/10 border border-green-500/20 text-green-300 font-semibold animate-fadeInUp">
+                    <div className="p-4 rounded-xl text-center text-xs bg-green-500/10 border border-green-500/20 text-green-600 font-semibold animate-fadeInUp">
                       Selfie captured successfully! Would you like to confirm or retake?
                     </div>
 
@@ -541,7 +599,7 @@ export default function BookingModal({
                       <button
                         type="button"
                         onClick={handleRetake}
-                        className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors cursor-pointer"
+                        className={backBtnClass}
                       >
                         <HugeiconsIcon icon={RefreshIcon} size={15} />
                         <span>Retake Selfie</span>
@@ -550,7 +608,7 @@ export default function BookingModal({
                       <button
                         type="button"
                         onClick={() => setStep(4)}
-                        className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <HugeiconsIcon icon={CheckmarkCircle01Icon} size={15} />
                         <span>Confirm & Continue</span>
@@ -562,7 +620,9 @@ export default function BookingModal({
                 {!selfieCaptured && (
                   <button
                     disabled
-                    className="w-full mt-4 py-4 rounded-xl bg-white/5 text-xs font-bold text-white/30 flex items-center justify-center gap-2 cursor-not-allowed"
+                    className={`w-full mt-4 py-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed ${
+                      isLightTheme ? "bg-neutral-100 text-neutral-450" : "bg-white/5 text-white/30"
+                    }`}
                   >
                     Please capture your selfie to proceed
                   </button>
@@ -570,55 +630,56 @@ export default function BookingModal({
               </div>
             )}
 
-            {/* Step 4: Summary, Consent & Submission */}
+            {/* Step 4: Final Consent & Summary */}
             {step === 4 && (
-              <form onSubmit={handleFinalSubmit} className="space-y-6">
+              <form onSubmit={handleFinalSubmit} className="space-y-5">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
-                    Rental Overview
+                  <h3 className={`text-xl sm:text-2xl font-black flex items-center gap-2 ${headerColor}`}>
+                    <HugeiconsIcon icon={Shield01Icon} size={22} className="text-[#246596]" />
+                    <span>Review Reservation</span>
                   </h3>
-                  <p className="text-white/50 text-xs mt-1 font-light">
-                    Review booking rates and complete order verification.
+                  <p className={`${subTextColor} text-xs mt-1 font-light`}>
+                    Confirm your details and accept rental terms before booking.
                   </p>
                 </div>
 
-                <div className="p-4.5 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs space-y-3 font-light">
-                  <div className="flex justify-between items-center text-white/50 pb-2 border-b border-white/[0.04]">
-                    <span>Item to Rent</span>
-                    <span className="font-bold text-white text-sm">{initialConsoleName}</span>
+                <div className={`p-4 rounded-xl space-y-3 text-xs ${cardBg}`}>
+                  <div className="flex justify-between">
+                    <span className={subTextColor}>Full Name</span>
+                    <span className="font-bold">{name}</span>
                   </div>
-                  <div className="flex justify-between items-center text-white/50">
-                    <span>Client Name</span>
-                    <span className="text-white/80">{name}</span>
+                  <div className="flex justify-between">
+                    <span className={subTextColor}>Phone Number</span>
+                    <span className="font-mono">{phone}</span>
                   </div>
-                  <div className="flex justify-between items-center text-white/50">
-                    <span>Contact Number</span>
-                    <span className="text-white/80">{phone}</span>
+                  <div className="flex justify-between">
+                    <span className={subTextColor}>Address</span>
+                    <span className="text-right truncate max-w-[200px]" title={address}>{address}</span>
                   </div>
-                  <div className="flex justify-between items-center text-white/50">
-                    <span>Rental Duration</span>
-                    <span className="text-white/80">{initialDuration} Days</span>
+
+                  <div className={`h-[1px] my-1 ${separatorBg}`}></div>
+
+                  <div className="flex justify-between">
+                    <span className={subTextColor}>Equipment Model</span>
+                    <span className="font-bold">{initialConsoleName}</span>
                   </div>
-                  <div className="flex justify-between items-center text-white/50">
-                    <span>Identity Proof</span>
-                    <span className="text-green-400 font-semibold flex items-center gap-1">
-                      <HugeiconsIcon icon={Shield01Icon} size={14} />
-                      <span>Verified KYC Profile</span>
-                    </span>
+                  <div className="flex justify-between">
+                    <span className={subTextColor}>Rental Duration</span>
+                    <span>{initialDuration} Days</span>
                   </div>
-                  <div className="flex justify-between items-center text-white/50">
-                    <span>Liveness Selfie</span>
-                    <span className="text-green-400 font-semibold flex items-center gap-1">
+                  <div className="flex justify-between items-center">
+                    <span className={subTextColor}>Identity Check</span>
+                    <span className="text-green-600 font-bold flex items-center gap-1.5">
                       <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
                       <span>Matched</span>
                     </span>
                   </div>
 
-                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/20 to-transparent my-1"></div>
+                  <div className={`h-[1px] my-1 ${separatorBg}`}></div>
 
                   <div className="flex justify-between items-baseline pt-2">
-                    <span className="text-xs uppercase text-white/30 font-semibold">Total Price Due</span>
-                    <span className="text-2xl font-black text-gamebees-glow-blue">${initialTotal}</span>
+                    <span className={`text-xs uppercase font-semibold ${subTextColor}`}>Total Price Due</span>
+                    <span className="text-2xl font-black text-[#246596]">${initialTotal}</span>
                   </div>
                 </div>
 
@@ -629,10 +690,10 @@ export default function BookingModal({
                       required
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-white/10 bg-gamebees-dark-navy/20 accent-gamebees-accent-blue cursor-pointer"
+                      className="mt-1 h-4 w-4 rounded border-neutral-300 bg-neutral-50 accent-[#246596] cursor-pointer"
                     />
-                    <span className="text-[11px] text-white/60 leading-normal">
-                      I agree to the <span className="text-gamebees-glow-blue hover:underline">Terms of Service</span>, security deposits policies, and rental usage agreements.
+                    <span className={`text-[11px] leading-normal ${textBodyColor}`}>
+                      I agree to the <span className="text-[#246596] hover:underline font-semibold">Terms of Service</span>, security deposits policies, and rental usage agreements.
                     </span>
                   </label>
 
@@ -641,16 +702,16 @@ export default function BookingModal({
                       type="checkbox"
                       checked={agreeMarketing}
                       onChange={(e) => setAgreeMarketing(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-white/10 bg-gamebees-dark-navy/20 accent-gamebees-accent-blue cursor-pointer"
+                      className="mt-1 h-4 w-4 rounded border-neutral-300 bg-neutral-50 accent-[#246596] cursor-pointer"
                     />
-                    <span className="text-[11px] text-white/40 leading-normal">
+                    <span className={`text-[11px] leading-normal ${subTextColor}`}>
                       I consent to receive order updates, status notifications and promotional offers via WhatsApp and email.
                     </span>
                   </label>
                 </div>
 
                 {submitError && (
-                  <p className="text-xs text-red-400 flex items-center gap-1.5 mt-2 font-light">
+                  <p className="text-xs text-red-500 flex items-center gap-1.5 mt-2 font-light">
                     <HugeiconsIcon icon={AlertCircleIcon} size={14} />
                     <span>{submitError}</span>
                   </p>
@@ -660,7 +721,7 @@ export default function BookingModal({
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10 transition-colors cursor-pointer"
+                    className={backBtnClass}
                   >
                     Back
                   </button>
@@ -681,21 +742,21 @@ export default function BookingModal({
           </div>
         ) : (
           /* Success Screen */
-          <div className="text-center py-8 space-y-6">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gamebees-accent-blue/10 border border-gamebees-accent-blue/20">
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={40} className="text-gamebees-accent-blue" />
+          <div className="text-center py-8 space-y-6 animate-fadeInUp">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20">
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={40} className="text-green-600" />
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-black text-white title-glow">Booking Requested!</h3>
-              <p className="text-white/70 text-sm">
-                Congratulations, <span className="text-gamebees-accent-lavender font-bold">{name}</span>!
+              <h3 className={`text-2xl font-black ${headerColor}`}>Booking Requested!</h3>
+              <p className={`text-sm ${textBodyColor}`}>
+                Congratulations, <span className="text-[#246596] font-bold">{name}</span>!
               </p>
             </div>
 
-            <p className="text-white/50 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed font-light">
-              Your rental reservation for <span className="text-white font-semibold">{initialConsoleName}</span> is complete. 
-              The initial status is set to <span className="text-gamebees-glow-blue font-semibold uppercase">Booked</span>. 
+            <p className={`text-xs sm:text-sm max-w-sm mx-auto leading-relaxed font-light ${subTextColor}`}>
+              Your rental reservation for <span className={`font-semibold ${headerColor}`}>{initialConsoleName}</span> is complete. 
+              The initial status is set to <span className="text-green-600 font-semibold uppercase">Booked</span>. 
               Our delivery admin is reviewing your Aadhaar + Face match details and will dispatch your gear shortly. 
               You can track your order live inside the <strong>Dashboard</strong> tracker!
             </p>
@@ -703,13 +764,13 @@ export default function BookingModal({
             <div className="flex flex-col sm:flex-row gap-3 pt-4 justify-center">
               <button
                 onClick={onClose}
-                className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 transition-all cursor-pointer"
+                className={backBtnClass}
               >
                 Back To Landing
               </button>
               <a
                 href="/dashboard"
-                className="px-6 py-3 rounded-xl bg-gamebees-accent-blue text-xs font-bold text-white hover:bg-gamebees-glow-blue transition-all flex items-center justify-center shadow-[0_4px_12px_rgba(36,101,150,0.2)]"
+                className="px-6 py-3 rounded-xl bg-[#246596] text-xs font-bold text-white hover:bg-[#1d4f75] transition-all flex items-center justify-center shadow-[0_4px_12px_rgba(36,101,150,0.2)]"
               >
                 Go to Dashboard
               </a>
