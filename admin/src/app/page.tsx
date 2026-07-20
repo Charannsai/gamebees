@@ -476,7 +476,7 @@ export default function AdminPage() {
                             <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
                           </td>
                           <td className="font-mono text-xs font-bold text-[#141414]">
-                            ${booking.total_price}
+                            ₹{booking.total_price}
                           </td>
                           <td>
                             <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
@@ -644,7 +644,7 @@ export default function AdminPage() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Price per Day ($)</label>
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Price per Day (₹)</label>
                         <input
                           type="number"
                           required
@@ -754,7 +754,7 @@ export default function AdminPage() {
                                 </span>
                               </td>
                               <td>
-                                <span className="text-xs font-black text-[#141414]">${item.price}</span>
+                                <span className="text-xs font-black text-[#141414]">₹{item.price}</span>
                               </td>
                               <td>
                                 <button
@@ -814,9 +814,9 @@ export default function AdminPage() {
                     <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
                       <div className="flex justify-between"><span>Product:</span><span className="font-bold">{selectedBooking.items?.name || "Console Hardware"}</span></div>
                       <div className="flex justify-between"><span>Category:</span><span>{selectedBooking.items?.category || "Consoles"}</span></div>
-                      <div className="flex justify-between"><span>Price per Day:</span><span>${selectedBooking.items?.price || selectedBooking.total_price / selectedBooking.duration_days}</span></div>
+                      <div className="flex justify-between"><span>Price per Day:</span><span>₹{selectedBooking.items?.price || selectedBooking.total_price / selectedBooking.duration_days}</span></div>
                       <div className="flex justify-between"><span>Duration:</span><span>{selectedBooking.duration_days} Days</span></div>
-                      <div className="flex justify-between border-t border-neutral-200 pt-1.5 font-bold"><span>Total Paid:</span><span>${selectedBooking.total_price}</span></div>
+                      <div className="flex justify-between border-t border-neutral-200 pt-1.5 font-bold"><span>Total Paid:</span><span>₹{selectedBooking.total_price}</span></div>
                     </div>
                   </div>
                 </div>

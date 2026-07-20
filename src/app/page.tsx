@@ -221,7 +221,7 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors">${item.price}</span>
+                          <span className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors">₹{item.price}</span>
                           <span className="text-[10px] text-white/25 block">/ day</span>
                         </div>
                       </div>
@@ -242,7 +242,7 @@ export default function Home() {
                       return (
                         <div key={item.id} className="flex justify-between items-center text-sm">
                           <span className="text-gamebees-accent-lavender/40 font-light">{item.name}</span>
-                          <span className="text-white font-semibold">${item.price}/day</span>
+                          <span className="text-white font-semibold">₹{item.price}/day</span>
                         </div>
                       );
                     })}
@@ -256,7 +256,7 @@ export default function Home() {
                         Combined Rate
                       </span>
                       <div className="flex items-baseline gap-1.5 mt-1">
-                        <span className="text-3xl font-black text-gamebees-glow-blue">${currentDailyTotal}</span>
+                        <span className="text-3xl font-black text-gamebees-glow-blue">₹{currentDailyTotal}</span>
                         <span className="text-xs text-white/20 font-light">/ day</span>
                       </div>
                     </div>
@@ -376,7 +376,7 @@ export default function Home() {
                             <div className="p-3 bg-gamebees-dark-navy/15 border border-white/[0.04] rounded-xl text-left text-[9px] text-white/35 space-y-1.5">
                               <div className="flex justify-between"><span className="font-semibold text-white/50">Console:</span><span>PS5 Pro Bundle</span></div>
                               <div className="flex justify-between"><span>Duration:</span><span>3 Days</span></div>
-                              <div className="flex justify-between font-semibold text-white border-t border-white/[0.04] pt-1.5 mt-1"><span>Total:</span><span>$36</span></div>
+                              <div className="flex justify-between font-semibold text-white border-t border-white/[0.04] pt-1.5 mt-1"><span>Total:</span><span>₹36</span></div>
                             </div>
                           </div>
                         )}

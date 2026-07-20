@@ -547,7 +547,7 @@ export default function UserDashboard() {
                                 </div>
                                 <div>
                                   <span className="text-[9px] text-white/30 block">Total Due</span>
-                                  <span className="text-gamebees-glow-blue font-bold">${b.total_price}</span>
+                                  <span className="text-gamebees-glow-blue font-bold">₹{b.total_price}</span>
                                 </div>
                                 <div className="col-span-2">
                                   <span className="text-[9px] text-white/30 block">Delivery Address</span>
@@ -597,7 +597,7 @@ export default function UserDashboard() {
                                 {item.category}
                               </span>
                               <div className="text-right">
-                                <span className="text-lg font-black text-white">${item.price}</span>
+                                <span className="text-lg font-black text-white">₹{item.price}</span>
                                 <span className="text-[9px] text-white/30 block">/ day</span>
                               </div>
                             </div>

@@ -679,7 +679,7 @@ export default function BookingModal({
 
                   <div className="flex justify-between items-baseline pt-2">
                     <span className={`text-xs uppercase font-semibold ${subTextColor}`}>Total Price Due</span>
-                    <span className="text-2xl font-black text-[#246596]">${initialTotal}</span>
+                    <span className="text-2xl font-black text-[#246596]">₹{initialTotal}</span>
                   </div>
                 </div>
 
