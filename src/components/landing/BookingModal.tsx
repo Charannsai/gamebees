@@ -46,6 +46,7 @@ export default function BookingModal({
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [mapLink, setMapLink] = useState("");
+  const [showAddressEdit, setShowAddressEdit] = useState(false);
   
   // Step 2: Automated KYC status check
   const [checkingKyc, setCheckingKyc] = useState(true);
@@ -87,6 +88,7 @@ export default function BookingModal({
       setPhone("");
       setAddress("");
       setMapLink("");
+      setShowAddressEdit(false);
       setSelfieCaptured(null);
       setCameraStatus("idle");
       setAgreeTerms(false);
@@ -127,6 +129,12 @@ export default function BookingModal({
           if (res.success && res.profile) {
             setDbKycStatus(res.profile.kyc_status || "pending");
             setDbKycVerified(res.verified);
+            
+            // Auto populate address & maps link from KYC coordinates if available
+            if (res.profile.latitude && res.profile.longitude) {
+              setAddress((prev) => prev || `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`);
+              setMapLink((prev) => prev || `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`);
+            }
           } else {
             setDbKycStatus("not_applied");
             setDbKycVerified(false);
@@ -314,15 +322,15 @@ export default function BookingModal({
 
         {!isSuccess ? (
           <div>
-            {/* Step 1: User details and Google Maps delivery link */}
+            {/* Step 1: User details */}
             {step === 1 && (
               <div className="space-y-5">
                 <div>
                   <h3 className={`text-xl sm:text-2xl font-black ${headerColor}`}>
-                    Delivery Details
+                    Contact Information
                   </h3>
                   <p className={`${subTextColor} text-xs mt-1 font-light`}>
-                    Provide delivery location and contact information.
+                    Provide your name and mobile number to proceed.
                   </p>
                 </div>
 
@@ -364,52 +372,11 @@ export default function BookingModal({
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <label className={`text-xs block ${labelColor}`}>Delivery Address</label>
-                    <div className="relative">
-                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                        isLightTheme ? "text-neutral-400" : "text-white/45"
-                      }`}>
-                        <HugeiconsIcon icon={Location01Icon} size={16} />
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Enter street name, building/flat"
-                        className={inputClassName}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className={`text-xs block flex justify-between ${labelColor}`}>
-                      <span>Google Maps Location Link</span>
-                      <span className="text-[10px] text-[#246596] font-light">For accurate delivery routing</span>
-                    </label>
-                    <div className="relative">
-                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                        isLightTheme ? "text-[#246596]" : "text-gamebees-glow-blue/80"
-                      }`}>
-                        <HugeiconsIcon icon={Location01Icon} size={16} />
-                      </span>
-                      <input
-                        type="url"
-                        required
-                        value={mapLink}
-                        onChange={(e) => setMapLink(e.target.value)}
-                        placeholder="https://maps.app.goo.gl/..."
-                        className={inputClassName}
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <button
                   onClick={() => setStep(2)}
-                  disabled={!name || !phone || !address || !mapLink}
+                  disabled={!name || !phone}
                   className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <span>Continue to Identity Verification</span>
@@ -631,6 +598,7 @@ export default function BookingModal({
             )}
 
             {/* Step 4: Final Consent & Summary */}
+            {/* Step 4: Final Consent & Summary */}
             {step === 4 && (
               <form onSubmit={handleFinalSubmit} className="space-y-5">
                 <div>
@@ -652,9 +620,23 @@ export default function BookingModal({
                     <span className={subTextColor}>Phone Number</span>
                     <span className="font-mono">{phone}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className={subTextColor}>Address</span>
-                    <span className="text-right truncate max-w-[200px]" title={address}>{address}</span>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className={subTextColor}>Delivery Location</span>
+                    <div className="flex flex-col items-end text-right max-w-[220px]">
+                      <span className="font-medium truncate max-w-[200px]" title={address || "No Address Selected"}>{address || "No Address Selected"}</span>
+                      {mapLink && (
+                        <a href={mapLink} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#246596] hover:underline font-semibold mt-0.5">
+                          View Google Maps Link
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowAddressEdit(prev => !prev)}
+                        className="text-[10px] text-[#246596] hover:underline font-bold mt-1.5"
+                      >
+                        {showAddressEdit ? "Hide Location Inputs" : "Change Delivery Location"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className={`h-[1px] my-1 ${separatorBg}`}></div>
@@ -682,6 +664,52 @@ export default function BookingModal({
                     <span className="text-2xl font-black text-[#246596]">₹{initialTotal}</span>
                   </div>
                 </div>
+
+                {/* Overridable Delivery Address Form if toggled or coordinates are missing */}
+                {(showAddressEdit || !address || !mapLink) && (
+                  <div className={`p-4 rounded-xl space-y-3.5 border transition-all duration-300 ${
+                    isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-[#10324d]/10 border-white/5"
+                  } animate-fadeInUp`}>
+                    <div className="flex justify-between items-center border-b pb-2 border-neutral-200 dark:border-white/5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#246596]">Override Delivery Address</span>
+                      {address && mapLink && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAddressEdit(false)}
+                          className="text-[10px] text-red-500 hover:underline font-semibold"
+                        >
+                          Use KYC Location
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-1.5 text-left">
+                      <label className={`text-[10px] block ${labelColor}`}>Delivery Address (Street name, building/flat)</label>
+                      <input
+                        type="text"
+                        required
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Enter street name, building/flat"
+                        className={inputClassName}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 text-left">
+                      <label className={`text-[10px] block flex justify-between ${labelColor}`}>
+                        <span>Google Maps Location Link</span>
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        value={mapLink}
+                        onChange={(e) => setMapLink(e.target.value)}
+                        placeholder="https://maps.app.goo.gl/..."
+                        className={inputClassName}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-4 pt-2">
                   <label className="flex items-start gap-3 cursor-pointer select-none">
@@ -727,7 +755,7 @@ export default function BookingModal({
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting || !agreeTerms}
+                    disabled={isSubmitting || !agreeTerms || !address || !mapLink}
                     className="flex-[2] py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
