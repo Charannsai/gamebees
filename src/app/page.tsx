@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone, Terminal } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
-import BookingModal from "@/components/landing/BookingModal";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 // --- Scroll Reveal ---
 function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -50,13 +50,8 @@ const GEAR_OPTIONS: GearItem[] = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [selectedGear, setSelectedGear] = useState<string[]>(["ps5"]);
-  const [booking, setBooking] = useState({
-    isOpen: false,
-    consoleName: "PlayStation 5 Pro Bundle",
-    duration: 3,
-    total: 36,
-  });
   const [phoneStep, setPhoneStep] = useState(0);
   const [typingText, setTypingText] = useState("");
 
@@ -94,19 +89,11 @@ export default function Home() {
 
   const { isSignedIn } = useUser();
 
-  const handleOpenBooking = (title: string, dailyPrice: number) => {
-    setBooking({ isOpen: true, consoleName: title, duration: 3, total: dailyPrice * 3 });
-  };
-
-  const handleCloseBooking = () => {
-    setBooking((prev) => ({ ...prev, isOpen: false }));
-  };
-
   const handleRentClick = (title: string, dailyPrice: number) => {
     if (isSignedIn) {
-      handleOpenBooking(title, dailyPrice);
+      router.push(`/book?name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`);
     } else {
-      window.location.href = "/sign-in";
+      window.location.href = `/sign-in?redirect_url=/book?name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`;
     }
   };
 
@@ -465,14 +452,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-
-      <BookingModal
-        isOpen={booking.isOpen}
-        onClose={handleCloseBooking}
-        initialConsoleName={booking.consoleName}
-        initialDuration={booking.duration}
-        initialTotal={booking.total}
-      />
     </div>
   );
 }
