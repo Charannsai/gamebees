@@ -95,6 +95,28 @@ export default function BookingModal({
       setAgreeMarketing(false);
       setIsSuccess(false);
       setSubmitError("");
+
+      // Fetch KYC status to pre-populate details
+      getKycStatus()
+        .then((res) => {
+          if (res.success && res.profile) {
+            if (res.profile.full_name) {
+              setName((prev) => prev || res.profile.full_name || "");
+            }
+            if (res.profile.phone) {
+              setPhone((prev) => prev || res.profile.phone || "");
+            }
+            if (res.profile.latitude && res.profile.longitude) {
+              setAddress((prev) => prev || `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`);
+              setMapLink((prev) => prev || `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`);
+            }
+            setDbKycStatus(res.profile.kyc_status || "pending");
+            setDbKycVerified(res.verified);
+          }
+        })
+        .catch((err) => {
+          console.error("BookingModal KYC lookup error on open:", err);
+        });
     }
     return () => {
       stopCamera();
@@ -219,13 +241,14 @@ export default function BookingModal({
     }
 
     try {
+      const isVerified = kycVerifiedProp || dbKycVerified;
       const res = await createBooking({
         fullName: name,
         phone: phone,
         address: address,
         mapLink: mapLink,
-        aadhaarNumber: kycVerifiedProp ? "PROFILE_VERIFIED" : "UNVERIFIED_PENDING",
-        aadhaarVerified: kycVerifiedProp,
+        aadhaarNumber: isVerified ? "PROFILE_VERIFIED" : "UNVERIFIED_PENDING",
+        aadhaarVerified: isVerified,
         selfieUrl: selfieCaptured || "data:image/png;base64,mockselfie",
         itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f",
         durationDays: initialDuration,
