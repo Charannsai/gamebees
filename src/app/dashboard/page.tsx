@@ -25,12 +25,13 @@ import {
   File01Icon
 } from "@hugeicons/core-free-icons";
 import { fetchItems, fetchBookings, getKycStatus, saveKyc } from "@/app/actions";
-import BookingModal from "@/components/landing/BookingModal";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type TabType = "overview" | "bookings" | "track" | "kyc" | "settings";
 
 export default function UserDashboard() {
+  const router = useRouter();
   const { user, isLoaded } = useUser();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [items, setItems] = useState<any[]>([]);
@@ -142,11 +143,7 @@ export default function UserDashboard() {
   }, [isLoaded, user]);
 
   const handleOpenBooking = (item: any) => {
-    setModalConsoleName(item.name);
-    setModalItemId(item.id);
-    setModalDailyPrice(Number(item.price));
-    setModalDuration(3);
-    setModalOpen(true);
+    router.push(`/book?itemId=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&duration=3`);
   };
 
   // Manual KYC Handlers
@@ -1225,18 +1222,6 @@ export default function UserDashboard() {
         </button>
       </nav>
 
-      {/* Booking Modal container */}
-      <BookingModal
-        isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); loadDashboardData(); }}
-        initialConsoleName={modalConsoleName}
-        initialDuration={modalDuration}
-        initialTotal={modalDailyPrice * modalDuration}
-        selectedItemId={modalItemId}
-        availableItems={items}
-        kycVerifiedProp={kycVerified}
-        onRedirectToKyc={handleTriggerRedirectToKyc}
-      />
     </div>
   );
 }
