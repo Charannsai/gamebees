@@ -47,6 +47,7 @@ export default function BookingModal({
   const [address, setAddress] = useState("");
   const [mapLink, setMapLink] = useState("");
   const [showAddressEdit, setShowAddressEdit] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   
   // Step 2: Automated KYC status check
   const [checkingKyc, setCheckingKyc] = useState(true);
@@ -97,6 +98,7 @@ export default function BookingModal({
       setSubmitError("");
 
       // Fetch KYC status to pre-populate details
+      setLoadingDetails(true);
       getKycStatus()
         .then((res) => {
           if (res.success && res.profile) {
@@ -116,6 +118,9 @@ export default function BookingModal({
         })
         .catch((err) => {
           console.error("BookingModal KYC lookup error on open:", err);
+        })
+        .finally(() => {
+          setLoadingDetails(false);
         });
     }
     return () => {
@@ -357,52 +362,85 @@ export default function BookingModal({
                   </p>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className={`text-xs block ${labelColor}`}>Full Name</label>
-                    <div className="relative">
-                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                        isLightTheme ? "text-neutral-400" : "text-white/45"
+                {loadingDetails ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Full Name</label>
+                      <div className={`h-11 w-full rounded-xl animate-pulse relative overflow-hidden ${
+                        isLightTheme ? "bg-neutral-200" : "bg-[#10324d]/15 border border-[#5e9fd0]/10"
                       }`}>
-                        <HugeiconsIcon icon={UserIcon} size={16} />
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter full name"
-                        className={inputClassName}
-                      />
+                        <div className="absolute inset-y-0 left-3.5 flex items-center text-white/20">
+                          <HugeiconsIcon icon={UserIcon} size={16} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
-                    <div className="relative">
-                      <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                        isLightTheme ? "text-neutral-400" : "text-white/45"
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
+                      <div className={`h-11 w-full rounded-xl animate-pulse relative overflow-hidden ${
+                        isLightTheme ? "bg-neutral-200" : "bg-[#10324d]/15 border border-[#5e9fd0]/10"
                       }`}>
-                        <HugeiconsIcon icon={CallingIcon} size={16} />
-                      </span>
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Enter mobile number"
-                        className={inputClassName}
-                      />
+                        <div className="absolute inset-y-0 left-3.5 flex items-center text-white/20">
+                          <HugeiconsIcon icon={CallingIcon} size={16} />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-4 animate-fadeInUp">
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Full Name</label>
+                      <div className="relative">
+                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                          isLightTheme ? "text-neutral-400" : "text-white/45"
+                        }`}>
+                          <HugeiconsIcon icon={UserIcon} size={16} />
+                        </span>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Enter full name"
+                          className={inputClassName}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
+                      <div className="relative">
+                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                          isLightTheme ? "text-neutral-400" : "text-white/45"
+                        }`}>
+                          <HugeiconsIcon icon={CallingIcon} size={16} />
+                        </span>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Enter mobile number"
+                          className={inputClassName}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={() => setStep(2)}
-                  disabled={!name || !phone}
+                  disabled={loadingDetails || !name || !phone}
                   className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <span>Continue to Identity Verification</span>
+                  {loadingDetails ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Retrieving profile details...</span>
+                    </>
+                  ) : (
+                    <span>Continue to Identity Verification</span>
+                  )}
                 </button>
               </div>
             )}
