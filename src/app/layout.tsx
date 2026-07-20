@@ -40,6 +40,42 @@ export default function RootLayout({
                     document.documentElement.classList.remove('light');
                   }
                 } catch (e) {}
+
+                try {
+                  if (typeof window !== 'undefined' && typeof MutationObserver !== 'undefined') {
+                    var removeAttr = function(node) {
+                      if (node.nodeType === 1) {
+                        if (node.hasAttribute('bis_skin_checked')) {
+                          node.removeAttribute('bis_skin_checked');
+                        }
+                        var elements = node.querySelectorAll('[bis_skin_checked]');
+                        for (var i = 0; i < elements.length; i++) {
+                          elements[i].removeAttribute('bis_skin_checked');
+                        }
+                      }
+                    };
+                    var observer = new MutationObserver(function(mutations) {
+                      for (var i = 0; i < mutations.length; i++) {
+                        var mutation = mutations[i];
+                        if (mutation.type === 'childList') {
+                          for (var j = 0; j < mutation.addedNodes.length; j++) {
+                            removeAttr(mutation.addedNodes[j]);
+                          }
+                        } else if (mutation.type === 'attributes' && mutation.attributeName === 'bis_skin_checked') {
+                          if (mutation.target.hasAttribute('bis_skin_checked')) {
+                            mutation.target.removeAttribute('bis_skin_checked');
+                          }
+                        }
+                      }
+                    });
+                    observer.observe(document.documentElement, {
+                      childList: true,
+                      subtree: true,
+                      attributes: true,
+                      attributeFilter: ['bis_skin_checked']
+                    });
+                  }
+                } catch (e) {}
               })();
             `
           }}

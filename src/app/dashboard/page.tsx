@@ -321,8 +321,8 @@ export default function UserDashboard() {
 
   if (!isLoaded) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#141414]">
-        <div className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
+      <div suppressHydrationWarning className="flex h-screen items-center justify-center bg-[#141414]">
+        <div suppressHydrationWarning className="h-8 w-8 border-4 border-gamebees-glow-blue border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
