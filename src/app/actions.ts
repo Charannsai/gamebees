@@ -47,6 +47,44 @@ export async function fetchBookings() {
   }
 }
 
+export async function fetchItemAvailability(itemId: string) {
+  try {
+    // 1. Fetch item details (including quantity and price tiers)
+    const { data: item, error: itemError } = await supabaseServer
+      .from("items")
+      .select("*")
+      .eq("id", itemId)
+      .single();
+
+    if (itemError) throw itemError;
+
+    // 2. Fetch active bookings for this item
+    const { data: bookings, error: bookingsError } = await supabaseServer
+      .from("bookings")
+      .select("id, item_id, start_date, end_date, duration_days, created_at, status")
+      .eq("item_id", itemId)
+      .not("status", "in", '("cancelled","declined")');
+
+    if (bookingsError) {
+      console.warn("fetchItemAvailability bookings lookup warn:", bookingsError.message);
+    }
+
+    return {
+      success: true,
+      item: {
+        ...item,
+        quantity: item?.quantity || 1,
+        price_3_days: item?.price_3_days || (item?.price ? item.price * 3 : 1497),
+        price_extra_day: item?.price_extra_day || item?.price || 400,
+      },
+      bookings: bookings || [],
+    };
+  } catch (error: any) {
+    console.error("fetchItemAvailability error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function createBooking(formData: {
   fullName: string;
   phone: string;
@@ -56,6 +94,8 @@ export async function createBooking(formData: {
   aadhaarVerified: boolean;
   selfieUrl: string;
   itemId: string;
+  startDate?: string;
+  endDate?: string;
   durationDays: number;
   totalPrice: number;
 }) {
@@ -65,25 +105,28 @@ export async function createBooking(formData: {
       return { success: false, error: "Unauthorized" };
     }
 
+    const bookingPayload: any = {
+      user_id: userId,
+      full_name: formData.fullName,
+      phone: formData.phone,
+      address: formData.address,
+      map_link: formData.mapLink,
+      aadhaar_number: formData.aadhaarNumber,
+      aadhaar_verified: formData.aadhaarVerified,
+      selfie_url: formData.selfieUrl,
+      item_id: formData.itemId,
+      duration_days: formData.durationDays,
+      total_price: formData.totalPrice,
+      status: "booked",
+      tracking_status: "preparing",
+    };
+
+    if (formData.startDate) bookingPayload.start_date = formData.startDate;
+    if (formData.endDate) bookingPayload.end_date = formData.endDate;
+
     const { data, error } = await supabaseServer
       .from("bookings")
-      .insert([
-        {
-          user_id: userId,
-          full_name: formData.fullName,
-          phone: formData.phone,
-          address: formData.address,
-          map_link: formData.mapLink,
-          aadhaar_number: formData.aadhaarNumber,
-          aadhaar_verified: formData.aadhaarVerified,
-          selfie_url: formData.selfieUrl,
-          item_id: formData.itemId,
-          duration_days: formData.durationDays,
-          total_price: formData.totalPrice,
-          status: "booked",
-          tracking_status: "preparing",
-        },
-      ])
+      .insert([bookingPayload])
       .select();
 
     if (error) throw error;

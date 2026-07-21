@@ -99,8 +99,12 @@ export default function AdminPage() {
   const [itemName, setItemName] = useState("");
   const [itemCategory, setItemCategory] = useState("");
   const [itemPrice, setItemPrice] = useState("");
+  const [itemQuantity, setItemQuantity] = useState("1");
+  const [itemPrice3Days, setItemPrice3Days] = useState("");
+  const [itemPriceExtraDay, setItemPriceExtraDay] = useState("");
   const [itemDesc, setItemDesc] = useState("");
   const [itemImage, setItemImage] = useState("");
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [addingItem, setAddingItem] = useState(false);
   
   const [initialLoad, setInitialLoad] = useState(true);
@@ -154,26 +158,65 @@ export default function AdminPage() {
     setIsAuthenticated(false);
   };
 
+  const handleEditItem = (item: any) => {
+    setEditingItemId(item.id);
+    setItemName(item.name || "");
+    setItemCategory(item.category || "");
+    setItemPrice(item.price ? String(item.price) : "");
+    setItemQuantity(item.quantity ? String(item.quantity) : "1");
+    setItemPrice3Days(item.price_3_days ? String(item.price_3_days) : String((item.price || 0) * 3));
+    setItemPriceExtraDay(item.price_extra_day ? String(item.price_extra_day) : String(item.price || ""));
+    setItemDesc(item.description || "");
+    setItemImage(item.image_url || "");
+    setIsAddingListing(true);
+  };
+
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!itemName || !itemPrice) return;
     setAddingItem(true);
-    const res = await adminAddProduct({
-      name: itemName,
-      category: itemCategory,
-      price: Number(itemPrice),
-      description: itemDesc,
-      image_url: itemImage || undefined
-    });
+
+    const basePrice = Number(itemPrice);
+    const p3Days = itemPrice3Days ? Number(itemPrice3Days) : basePrice * 3;
+    const pExtra = itemPriceExtraDay ? Number(itemPriceExtraDay) : basePrice;
+
+    let res;
+    if (editingItemId) {
+      res = await adminUpdateProduct(editingItemId, {
+        name: itemName,
+        category: itemCategory,
+        price: basePrice,
+        description: itemDesc,
+        image_url: itemImage || undefined,
+        quantity: Number(itemQuantity) || 1,
+        price_3_days: p3Days,
+        price_extra_day: pExtra
+      });
+    } else {
+      res = await adminAddProduct({
+        name: itemName,
+        category: itemCategory,
+        price: basePrice,
+        description: itemDesc,
+        image_url: itemImage || undefined,
+        quantity: Number(itemQuantity) || 1,
+        price_3_days: p3Days,
+        price_extra_day: pExtra
+      });
+    }
     setAddingItem(false);
     if (res.success) {
       setItemName("");
       setItemPrice("");
+      setItemQuantity("1");
+      setItemPrice3Days("");
+      setItemPriceExtraDay("");
       setItemDesc("");
       setItemImage("");
+      setEditingItemId(null);
       loadData();
     } else {
-      triggerAlert("Listing Add Failed", "Error adding item: " + res.error);
+      triggerAlert("Listing Save Failed", "Error saving item: " + res.error);
     }
   };
 

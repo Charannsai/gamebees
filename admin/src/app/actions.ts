@@ -78,6 +78,9 @@ export async function adminAddProduct(product: {
   price: number;
   description: string;
   image_url?: string;
+  quantity?: number;
+  price_3_days?: number;
+  price_extra_day?: number;
 }) {
   const isAuth = await verifyAdmin();
   if (!isAuth) return { success: false, error: "Unauthorized" };
@@ -92,8 +95,40 @@ export async function adminAddProduct(product: {
           price: product.price,
           description: product.description,
           image_url: product.image_url || null,
+          quantity: product.quantity || 1,
+          price_3_days: product.price_3_days || (product.price * 3),
+          price_extra_day: product.price_extra_day || product.price,
         },
       ])
+      .select();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminUpdateProduct(id: string, product: {
+  name?: string;
+  category?: string;
+  price?: number;
+  description?: string;
+  image_url?: string;
+  quantity?: number;
+  price_3_days?: number;
+  price_extra_day?: number;
+}) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+
+  try {
+    const { data, error } = await supabaseServer
+      .from("items")
+      .update({
+        ...product,
+      })
+      .eq("id", id)
       .select();
 
     if (error) throw error;
