@@ -38,6 +38,11 @@ function BookingFlow() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [mapLink, setMapLink] = useState("");
+  const [kycAddress, setKycAddress] = useState("");
+  const [kycMapLink, setKycMapLink] = useState("");
+  const [customAddress, setCustomAddress] = useState("");
+  const [customMapLink, setCustomMapLink] = useState("");
+  const [useCustomLocation, setUseCustomLocation] = useState(false);
   const [showAddressEdit, setShowAddressEdit] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   
@@ -56,6 +61,8 @@ function BookingFlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Step 4: Final Consent & Total
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [modalChecked, setModalChecked] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreeMarketing, setAgreeMarketing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,8 +131,12 @@ function BookingFlow() {
               setPhone((prev) => prev || res.profile.phone || "");
             }
             if (res.profile.latitude && res.profile.longitude) {
-              setAddress((prev) => prev || `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`);
-              setMapLink((prev) => prev || `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`);
+              const kAddr = `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`;
+              const kMap = `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`;
+              setKycAddress(kAddr);
+              setKycMapLink(kMap);
+              setAddress((prev) => prev || kAddr);
+              setMapLink((prev) => prev || kMap);
             }
             setDbKycStatus(res.profile.kyc_status || "pending");
             setDbKycVerified(res.verified);
@@ -152,8 +163,12 @@ function BookingFlow() {
             
             // Auto populate address & maps link from KYC coordinates if available
             if (res.profile.latitude && res.profile.longitude) {
-              setAddress((prev) => prev || `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`);
-              setMapLink((prev) => prev || `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`);
+              const kAddr = `Live Location Coords: ${res.profile.latitude}, ${res.profile.longitude}`;
+              const kMap = `https://www.google.com/maps/search/?api=1&query=${res.profile.latitude},${res.profile.longitude}`;
+              setKycAddress(kAddr);
+              setKycMapLink(kMap);
+              setAddress((prev) => prev || kAddr);
+              setMapLink((prev) => prev || kMap);
             }
           } else {
             setDbKycStatus("not_applied");
@@ -167,6 +182,20 @@ function BookingFlow() {
         });
     }
   }, [step]);
+
+  function handleEnableCustomLocation() {
+    setUseCustomLocation(true);
+    setShowAddressEdit(true);
+    setCustomAddress("");
+    setCustomMapLink("");
+  }
+
+  function handleRevertToKycLocation() {
+    setUseCustomLocation(false);
+    setShowAddressEdit(false);
+    setCustomAddress("");
+    setCustomMapLink("");
+  }
 
   // Camera helpers
   async function startCamera() {
@@ -238,11 +267,14 @@ function BookingFlow() {
 
     try {
       const isVerified = dbKycVerified;
+      const finalAddress = useCustomLocation ? customAddress : (kycAddress || address);
+      const finalMapLink = useCustomLocation ? customMapLink : (kycMapLink || mapLink);
+
       const res = await createBooking({
         fullName: name,
         phone: phone,
-        address: address,
-        mapLink: mapLink,
+        address: finalAddress,
+        mapLink: finalMapLink,
         aadhaarNumber: isVerified ? "PROFILE_VERIFIED" : "UNVERIFIED_PENDING",
         aadhaarVerified: isVerified,
         selfieUrl: selfieCaptured || "data:image/png;base64,mockselfie",
