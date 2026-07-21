@@ -763,163 +763,236 @@ function BookingFlow() {
 
               {/* Step 4: Final Consent & Summary */}
               {step === 4 && (
-                <form onSubmit={handleFinalSubmit} className="space-y-5">
+                <form onSubmit={handleFinalSubmit} className="space-y-6 animate-fadeInUp">
+                  {/* Header */}
                   <div>
                     <h3 className={`text-xl sm:text-2xl font-black flex items-center gap-2 ${headerColor}`}>
-                      <HugeiconsIcon icon={Shield01Icon} size={22} className="text-[#246596]" />
+                      <span className="p-2 rounded-xl bg-[#246596]/10 text-[#246596]">
+                        <HugeiconsIcon icon={Shield01Icon} size={20} />
+                      </span>
                       <span>Review Reservation</span>
                     </h3>
-                    <p className={`${subTextColor} text-xs mt-1 font-light`}>
-                      Confirm your details and accept rental terms before booking.
+                    <p className={`${subTextColor} text-xs mt-1.5 font-light`}>
+                      Please verify your booking details, delivery location, and terms before confirming.
                     </p>
                   </div>
 
-                  <div className={`p-4 rounded-xl space-y-3 text-xs ${cardBg}`}>
-                    <div className="flex justify-between">
-                      <span className={subTextColor}>Full Name</span>
-                      <span className="font-bold">{name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className={subTextColor}>Phone Number</span>
-                      <span className="font-mono">{phone}</span>
-                    </div>
-                    <div className="flex justify-between items-start gap-4">
-                      <span className={subTextColor}>Delivery Location</span>
-                      <div className="flex flex-col items-end text-right max-w-[220px]">
-                        <span className="font-medium truncate max-w-[200px]" title={address || "No Address Selected"}>{address || "No Address Selected"}</span>
-                        {mapLink && (
-                          <a href={mapLink} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#246596] hover:underline font-semibold mt-0.5">
-                            View Google Maps Link
-                          </a>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setShowAddressEdit(prev => !prev)}
-                          className="text-[10px] text-[#246596] hover:underline font-bold mt-1.5"
-                        >
-                          {showAddressEdit ? "Hide Location Inputs" : "Change Delivery Location"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className={`h-[1px] my-1 ${separatorBg}`}></div>
-
-                    <div className="flex justify-between">
-                      <span className={subTextColor}>Equipment Model</span>
-                      <span className="font-bold">{initialConsoleName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className={subTextColor}>Rental Duration</span>
-                      <span>{initialDuration} Days</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className={subTextColor}>Identity Check</span>
-                      <span className="text-green-600 font-bold flex items-center gap-1.5">
-                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
-                        <span>Matched</span>
+                  {/* Section 1: Customer & Identity Card */}
+                  <div className={`p-4 sm:p-5 rounded-2xl border space-y-3 transition-all ${
+                    isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-850" : "bg-white/[0.03] border-white/10 text-white"
+                  }`}>
+                    <div className="flex justify-between items-center pb-2 border-b border-neutral-200 dark:border-white/5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#246596]">Renter Profile</span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} />
+                        <span>KYC Matched</span>
                       </span>
                     </div>
 
-                    <div className={`h-[1px] my-1 ${separatorBg}`}></div>
-
-                    <div className="flex justify-between items-baseline pt-2">
-                      <span className={`text-xs uppercase font-semibold ${subTextColor}`}>Total Price Due</span>
-                      <span className="text-2xl font-black text-[#246596]">₹{initialTotal}</span>
+                    <div className="grid grid-cols-2 gap-3 text-xs pt-1">
+                      <div>
+                        <span className={`block text-[10px] font-medium ${subTextColor}`}>Full Name</span>
+                        <span className="font-bold">{name}</span>
+                      </div>
+                      <div>
+                        <span className={`block text-[10px] font-medium ${subTextColor}`}>Mobile Number</span>
+                        <span className="font-mono font-semibold">{phone}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Overridable Delivery Address Form */}
-                  {(showAddressEdit || !address || !mapLink) && (
-                    <div className={`p-4 rounded-xl space-y-3.5 border transition-all duration-300 ${
-                      isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-[#10324d]/10 border-white/5"
-                    } animate-fadeInUp`}>
-                      <div className="flex justify-between items-center border-b pb-2 border-neutral-200 dark:border-white/5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#246596]">Override Delivery Address</span>
-                        {address && mapLink && (
-                          <button
-                            type="button"
-                            onClick={() => setShowAddressEdit(false)}
-                            className="text-[10px] text-red-500 hover:underline font-semibold"
-                          >
-                            Use KYC Location
-                          </button>
+                  {/* Section 2: Equipment & Delivery Card */}
+                  <div className={`p-4 sm:p-5 rounded-2xl border space-y-3.5 transition-all ${
+                    isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-850" : "bg-white/[0.03] border-white/10 text-white"
+                  }`}>
+                    <div className="flex justify-between items-center pb-2 border-b border-neutral-200 dark:border-white/5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#246596]">Reservation Gear</span>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#246596]/10 text-[#246596]">
+                        {initialDuration} Days Rental
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className={subTextColor}>Item Selected</span>
+                        <span className="font-bold text-right max-w-[220px]">{initialConsoleName}</span>
+                      </div>
+
+                      <div className={`h-[1px] my-2 ${separatorBg}`} />
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className={subTextColor}>Delivery Destination</span>
+                          {!useCustomLocation ? (
+                            <button
+                              type="button"
+                              onClick={handleEnableCustomLocation}
+                              className="text-[11px] text-[#246596] hover:underline font-bold transition-all cursor-pointer"
+                            >
+                              + Change Delivery Location
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleRevertToKycLocation}
+                              className="text-[11px] text-red-500 hover:underline font-bold transition-all cursor-pointer"
+                            >
+                              Use Saved KYC Location
+                            </button>
+                          )}
+                        </div>
+
+                        {!useCustomLocation ? (
+                          <div className={`p-3 rounded-xl border space-y-1 ${
+                            isLightTheme ? "bg-white border-neutral-200" : "bg-black/30 border-white/5"
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={13} />
+                                <span>KYC Verified Location</span>
+                              </span>
+                              {kycMapLink && (
+                                <a href={kycMapLink} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#246596] hover:underline font-bold">
+                                  Open Map ↗
+                                </a>
+                              )}
+                            </div>
+                            <p className={`text-xs font-mono truncate ${subTextColor}`}>{kycAddress || address || "No Location Loaded"}</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 pt-1 animate-fadeInUp">
+                            <div>
+                              <label className={`text-[10px] font-semibold block mb-1 ${labelColor}`}>Delivery Address (Street name, building/flat)</label>
+                              <input
+                                type="text"
+                                required
+                                value={customAddress}
+                                onChange={(e) => setCustomAddress(e.target.value)}
+                                placeholder="Enter street name, building number, flat/apt..."
+                                className={inputClassName}
+                              />
+                            </div>
+
+                            <div>
+                              <label className={`text-[10px] font-semibold block mb-1 ${labelColor}`}>Google Maps Location Link</label>
+                              <input
+                                type="url"
+                                required
+                                value={customMapLink}
+                                onChange={(e) => setCustomMapLink(e.target.value)}
+                                placeholder="https://maps.app.goo.gl/..."
+                                className={inputClassName}
+                              />
+                            </div>
+                          </div>
                         )}
                       </div>
-                      
-                      <div className="space-y-1.5 text-left">
-                        <label className={`text-[10px] block ${labelColor}`}>Delivery Address (Street name, building/flat)</label>
-                        <input
-                          type="text"
-                          required
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          placeholder="Enter street name, building/flat"
-                          className={inputClassName}
-                        />
+                    </div>
+                  </div>
+
+                  {/* Section 3: Formal Price Summary */}
+                  <div className={`p-4 sm:p-5 rounded-2xl border space-y-3 transition-all ${
+                    isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-850" : "bg-white/[0.03] border-white/10 text-white"
+                  }`}>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#246596]">Payment Breakdown</span>
+                    
+                    <div className="space-y-2 text-xs pt-1">
+                      <div className="flex justify-between">
+                        <span className={subTextColor}>Console Rental Fee ({initialDuration} days)</span>
+                        <span className="font-semibold">₹{initialTotal}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className={subTextColor}>Refundable Security Deposit</span>
+                        <span className="text-emerald-600 font-semibold">Waived (eKYC Verified)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className={subTextColor}>Express Delivery & Setup</span>
+                        <span className="text-emerald-600 font-semibold">FREE</span>
                       </div>
 
-                      <div className="space-y-1.5 text-left">
-                        <label className={`text-[10px] block flex justify-between ${labelColor}`}>
-                          <span>Google Maps Location Link</span>
-                        </label>
-                        <input
-                          type="url"
-                          required
-                          value={mapLink}
-                          onChange={(e) => setMapLink(e.target.value)}
-                          placeholder="https://maps.app.goo.gl/..."
-                          className={inputClassName}
-                        />
+                      <div className={`h-[1px] my-2 ${separatorBg}`} />
+
+                      <div className="flex justify-between items-baseline pt-1">
+                        <span className={`text-xs uppercase font-extrabold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>Total Payable Amount</span>
+                        <span className={`text-2xl font-black ${isLightTheme ? "text-neutral-950" : "text-[#5e9fd0]"}`}>₹{initialTotal}</span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  <div className="space-y-4 pt-2">
-                    <label className="flex items-start gap-3 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        required
-                        checked={agreeTerms}
-                        onChange={(e) => setAgreeTerms(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-neutral-300 bg-neutral-50 accent-[#246596] cursor-pointer"
-                      />
-                      <span className={`text-[11px] leading-normal ${textBodyColor}`}>
-                        I agree to the <span className="text-[#246596] hover:underline font-semibold">Terms of Service</span>, security deposits policies, and rental usage agreements.
-                      </span>
-                    </label>
+                  {/* Section 4: Rental Terms Agreement Trigger */}
+                  <div className={`p-4 rounded-2xl border space-y-3 ${
+                    agreeTerms 
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
+                      : isLightTheme ? "bg-amber-500/5 border-amber-500/20" : "bg-amber-500/10 border-amber-500/20"
+                  }`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold flex items-center gap-1.5">
+                          {agreeTerms ? (
+                            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="text-emerald-600" />
+                          ) : (
+                            <HugeiconsIcon icon={Shield01Icon} size={16} className="text-amber-600" />
+                          )}
+                          <span>Rental Terms & Security Policy</span>
+                        </h4>
+                        <p className={`text-[11px] font-light ${subTextColor}`}>
+                          {agreeTerms 
+                            ? "Terms reviewed and accepted successfully." 
+                            : "Must review and accept terms before booking."}
+                        </p>
+                      </div>
 
-                    <label className="flex items-start gap-3 cursor-pointer select-none">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setModalChecked(agreeTerms);
+                          setShowTermsModal(true);
+                        }}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all shrink-0 ${
+                          agreeTerms 
+                            ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-xs" 
+                            : "bg-[#246596] text-white hover:bg-[#1d496b] shadow-xs"
+                        }`}
+                      >
+                        {agreeTerms ? "View Agreed Terms" : "Read & Accept Terms"}
+                      </button>
+                    </div>
+
+                    <label className="flex items-center gap-2 pt-2 cursor-pointer select-none border-t border-black/5 dark:border-white/5">
                       <input
                         type="checkbox"
                         checked={agreeMarketing}
                         onChange={(e) => setAgreeMarketing(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-neutral-300 bg-neutral-50 accent-[#246596] cursor-pointer"
+                        className="h-3.5 w-3.5 rounded border-neutral-300 accent-[#246596] cursor-pointer"
                       />
-                      <span className={`text-[11px] leading-normal ${subTextColor}`}>
-                        I consent to receive order updates, status notifications and promotional offers via WhatsApp and email.
+                      <span className={`text-[10px] ${subTextColor}`}>
+                        Receive order updates and notifications via WhatsApp & Email
                       </span>
                     </label>
                   </div>
 
                   {submitError && (
-                    <p className="text-xs text-red-500 flex items-center gap-1.5 mt-2 font-light">
+                    <p className="text-xs text-red-500 flex items-center gap-1.5 font-light">
                       <HugeiconsIcon icon={AlertCircleIcon} size={14} />
                       <span>{submitError}</span>
                     </p>
                   )}
 
+                  {/* Form Action Buttons */}
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => setStep(3)}
                       className={backBtnClass}
                     >
-                      Back
+                      <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
+                      <span>Back</span>
                     </button>
+                    
                     <button
                       type="submit"
-                      disabled={isSubmitting || !agreeTerms || !address || !mapLink}
-                      className="flex-[2] py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                      disabled={isSubmitting || !agreeTerms || (useCustomLocation && (!customAddress || !customMapLink))}
+                      className="flex-[2] py-3.5 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -969,6 +1042,102 @@ function BookingFlow() {
           )}
         </div>
       </main>
+
+      {/* Terms & Agreement Scroll Modal */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeInUp">
+          <div className={`w-full max-w-lg rounded-2xl p-6 border shadow-2xl space-y-4 max-h-[90vh] flex flex-col ${
+            isLightTheme ? "bg-white border-neutral-200 text-neutral-850" : "bg-[#102435] border-white/10 text-white"
+          }`}>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b pb-3 border-neutral-200 dark:border-white/10">
+              <div>
+                <h3 className={`text-base font-black flex items-center gap-2 ${headerColor}`}>
+                  <HugeiconsIcon icon={Shield01Icon} size={18} className="text-[#246596]" />
+                  <span>GameBees Rental Terms & Agreement</span>
+                </h3>
+                <p className={`text-[11px] ${subTextColor}`}>Scroll down to read all terms before accepting.</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(false)}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors cursor-pointer text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Scrollable Terms Content */}
+            <div className={`flex-1 overflow-y-auto p-4 rounded-xl border space-y-4 text-xs font-light max-h-72 leading-relaxed ${
+              isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-700" : "bg-black/40 border-white/5 text-white/80"
+            }`}>
+              <div>
+                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">1. Equipment Care & Responsibility</h4>
+                <p>The renter agrees to handle the gaming console, controllers, and accessories with utmost care. The equipment must not be opened, modified, or transferred to any third party.</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">2. Security Deposit & Damage Liability</h4>
+                <p>Security deposit is waived based on eKYC verification. However, the renter remains fully liable for repair or replacement costs in case of liquid damage, dropped hardware, missing parts, or unapproved tampering.</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">3. Delivery & Return Timeline</h4>
+                <p>The console will be delivered to the specified delivery destination. The renter agrees to be present at the delivery location for scheduled pickup at the end of the rental period.</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">4. Identity & Legal Compliance</h4>
+                <p>Renter details, selfie capture, and Aadhaar records are securely logged for identity verification and fraud prevention purposes under Applicable Privacy Standards.</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">5. Late Fee & Extension Terms</h4>
+                <p>Extensions must be requested 12 hours prior to rental expiry. Unannounced delays beyond 3 hours will incur standard daily penalty charges.</p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-2 space-y-3 border-t border-neutral-200 dark:border-white/10">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={modalChecked}
+                  onChange={(e) => setModalChecked(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#246596] cursor-pointer"
+                />
+                <span className={`text-xs font-medium ${isLightTheme ? "text-neutral-800" : "text-white"}`}>
+                  I have read, understood, and agree to all the Rental Terms of Service and Damage Policies.
+                </span>
+              </label>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(false)}
+                  className={backBtnClass}
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  type="button"
+                  disabled={!modalChecked}
+                  onClick={() => {
+                    setAgreeTerms(true);
+                    setShowTermsModal(false);
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer transition-all shadow-md shadow-emerald-600/20"
+                >
+                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-white" />
+                  <span>Accept & Confirm</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
