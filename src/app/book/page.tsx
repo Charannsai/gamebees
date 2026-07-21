@@ -280,10 +280,10 @@ function BookingFlow() {
   const cardBg = isLightTheme ? "bg-neutral-50 border border-neutral-200 text-neutral-800" : "bg-[#10324d]/10 border border-white/5 text-white";
   const separatorBg = isLightTheme ? "bg-neutral-200" : "bg-white/10";
   
-  const backBtnClass = `flex-1 py-4 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+  const backBtnClass = `flex-1 py-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center justify-center gap-2 ${
     isLightTheme
-      ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200"
-      : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+      ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900"
+      : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:text-white"
   }`;
   
   const inputClassName = `w-full rounded-xl py-3 pl-11 pr-4 text-sm outline-none transition-all ${
@@ -312,7 +312,11 @@ function BookingFlow() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[#141414]/85 backdrop-blur-md border-b border-white/[0.04]">
+      <header className={`sticky top-0 z-30 backdrop-blur-md border-b transition-colors ${
+        isLightTheme
+          ? "bg-white/90 border-neutral-200 text-neutral-900 shadow-xs"
+          : "bg-[#141414]/85 border-white/[0.04] text-white"
+      }`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -321,7 +325,11 @@ function BookingFlow() {
           
           <button 
             onClick={() => router.back()}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white text-xs font-bold transition-all cursor-pointer"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+              isLightTheme
+                ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900"
+                : "bg-white/5 border-white/10 text-white/80 hover:text-white"
+            }`}
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
             <span>Go Back</span>
@@ -333,7 +341,7 @@ function BookingFlow() {
       <main className="flex-1 max-w-lg w-full mx-auto px-4 mt-8 sm:mt-12 relative z-10">
         
         {/* Main Card */}
-        <div className={`w-full rounded-[24px] pt-10 pb-8 px-6 sm:px-8 border transition-all ${
+        <div className={`w-full rounded-[24px] pt-8 pb-8 px-6 sm:px-8 border transition-all ${
           isLightTheme 
             ? "bg-white border-neutral-200 text-neutral-850 shadow-2xl" 
             : "card-polished border-gamebees-accent-blue/30 text-white shadow-[0_0_50px_rgba(36,101,150,0.12)]"
@@ -341,33 +349,51 @@ function BookingFlow() {
           
           {/* Step Indicator */}
           {!isSuccess && (
-            <div className={`flex items-center gap-2 mb-8 border-b pb-4 ${isLightTheme ? "border-neutral-200" : "border-white/[0.05]"}`}>
-              {[1, 2, 3, 4].map((s) => (
-                <React.Fragment key={s}>
-                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    step === s
-                      ? "bg-[#246596] text-white shadow-[0_0_12px_rgba(36,101,150,0.4)]"
-                      : step > s
-                      ? "bg-green-600/20 text-green-600 border border-green-500/40"
-                      : isLightTheme
-                      ? "bg-neutral-100 text-neutral-500 border border-neutral-200"
-                      : "bg-white/5 text-white/40"
-                  }`}>
-                    {step > s ? (
-                      <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
-                    ) : s}
-                  </div>
-                  {s < 4 && (
-                    <div className={`flex-1 h-[1px] ${
-                      step > s 
-                        ? "bg-green-500/40" 
-                        : isLightTheme 
-                        ? "bg-neutral-200" 
-                        : "bg-white/5"
-                    }`}></div>
-                  )}
-                </React.Fragment>
-              ))}
+            <div className={`mb-8 border-b pb-5 ${isLightTheme ? "border-neutral-200" : "border-white/[0.05]"}`}>
+              <div className="flex items-center justify-between relative">
+                {[
+                  { num: 1, label: "Details" },
+                  { num: 2, label: "KYC Status" },
+                  { num: 3, label: "Selfie" },
+                  { num: 4, label: "Confirm" },
+                ].map((s, idx, arr) => (
+                  <React.Fragment key={s.num}>
+                    <div className="flex flex-col items-center gap-1.5 z-10">
+                      <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                        step === s.num
+                          ? "bg-[#246596] text-white shadow-[0_0_14px_rgba(36,101,150,0.5)] scale-110"
+                          : step > s.num
+                          ? "bg-emerald-500/20 text-emerald-600 border border-emerald-500/40"
+                          : isLightTheme
+                          ? "bg-neutral-100 text-neutral-400 border border-neutral-200"
+                          : "bg-white/5 text-white/40 border border-white/5"
+                      }`}>
+                        {step > s.num ? (
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} className="stroke-[3] text-emerald-600" />
+                        ) : s.num}
+                      </div>
+                      <span className={`text-[10px] font-semibold tracking-wide ${
+                        step === s.num
+                          ? isLightTheme ? "text-[#246596]" : "text-[#5e9fd0]"
+                          : step > s.num
+                          ? "text-emerald-600"
+                          : isLightTheme ? "text-neutral-400" : "text-white/30"
+                      }`}>
+                        {s.label}
+                      </span>
+                    </div>
+                    {idx < arr.length - 1 && (
+                      <div className={`flex-1 h-[2px] mb-5 mx-1 transition-all ${
+                        step > s.num
+                          ? "bg-emerald-500/50" 
+                          : isLightTheme 
+                          ? "bg-neutral-200" 
+                          : "bg-white/10"
+                      }`}></div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
           )}
 
@@ -587,16 +613,18 @@ function BookingFlow() {
                 <div className="space-y-5">
                   <div>
                     <h3 className={`text-xl sm:text-2xl font-black flex items-center gap-2 ${headerColor}`}>
-                      <HugeiconsIcon icon={Camera01Icon} size={22} className="text-[#246596]" />
+                      <span className="p-2 rounded-xl bg-[#246596]/10 text-[#246596]">
+                        <HugeiconsIcon icon={Camera01Icon} size={20} />
+                      </span>
                       <span>Liveness & Selfie Verification</span>
                     </h3>
-                    <p className={`${subTextColor} text-xs mt-1 font-light`}>
+                    <p className={`${subTextColor} text-xs mt-1.5 font-light`}>
                       Ensure your face fits inside the camera view and click the shutter button.
                     </p>
                   </div>
 
-                  <div className={`relative aspect-video w-full max-w-sm mx-auto bg-black/60 rounded-2xl overflow-hidden flex flex-col items-center justify-center ${
-                    isLightTheme ? "border border-neutral-300" : "border border-white/10"
+                  <div className={`relative aspect-video w-full max-w-sm mx-auto bg-[#0b132b] rounded-2xl overflow-hidden flex flex-col items-center justify-center shadow-lg transition-all ${
+                    isLightTheme ? "border border-neutral-300" : "border border-white/15"
                   }`}>
                     {!selfieCaptured ? (
                       <>
@@ -607,21 +635,47 @@ function BookingFlow() {
                           className="w-full h-full object-cover scale-x-[-1]"
                         />
                         
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                        {/* Face guide overlay */}
+                        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                          <div className="w-32 h-44 sm:w-36 sm:h-48 rounded-[50%] border-2 border-dashed border-white/40 shadow-[0_0_0_9999px_rgba(0,0,0,0.3)] flex items-center justify-center">
+                            {cameraStatus === "streaming" && (
+                              <span className="text-[10px] text-white/70 bg-black/50 px-2.5 py-0.5 rounded-full backdrop-blur-xs font-medium">
+                                Position face here
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Live Badge */}
+                        {cameraStatus === "streaming" && (
+                          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1.5 z-10">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Live Camera</span>
+                          </div>
+                        )}
+
+                        {/* Shutter Button */}
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
                           <button
                             type="button"
                             onClick={capturePhoto}
                             disabled={cameraStatus !== "streaming"}
-                            className="h-14 w-14 rounded-full border-4 border-white/20 hover:border-white bg-[#246596]/80 hover:bg-[#246596] flex items-center justify-center shadow-lg transition-all duration-300 transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="h-14 w-14 rounded-full border-4 border-white/30 hover:border-white bg-[#246596] hover:bg-[#1d496b] flex items-center justify-center shadow-xl transition-all duration-300 transform active:scale-90 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group"
                             title="Capture Photo"
                           >
-                            <div className="h-6 w-6 rounded-full bg-white" />
+                            <div className="h-6 w-6 rounded-full bg-white group-hover:scale-110 transition-transform" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={selfieCaptured} alt="Selfie preview" className="w-full h-full object-cover" />
+                      <div className="relative w-full h-full">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={selfieCaptured} alt="Selfie preview" className="w-full h-full object-cover" />
+                        <div className="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} className="text-white" />
+                          <span>Captured</span>
+                        </div>
+                      </div>
                     )}
 
                     <canvas ref={canvasRef} className="hidden" />
@@ -634,9 +688,10 @@ function BookingFlow() {
                   )}
 
                   {selfieCaptured && (
-                    <div className="space-y-4 pt-2">
-                      <div className="p-4 rounded-xl text-center text-xs bg-green-500/10 border border-green-500/20 text-green-600 font-semibold animate-fadeInUp">
-                        Selfie captured successfully! Would you like to confirm or retake?
+                    <div className="space-y-4 pt-1">
+                      <div className="p-3.5 rounded-xl text-center text-xs bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 font-semibold flex items-center justify-center gap-2 animate-fadeInUp">
+                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-emerald-600 shrink-0" />
+                        <span>Selfie captured successfully! Would you like to confirm or retake?</span>
                       </div>
 
                       <div className="flex gap-3 justify-center">
@@ -652,9 +707,9 @@ function BookingFlow() {
                         <button
                           type="button"
                           onClick={() => setStep(4)}
-                          className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 cursor-pointer active:scale-[0.99]"
                         >
-                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={15} />
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-white" />
                           <span>Confirm & Continue</span>
                         </button>
                       </div>
@@ -664,8 +719,8 @@ function BookingFlow() {
                   {!selfieCaptured && (
                     <button
                       disabled
-                      className={`w-full mt-4 py-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed ${
-                        isLightTheme ? "bg-neutral-100 text-neutral-450" : "bg-white/5 text-white/30"
+                      className={`w-full mt-4 py-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed ${
+                        isLightTheme ? "bg-neutral-100 text-neutral-400" : "bg-white/5 text-white/30"
                       }`}
                     >
                       Please capture your selfie to proceed
