@@ -196,6 +196,7 @@ function BookingFlow() {
             
             setStartDateStr(startStr);
             setEndDateStr(endStr);
+            setCurrentCalendarMonth(new Date(earliestStart.getFullYear(), earliestStart.getMonth(), 1));
           }
         })
         .catch((err) => console.error("fetchItemAvailability error:", err))
@@ -650,21 +651,21 @@ function BookingFlow() {
                     isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-black/30 border-white/10"
                   }`}>
                     {/* Availability Header */}
-                    <div className="flex items-center justify-between border-b pb-3 border-neutral-200 dark:border-white/10">
-                      <div className="flex items-center gap-2">
-                        <span className="p-2 rounded-xl bg-[#246596]/10 text-[#246596]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-neutral-200 dark:border-white/10">
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <span className="p-2 rounded-xl bg-[#246596]/10 text-[#246596] shrink-0 mt-0.5 sm:mt-0">
                           <HugeiconsIcon icon={Calendar01Icon} size={18} />
                         </span>
-                        <div>
-                          <h4 className={`text-xs font-bold ${headerColor}`}>{initialConsoleName}</h4>
-                          <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                        <div className="min-w-0">
+                          <h4 className={`text-xs font-bold leading-tight ${headerColor}`}>{initialConsoleName}</h4>
+                          <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
                             <span>● Live Inventory Availability</span>
                           </span>
                         </div>
                       </div>
 
                       {earliestAvailableDateStr && (
-                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shrink-0 self-start sm:self-center">
                           Earliest: {earliestAvailableDateStr}
                         </span>
                       )}
@@ -679,8 +680,15 @@ function BookingFlow() {
                           value={startDateStr}
                           min={formatDateStr(new Date())}
                           onChange={(e) => {
-                            setStartDateStr(e.target.value);
-                            if (endDateStr && e.target.value > endDateStr) {
+                            const val = e.target.value;
+                            setStartDateStr(val);
+                            if (val) {
+                              const d = parseDateStr(val);
+                              if (!isNaN(d.getTime())) {
+                                setCurrentCalendarMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+                              }
+                            }
+                            if (endDateStr && val > endDateStr) {
                               setEndDateStr("");
                             }
                           }}
@@ -694,7 +702,13 @@ function BookingFlow() {
                           type="date"
                           value={endDateStr}
                           min={startDateStr || formatDateStr(new Date())}
-                          onChange={(e) => setEndDateStr(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setEndDateStr(val);
+                            if (val && (!startDateStr || startDateStr > val)) {
+                              setStartDateStr(val);
+                            }
+                          }}
                           className={inputClassName}
                         />
                       </div>
@@ -702,7 +716,7 @@ function BookingFlow() {
 
                     {/* Interactive Calendar Month Grid */}
                     <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between text-xs font-bold">
+                      <div className="flex items-center justify-between text-xs font-bold px-1">
                         <button
                           type="button"
                           onClick={() => {
@@ -710,11 +724,15 @@ function BookingFlow() {
                             prev.setMonth(prev.getMonth() - 1);
                             setCurrentCalendarMonth(prev);
                           }}
-                          className="p-1.5 rounded-lg border border-neutral-300 dark:border-white/10 hover:bg-neutral-200 dark:hover:bg-white/10 cursor-pointer"
+                          className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                            isLightTheme 
+                              ? "border-neutral-200 hover:bg-neutral-200 text-neutral-700" 
+                              : "border-white/10 hover:bg-white/10 text-white"
+                          }`}
                         >
                           ←
                         </button>
-                        <span>
+                        <span className={headerColor}>
                           {currentCalendarMonth.toLocaleString("default", { month: "long", year: "numeric" })}
                         </span>
                         <button
@@ -724,7 +742,11 @@ function BookingFlow() {
                             next.setMonth(next.getMonth() + 1);
                             setCurrentCalendarMonth(next);
                           }}
-                          className="p-1.5 rounded-lg border border-neutral-300 dark:border-white/10 hover:bg-neutral-200 dark:hover:bg-white/10 cursor-pointer"
+                          className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                            isLightTheme 
+                              ? "border-neutral-200 hover:bg-neutral-200 text-neutral-700" 
+                              : "border-white/10 hover:bg-white/10 text-white"
+                          }`}
                         >
                           →
                         </button>
@@ -770,7 +792,9 @@ function BookingFlow() {
                                   : isPast
                                   ? "opacity-30 cursor-not-allowed text-neutral-400"
                                   : !isAvail
-                                  ? "bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed line-through"
+                                  ? isLightTheme
+                                    ? "bg-red-50 text-red-500 border border-red-200 cursor-not-allowed line-through"
+                                    : "bg-red-500/10 text-red-400 border border-red-500/20 cursor-not-allowed line-through"
                                   : isLightTheme
                                   ? "hover:bg-neutral-200 text-neutral-800"
                                   : "hover:bg-white/10 text-white"
@@ -783,10 +807,12 @@ function BookingFlow() {
                         })}
                       </div>
 
-                      <div className="flex items-center justify-center gap-4 text-[10px] font-medium text-neutral-500 dark:text-white/40 pt-1">
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[#246596]" /> Selected</span>
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Available</span>
-                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> Booked</span>
+                      <div className={`flex items-center justify-center gap-4 text-[10px] font-medium pt-1 ${
+                        isLightTheme ? "text-neutral-700 font-semibold" : "text-white/70"
+                      }`}>
+                        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#246596]" /> Selected</span>
+                        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Available</span>
+                        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-500" /> Booked</span>
                       </div>
                     </div>
 
