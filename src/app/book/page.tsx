@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   UserIcon, 
@@ -11,12 +11,88 @@ import {
   AlertCircleIcon, 
   RefreshIcon,
   CheckmarkCircle02Icon,
-  ArrowLeft01Icon
+  ArrowLeft01Icon,
+  Calendar01Icon
 } from "@hugeicons/core-free-icons";
-import { createBooking, getKycStatus, fetchItems } from "@/app/actions";
+import { createBooking, getKycStatus, fetchItems, fetchItemAvailability } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+
+function formatDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseDateStr(s: string): Date {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function getBookedCountOnDate(dateStr: string, bookings: any[]): number {
+  let count = 0;
+  const targetTime = parseDateStr(dateStr).getTime();
+
+  for (const b of bookings) {
+    let sTime: number;
+    let eTime: number;
+
+    if (b.start_date && b.end_date) {
+      sTime = parseDateStr(b.start_date).getTime();
+      eTime = parseDateStr(b.end_date).getTime();
+    } else if (b.created_at) {
+      const createdDate = new Date(b.created_at);
+      const cStr = formatDateStr(createdDate);
+      sTime = parseDateStr(cStr).getTime();
+      const dur = b.duration_days || 3;
+      const endDate = new Date(sTime + (dur - 1) * 86400000);
+      eTime = endDate.getTime();
+    } else {
+      continue;
+    }
+
+    if (targetTime >= sTime && targetTime <= eTime) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+function isDateAvailable(dateStr: string, quantity: number, bookings: any[]): boolean {
+  const count = getBookedCountOnDate(dateStr, bookings);
+  return count < (quantity || 1);
+}
+
+function findEarliestAvailableDate(fromDate: Date, quantity: number, bookings: any[]): Date {
+  let curr = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+  for (let i = 0; i < 365; i++) {
+    const dStr = formatDateStr(curr);
+    if (isDateAvailable(dStr, quantity, bookings)) {
+      return curr;
+    }
+    curr = new Date(curr.getTime() + 86400000);
+  }
+  return fromDate;
+}
+
+function isRangeAvailable(startStr: string, endStr: string, quantity: number, bookings: any[]): boolean {
+  if (!startStr || !endStr) return true;
+  let curr = parseDateStr(startStr);
+  const end = parseDateStr(endStr);
+  if (curr.getTime() > end.getTime()) return false;
+
+  while (curr.getTime() <= end.getTime()) {
+    const dStr = formatDateStr(curr);
+    if (!isDateAvailable(dStr, quantity, bookings)) {
+      return false;
+    }
+    curr = new Date(curr.getTime() + 86400000);
+  }
+  return true;
+}
 
 function BookingFlow() {
   const searchParams = useSearchParams();
@@ -33,7 +109,7 @@ function BookingFlow() {
   const [availableItems, setAvailableItems] = useState<any[]>([]);
   const [step, setStep] = useState(1);
   
-  // Step 1: Personal Details
+  // Step 1: Personal Details & Availability Calendar
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -46,6 +122,15 @@ function BookingFlow() {
   const [isCustomLocationConfirmed, setIsCustomLocationConfirmed] = useState(false);
   const [showAddressEdit, setShowAddressEdit] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
+
+  // Availability & Calendar state
+  const [availabilityItem, setAvailabilityItem] = useState<any | null>(null);
+  const [activeBookings, setActiveBookings] = useState<any[]>([]);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+
+  const [startDateStr, setStartDateStr] = useState<string>("");
+  const [endDateStr, setEndDateStr] = useState<string>("");
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState<Date>(new Date());
   
   // Step 2: Automated KYC status check
   const [checkingKyc, setCheckingKyc] = useState(true);
@@ -85,6 +170,111 @@ function BookingFlow() {
       }
     });
   }, []);
+
+  // Fetch Availability & Booked Dates for selected item
+  useEffect(() => {
+    let targetId = selectedItemId;
+    if (!targetId && availableItems.length > 0) {
+      const match = availableItems.find((i) => i.name === initialConsoleName);
+      if (match) targetId = match.id;
+      else targetId = availableItems[0].id;
+    }
+
+    if (targetId) {
+      setLoadingAvailability(true);
+      fetchItemAvailability(targetId)
+        .then((res) => {
+          if (res.success && res.item) {
+            setAvailabilityItem(res.item);
+            setActiveBookings(res.bookings || []);
+            
+            const earliestStart = findEarliestAvailableDate(new Date(), res.item.quantity || 1, res.bookings || []);
+            const startStr = formatDateStr(earliestStart);
+            const endObj = new Date(earliestStart);
+            endObj.setDate(endObj.getDate() + 2); // 3 days total
+            const endStr = formatDateStr(endObj);
+            
+            setStartDateStr(startStr);
+            setEndDateStr(endStr);
+          }
+        })
+        .catch((err) => console.error("fetchItemAvailability error:", err))
+        .finally(() => setLoadingAvailability(false));
+    }
+  }, [selectedItemId, availableItems, initialConsoleName]);
+
+  const durationDays = useMemo(() => {
+    if (!startDateStr || !endDateStr) return 3;
+    const start = parseDateStr(startDateStr);
+    const end = parseDateStr(endDateStr);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.round(diffTime / 86400000) + 1;
+    return diffDays > 0 ? diffDays : 0;
+  }, [startDateStr, endDateStr]);
+
+  const computedTotalPrice = useMemo(() => {
+    if (!availabilityItem) return initialTotal;
+    const base3DayRate = availabilityItem.price_3_days || (availabilityItem.price ? availabilityItem.price * 3 : 1497);
+    const extraDayRate = availabilityItem.price_extra_day || availabilityItem.price || 400;
+    
+    if (durationDays <= 3) {
+      return base3DayRate;
+    }
+    return base3DayRate + (durationDays - 3) * extraDayRate;
+  }, [availabilityItem, durationDays, initialTotal]);
+
+  const isSelectionValid = useMemo(() => {
+    if (!startDateStr || !endDateStr) return true;
+    return isRangeAvailable(startDateStr, endDateStr, availabilityItem?.quantity || 1, activeBookings);
+  }, [startDateStr, endDateStr, availabilityItem, activeBookings]);
+
+  const earliestAvailableDateStr = useMemo(() => {
+    if (!availabilityItem) return "";
+    const d = findEarliestAvailableDate(new Date(), availabilityItem.quantity || 1, activeBookings);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }, [availabilityItem, activeBookings]);
+
+  const calendarDaysGrid = useMemo(() => {
+    const year = currentCalendarMonth.getFullYear();
+    const month = currentCalendarMonth.getMonth();
+    
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const todayStr = formatDateStr(new Date());
+    const grid = [];
+
+    for (let i = 0; i < firstDayIndex; i++) {
+      grid.push(null);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dObj = new Date(year, month, d);
+      const dStr = formatDateStr(dObj);
+      const isPast = dStr < todayStr;
+      const isAvail = isDateAvailable(dStr, availabilityItem?.quantity || 1, activeBookings);
+      const isStart = dStr === startDateStr;
+      const isEnd = dStr === endDateStr;
+      const isInRange = Boolean(
+        startDateStr && 
+        endDateStr && 
+        dStr > startDateStr && 
+        dStr < endDateStr
+      );
+
+      grid.push({
+        dStr,
+        dayNum: d,
+        isPast,
+        isAvail,
+        isStart,
+        isEnd,
+        isInRange
+      });
+    }
+
+    return grid;
+  }, [currentCalendarMonth, startDateStr, endDateStr, availabilityItem, activeBookings]);
 
   // Sync theme
   useEffect(() => {
@@ -289,8 +479,10 @@ function BookingFlow() {
         aadhaarVerified: isVerified,
         selfieUrl: selfieCaptured || "data:image/png;base64,mockselfie",
         itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f",
-        durationDays: initialDuration,
-        totalPrice: initialTotal
+        startDate: startDateStr,
+        endDate: endDateStr,
+        durationDays: durationDays,
+        totalPrice: computedTotalPrice
       });
 
       if (res.success) {
@@ -441,87 +633,248 @@ function BookingFlow() {
 
           {!isSuccess ? (
             <div>
-              {/* Step 1: User details */}
+              {/* Step 1: Rental Dates, Availability Calendar & User details */}
               {step === 1 && (
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div>
                     <h3 className={`text-xl sm:text-2xl font-black ${headerColor}`}>
-                      Contact Information
+                      Rental Dates & Information
                     </h3>
                     <p className={`${subTextColor} text-xs mt-1 font-light`}>
-                      Provide your name and mobile number to proceed.
+                      Select your rental dates from the availability calendar and provide contact details.
                     </p>
                   </div>
 
-                  {loadingDetails ? (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className={`text-xs block ${labelColor}`}>Full Name</label>
-                        <div className={`h-11 w-full rounded-xl animate-pulse relative overflow-hidden ${
-                          isLightTheme ? "bg-neutral-200" : "bg-[#10324d]/15 border border-[#5e9fd0]/10"
-                        }`}>
-                          <div className="absolute inset-y-0 left-3.5 flex items-center text-white/20">
-                            <HugeiconsIcon icon={UserIcon} size={16} />
-                          </div>
+                  {/* Availability & Calendar Card */}
+                  <div className={`p-4 sm:p-5 rounded-2xl border space-y-4 ${
+                    isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-black/30 border-white/10"
+                  }`}>
+                    {/* Availability Header */}
+                    <div className="flex items-center justify-between border-b pb-3 border-neutral-200 dark:border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="p-2 rounded-xl bg-[#246596]/10 text-[#246596]">
+                          <HugeiconsIcon icon={Calendar01Icon} size={18} />
+                        </span>
+                        <div>
+                          <h4 className={`text-xs font-bold ${headerColor}`}>{initialConsoleName}</h4>
+                          <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <span>● Live Inventory Availability</span>
+                          </span>
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
-                        <div className={`h-11 w-full rounded-xl animate-pulse relative overflow-hidden ${
-                          isLightTheme ? "bg-neutral-200" : "bg-[#10324d]/15 border border-[#5e9fd0]/10"
-                        }`}>
-                          <div className="absolute inset-y-0 left-3.5 flex items-center text-white/20">
-                            <HugeiconsIcon icon={CallingIcon} size={16} />
-                          </div>
-                        </div>
-                      </div>
+                      {earliestAvailableDateStr && (
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                          Earliest: {earliestAvailableDateStr}
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <div className="space-y-4 animate-fadeInUp">
-                      <div className="space-y-2">
-                        <label className={`text-xs block ${labelColor}`}>Full Name</label>
-                        <div className="relative">
-                          <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                            isLightTheme ? "text-neutral-400" : "text-white/45"
-                          }`}>
-                            <HugeiconsIcon icon={UserIcon} size={16} />
-                          </span>
-                          <input
-                            type="text"
-                            required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter full name"
-                            className={inputClassName}
-                          />
-                        </div>
+
+                    {/* Date Pickers Row */}
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <label className={`text-[10px] font-semibold block mb-1 ${labelColor}`}>Start Date (From)</label>
+                        <input
+                          type="date"
+                          value={startDateStr}
+                          min={formatDateStr(new Date())}
+                          onChange={(e) => {
+                            setStartDateStr(e.target.value);
+                            if (endDateStr && e.target.value > endDateStr) {
+                              setEndDateStr("");
+                            }
+                          }}
+                          className={inputClassName}
+                        />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
-                        <div className="relative">
-                          <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
-                            isLightTheme ? "text-neutral-400" : "text-white/45"
-                          }`}>
-                            <HugeiconsIcon icon={CallingIcon} size={16} />
-                          </span>
-                          <input
-                            type="tel"
-                            required
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="Enter mobile number"
-                            className={inputClassName}
-                          />
-                        </div>
+                      <div>
+                        <label className={`text-[10px] font-semibold block mb-1 ${labelColor}`}>End Date (To)</label>
+                        <input
+                          type="date"
+                          value={endDateStr}
+                          min={startDateStr || formatDateStr(new Date())}
+                          onChange={(e) => setEndDateStr(e.target.value)}
+                          className={inputClassName}
+                        />
                       </div>
                     </div>
-                  )}
+
+                    {/* Interactive Calendar Month Grid */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const prev = new Date(currentCalendarMonth);
+                            prev.setMonth(prev.getMonth() - 1);
+                            setCurrentCalendarMonth(prev);
+                          }}
+                          className="p-1.5 rounded-lg border border-neutral-300 dark:border-white/10 hover:bg-neutral-200 dark:hover:bg-white/10 cursor-pointer"
+                        >
+                          ←
+                        </button>
+                        <span>
+                          {currentCalendarMonth.toLocaleString("default", { month: "long", year: "numeric" })}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = new Date(currentCalendarMonth);
+                            next.setMonth(next.getMonth() + 1);
+                            setCurrentCalendarMonth(next);
+                          }}
+                          className="p-1.5 rounded-lg border border-neutral-300 dark:border-white/10 hover:bg-neutral-200 dark:hover:bg-white/10 cursor-pointer"
+                        >
+                          →
+                        </button>
+                      </div>
+
+                      {/* Days of Week */}
+                      <div className="grid grid-cols-7 text-center text-[10px] font-bold text-neutral-400">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                      </div>
+
+                      {/* Calendar Grid Cells */}
+                      <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                        {calendarDaysGrid.map((dayObj, idx) => {
+                          if (!dayObj) {
+                            return <div key={idx} className="h-8" />;
+                          }
+
+                          const { dStr, dayNum, isPast, isAvail, isStart, isEnd, isInRange } = dayObj;
+
+                          return (
+                            <button
+                              key={dStr}
+                              type="button"
+                              disabled={isPast || !isAvail}
+                              onClick={() => {
+                                if (!startDateStr || (startDateStr && endDateStr)) {
+                                  setStartDateStr(dStr);
+                                  setEndDateStr("");
+                                } else {
+                                  if (dStr >= startDateStr) {
+                                    setEndDateStr(dStr);
+                                  } else {
+                                    setStartDateStr(dStr);
+                                    setEndDateStr("");
+                                  }
+                                }
+                              }}
+                              className={`h-8 rounded-lg text-[11px] font-semibold transition-all relative flex flex-col items-center justify-center cursor-pointer ${
+                                isStart || isEnd
+                                  ? "bg-[#246596] text-white font-extrabold shadow-sm scale-105 z-10"
+                                  : isInRange
+                                  ? "bg-[#246596]/20 text-[#246596] dark:text-[#5e9fd0]"
+                                  : isPast
+                                  ? "opacity-30 cursor-not-allowed text-neutral-400"
+                                  : !isAvail
+                                  ? "bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed line-through"
+                                  : isLightTheme
+                                  ? "hover:bg-neutral-200 text-neutral-800"
+                                  : "hover:bg-white/10 text-white"
+                              }`}
+                              title={!isAvail ? "Fully Booked" : isPast ? "Past Date" : `Select ${dStr}`}
+                            >
+                              <span>{dayNum}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center justify-center gap-4 text-[10px] font-medium text-neutral-500 dark:text-white/40 pt-1">
+                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[#246596]" /> Selected</span>
+                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Available</span>
+                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> Booked</span>
+                      </div>
+                    </div>
+
+                    {/* Duration & Availability Validation Notices */}
+                    {durationDays < 3 && startDateStr && endDateStr && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-semibold flex items-center gap-2 animate-fadeInUp">
+                        <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 text-amber-600" />
+                        <span>Minimum rental duration is 3 days. Please select at least 3 days.</span>
+                      </div>
+                    )}
+
+                    {!isSelectionValid && startDateStr && endDateStr && durationDays >= 3 && (
+                      <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-600 text-xs font-semibold flex items-center gap-2 animate-fadeInUp">
+                        <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 text-red-600" />
+                        <span>Some dates in your selected range are fully booked. Please adjust dates.</span>
+                      </div>
+                    )}
+
+                    {/* Dynamic Rental Price Summary Card */}
+                    {startDateStr && endDateStr && durationDays >= 3 && isSelectionValid && (
+                      <div className={`p-3.5 rounded-xl border space-y-2 text-xs animate-fadeInUp ${
+                        isLightTheme ? "bg-white border-neutral-200" : "bg-black/40 border-white/5"
+                      }`}>
+                        <div className="flex justify-between items-center text-[11px] font-bold text-[#246596]">
+                          <span>Price Breakdown ({durationDays} Days)</span>
+                          <span>₹{computedTotalPrice} Total</span>
+                        </div>
+
+                        <div className="space-y-1 text-[11px] font-light">
+                          <div className="flex justify-between">
+                            <span className={subTextColor}>Base 3-Day Rate</span>
+                            <span>₹{availabilityItem?.price_3_days || (availabilityItem?.price ? availabilityItem.price * 3 : 1497)}</span>
+                          </div>
+                          {durationDays > 3 && (
+                            <div className="flex justify-between">
+                              <span className={subTextColor}>Extra Days ({durationDays - 3} × ₹{availabilityItem?.price_extra_day || availabilityItem?.price || 400})</span>
+                              <span>+₹{(durationDays - 3) * (availabilityItem?.price_extra_day || availabilityItem?.price || 400)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section B: Contact Inputs */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Full Name</label>
+                      <div className="relative">
+                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                          isLightTheme ? "text-neutral-400" : "text-white/45"
+                        }`}>
+                          <HugeiconsIcon icon={UserIcon} size={16} />
+                        </span>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Enter full name"
+                          className={inputClassName}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className={`text-xs block ${labelColor}`}>Mobile Number</label>
+                      <div className="relative">
+                        <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none z-10 ${
+                          isLightTheme ? "text-neutral-400" : "text-white/45"
+                        }`}>
+                          <HugeiconsIcon icon={CallingIcon} size={16} />
+                        </span>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Enter mobile number"
+                          className={inputClassName}
+                        />
+                      </div>
+                    </div>
+                  </div>
 
                   <button
                     onClick={() => setStep(2)}
-                    disabled={loadingDetails || !name || !phone}
+                    disabled={loadingDetails || !name || !phone || !startDateStr || !endDateStr || durationDays < 3 || !isSelectionValid}
                     className="w-full mt-6 py-4 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {loadingDetails ? (
@@ -818,7 +1171,7 @@ function BookingFlow() {
                     <div className="flex justify-between items-center pb-2 border-b border-neutral-200 dark:border-white/5">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-[#246596]">Reservation Gear</span>
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#246596]/10 text-[#246596]">
-                        {initialDuration} Days Rental
+                        {durationDays} Days Rental
                       </span>
                     </div>
 
@@ -826,6 +1179,11 @@ function BookingFlow() {
                       <div className="flex justify-between items-center">
                         <span className={subTextColor}>Item Selected</span>
                         <span className="font-bold text-right max-w-[220px]">{initialConsoleName}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <span className={subTextColor}>Rental Dates</span>
+                        <span className="font-mono font-semibold text-right">{startDateStr} to {endDateStr}</span>
                       </div>
 
                       <div className={`h-[1px] my-2 ${separatorBg}`} />
@@ -948,8 +1306,8 @@ function BookingFlow() {
                     
                     <div className="space-y-2 text-xs pt-1">
                       <div className="flex justify-between">
-                        <span className={subTextColor}>Console Rental Fee ({initialDuration} days)</span>
-                        <span className="font-semibold">₹{initialTotal}</span>
+                        <span className={subTextColor}>Console Rental Fee ({durationDays} days)</span>
+                        <span className="font-semibold">₹{computedTotalPrice}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className={subTextColor}>Refundable Security Deposit</span>
@@ -964,7 +1322,7 @@ function BookingFlow() {
 
                       <div className="flex justify-between items-baseline pt-1">
                         <span className={`text-xs uppercase font-extrabold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>Total Payable Amount</span>
-                        <span className={`text-2xl font-black ${isLightTheme ? "text-neutral-950" : "text-[#5e9fd0]"}`}>₹{initialTotal}</span>
+                        <span className={`text-2xl font-black ${isLightTheme ? "text-neutral-950" : "text-[#5e9fd0]"}`}>₹{computedTotalPrice}</span>
                       </div>
                     </div>
                   </div>
