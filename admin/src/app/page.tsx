@@ -7,6 +7,7 @@ import {
   getAdminSession, 
   adminFetchItems, 
   adminAddProduct, 
+  adminUpdateProduct,
   adminDeleteProduct,
   adminFetchBookings,
   adminUpdateBookingStatus,
