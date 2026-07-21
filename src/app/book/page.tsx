@@ -43,6 +43,7 @@ function BookingFlow() {
   const [customAddress, setCustomAddress] = useState("");
   const [customMapLink, setCustomMapLink] = useState("");
   const [useCustomLocation, setUseCustomLocation] = useState(false);
+  const [isCustomLocationConfirmed, setIsCustomLocationConfirmed] = useState(false);
   const [showAddressEdit, setShowAddressEdit] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   
@@ -188,6 +189,14 @@ function BookingFlow() {
     setShowAddressEdit(true);
     setCustomAddress("");
     setCustomMapLink("");
+    setIsCustomLocationConfirmed(false);
+  }
+
+  function handleConfirmCustomLocation(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (customAddress.trim() && customMapLink.trim()) {
+      setIsCustomLocationConfirmed(true);
+    }
   }
 
   function handleRevertToKycLocation() {
@@ -195,6 +204,7 @@ function BookingFlow() {
     setShowAddressEdit(false);
     setCustomAddress("");
     setCustomMapLink("");
+    setIsCustomLocationConfirmed(false);
   }
 
   // Camera helpers
@@ -859,6 +869,30 @@ function BookingFlow() {
                             </div>
                             <p className={`text-xs font-mono truncate ${subTextColor}`}>{kycAddress || address || "No Location Loaded"}</p>
                           </div>
+                        ) : isCustomLocationConfirmed ? (
+                          <div className={`p-3 rounded-xl border space-y-1.5 ${
+                            isLightTheme ? "bg-emerald-50/70 border-emerald-200" : "bg-emerald-500/10 border-emerald-500/20"
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
+                                <span>Custom Location Confirmed</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setIsCustomLocationConfirmed(false)}
+                                className="text-[10px] text-[#246596] hover:underline font-bold cursor-pointer"
+                              >
+                                Edit Location
+                              </button>
+                            </div>
+                            <p className={`text-xs font-mono truncate ${isLightTheme ? "text-neutral-800" : "text-white/80"}`}>{customAddress}</p>
+                            {customMapLink && (
+                              <a href={customMapLink} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#246596] hover:underline font-semibold block">
+                                View Provided Map Link ↗
+                              </a>
+                            )}
+                          </div>
                         ) : (
                           <div className="space-y-3 pt-1 animate-fadeInUp">
                             <div>
@@ -867,7 +901,10 @@ function BookingFlow() {
                                 type="text"
                                 required
                                 value={customAddress}
-                                onChange={(e) => setCustomAddress(e.target.value)}
+                                onChange={(e) => {
+                                  setCustomAddress(e.target.value);
+                                  setIsCustomLocationConfirmed(false);
+                                }}
                                 placeholder="Enter street name, building number, flat/apt..."
                                 className={inputClassName}
                               />
@@ -879,11 +916,24 @@ function BookingFlow() {
                                 type="url"
                                 required
                                 value={customMapLink}
-                                onChange={(e) => setCustomMapLink(e.target.value)}
+                                onChange={(e) => {
+                                  setCustomMapLink(e.target.value);
+                                  setIsCustomLocationConfirmed(false);
+                                }}
                                 placeholder="https://maps.app.goo.gl/..."
                                 className={inputClassName}
                               />
                             </div>
+
+                            <button
+                              type="button"
+                              onClick={handleConfirmCustomLocation}
+                              disabled={!customAddress.trim() || !customMapLink.trim()}
+                              className="w-full py-2.5 rounded-xl bg-[#246596] hover:bg-[#1d496b] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={15} className="text-white" />
+                              <span>Confirm Location Change</span>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -991,7 +1041,7 @@ function BookingFlow() {
                     
                     <button
                       type="submit"
-                      disabled={isSubmitting || !agreeTerms || (useCustomLocation && (!customAddress || !customMapLink))}
+                      disabled={isSubmitting || !agreeTerms || (useCustomLocation && (!isCustomLocationConfirmed || !customAddress || !customMapLink))}
                       className="flex-[2] py-3.5 rounded-xl btn-glow-pill text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                     >
                       {isSubmitting ? (
