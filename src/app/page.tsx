@@ -6,6 +6,7 @@ import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { fetchItems } from "@/app/actions";
 
 // --- Scroll Reveal ---
 function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -54,6 +55,15 @@ export default function Home() {
   const [selectedGear, setSelectedGear] = useState<string[]>(["ps5"]);
   const [phoneStep, setPhoneStep] = useState(0);
   const [typingText, setTypingText] = useState("");
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchItems().then((res) => {
+      if (res.success && res.data) {
+        setDbProducts(res.data);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => setPhoneStep((prev) => (prev + 1) % 3), 5000);
@@ -89,11 +99,15 @@ export default function Home() {
 
   const { isSignedIn } = useUser();
 
-  const handleRentClick = (title: string, dailyPrice: number) => {
+  const handleRentClick = (title: string, dailyPrice: number, itemId?: string) => {
+    const query = itemId 
+      ? `itemId=${itemId}&name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`
+      : `name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`;
+
     if (isSignedIn) {
-      router.push(`/book?name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`);
+      router.push(`/book?${query}`);
     } else {
-      window.location.href = `/sign-in?redirect_url=/book?name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`;
+      window.location.href = `/sign-in?redirect_url=/book?${query}`;
     }
   };
 
@@ -261,6 +275,87 @@ export default function Home() {
             </div>
           </RevealSection>
         </section>
+
+        {/* ================================================================
+            SECTION 1B: DYNAMIC WAREHOUSE PRODUCTS CATALOG
+            ================================================================ */}
+        {dbProducts.length > 0 && (
+          <section className="relative border-t border-white/[0.04] bg-white/[0.01]">
+            <RevealSection className="py-20 sm:py-28">
+              <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+                  <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-semibold text-gamebees-glow-blue">
+                    AVAILABLE WAREHOUSE INVENTORY
+                  </span>
+                  <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    Explore Ready Consoles & Gear
+                  </h2>
+                  <p className="text-gamebees-accent-lavender/40 text-sm font-light max-w-lg mx-auto">
+                    Live products stocked directly in our local hub with instant availability rotation.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+                  {dbProducts.map((prod) => (
+                    <div
+                      key={prod.id}
+                      className="card-polished p-5 flex flex-col justify-between border border-white/[0.04] group hover:border-gamebees-accent-blue/40 transition-all duration-400 rounded-2xl"
+                    >
+                      <div className="space-y-4">
+                        {/* Uploaded Product Image Container */}
+                        <div className="relative w-full h-48 rounded-xl overflow-hidden bg-black/40 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={prod.image_url || (Array.isArray(prod.image_urls) && prod.image_urls[0]) || "/ps5.png"}
+                            alt={prod.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/ps5.png";
+                            }}
+                          />
+                          <div className="absolute top-2.5 left-2.5">
+                            <span className="text-[9px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/85 backdrop-blur-md border border-gamebees-accent-blue/30 px-2.5 py-1 rounded-full shadow-md">
+                              {prod.category}
+                            </span>
+                          </div>
+
+                          {Array.isArray(prod.image_urls) && prod.image_urls.length > 1 && (
+                            <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md text-white text-[9px] font-bold px-2.5 py-0.5 rounded-md border border-white/10 shadow-sm">
+                              📷 {prod.image_urls.length} Photos
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between items-baseline gap-2">
+                            <h3 className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate">
+                              {prod.name}
+                            </h3>
+                            <div className="text-right shrink-0">
+                              <span className="text-lg font-black text-gamebees-glow-blue">₹{prod.price}</span>
+                              <span className="text-[9px] text-white/40 block">/ day</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-white/50 font-light leading-relaxed line-clamp-2">
+                            {prod.description || "High-performance setup preloaded with popular titles and active controller accessories."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleRentClick(prod.name, prod.price, prod.id)}
+                        className="w-full mt-5 py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(36,101,150,0.25)] cursor-pointer"
+                      >
+                        <span>Reserve Station</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </RevealSection>
+          </section>
+        )}
 
         {/* ================================================================
             SECTION 2: QUICK & EASY BOOKING

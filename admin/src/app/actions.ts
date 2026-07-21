@@ -72,12 +72,71 @@ export async function adminFetchItems() {
   }
 }
 
+export async function adminUploadProductImage(formData: FormData) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+
+  try {
+    const files = formData.getAll("files") as File[];
+    const singleFile = formData.get("file") as File;
+    const fileList = files.length > 0 ? files : (singleFile ? [singleFile] : []);
+
+    if (fileList.length === 0) {
+      return { success: false, error: "No image file provided" };
+    }
+
+    // Ensure bucket exists
+    try {
+      await supabaseServer.storage.createBucket("product-images", { public: true });
+    } catch (e) {
+      // Ignore if bucket already exists
+    }
+
+    const uploadedUrls: string[] = [];
+
+    for (const file of fileList) {
+      if (!file || typeof file.arrayBuffer !== "function") continue;
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const ext = file.name ? file.name.split(".").pop()?.toLowerCase() || "png" : "png";
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabaseServer.storage
+        .from("product-images")
+        .upload(filePath, buffer, {
+          contentType: file.type || `image/${ext}`,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      const { data: publicUrlData } = supabaseServer.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      if (publicUrlData?.publicUrl) {
+        uploadedUrls.push(publicUrlData.publicUrl);
+      }
+    }
+
+    return { success: true, urls: uploadedUrls };
+  } catch (error: any) {
+    console.error("adminUploadProductImage error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function adminAddProduct(product: {
   name: string;
   category: string;
   price: number;
   description: string;
   image_url?: string;
+  image_urls?: string[];
   quantity?: number;
   price_3_days?: number;
   price_extra_day?: number;
@@ -86,12 +145,16 @@ export async function adminAddProduct(product: {
   if (!isAuth) return { success: false, error: "Unauthorized" };
 
   try {
+    const urlsArr = product.image_urls || (product.image_url ? [product.image_url] : []);
+    const primaryUrl = urlsArr[0] || product.image_url || null;
+
     const itemPayload: any = {
       name: product.name,
       category: product.category,
       price: product.price,
       description: product.description,
-      image_url: product.image_url || null,
+      image_url: primaryUrl,
+      image_urls: urlsArr,
       quantity: product.quantity || 1,
       price_3_days: product.price_3_days || (product.price * 3),
       price_extra_day: product.price_extra_day || product.price,
@@ -102,7 +165,8 @@ export async function adminAddProduct(product: {
       .insert([itemPayload])
       .select();
 
-    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
+    if (error && (error.message.includes("schema cache") || error.message.includes("column") || error.message.includes("image_urls"))) {
+      delete itemPayload.image_urls;
       delete itemPayload.quantity;
       delete itemPayload.price_3_days;
       delete itemPayload.price_extra_day;
@@ -129,6 +193,7 @@ export async function adminUpdateProduct(id: string, product: {
   price?: number;
   description?: string;
   image_url?: string;
+  image_urls?: string[];
   quantity?: number;
   price_3_days?: number;
   price_extra_day?: number;
@@ -137,7 +202,12 @@ export async function adminUpdateProduct(id: string, product: {
   if (!isAuth) return { success: false, error: "Unauthorized" };
 
   try {
+    const urlsArr = product.image_urls || (product.image_url ? [product.image_url] : undefined);
+    const primaryUrl = urlsArr ? (urlsArr[0] || null) : product.image_url;
+
     const payload: any = { ...product };
+    if (primaryUrl !== undefined) payload.image_url = primaryUrl;
+    if (urlsArr !== undefined) payload.image_urls = urlsArr;
 
     let { data, error } = await supabaseServer
       .from("items")
@@ -145,7 +215,8 @@ export async function adminUpdateProduct(id: string, product: {
       .eq("id", id)
       .select();
 
-    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
+    if (error && (error.message.includes("schema cache") || error.message.includes("column") || error.message.includes("image_urls"))) {
+      delete payload.image_urls;
       delete payload.quantity;
       delete payload.price_3_days;
       delete payload.price_extra_day;

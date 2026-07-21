@@ -13,7 +13,8 @@ import {
   adminUpdateBookingStatus,
   adminFetchKycProfiles,
   adminApproveKyc,
-  adminDeclineKyc
+  adminDeclineKyc,
+  adminUploadProductImage
 } from "./actions";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
@@ -105,6 +106,8 @@ export default function AdminPage() {
   const [itemPriceExtraDay, setItemPriceExtraDay] = useState("");
   const [itemDesc, setItemDesc] = useState("");
   const [itemImage, setItemImage] = useState("");
+  const [itemImages, setItemImages] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [addingItem, setAddingItem] = useState(false);
   
@@ -159,6 +162,32 @@ export default function AdminPage() {
     setIsAuthenticated(false);
   };
 
+  const handleMultipleImageUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingImages(true);
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append("files", f));
+
+    const res = await adminUploadProductImage(formData);
+    setUploadingImages(false);
+
+    if (res.success && res.urls && res.urls.length > 0) {
+      setItemImages((prev) => [...prev, ...res.urls]);
+      if (!itemImage) setItemImage(res.urls[0]);
+    } else {
+      triggerAlert("Image Upload Failed", res.error || "Failed to upload image to Supabase storage.");
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setItemImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      if (updated.length > 0) setItemImage(updated[0]);
+      else setItemImage("");
+      return updated;
+    });
+  };
+
   const handleEditItem = (item: any) => {
     setEditingItemId(item.id);
     setItemName(item.name || "");
@@ -169,6 +198,14 @@ export default function AdminPage() {
     setItemPriceExtraDay(item.price_extra_day ? String(item.price_extra_day) : String(item.price || ""));
     setItemDesc(item.description || "");
     setItemImage(item.image_url || "");
+
+    let existingImages: string[] = [];
+    if (Array.isArray(item.image_urls) && item.image_urls.length > 0) {
+      existingImages = item.image_urls;
+    } else if (item.image_url) {
+      existingImages = [item.image_url];
+    }
+    setItemImages(existingImages);
     setIsAddingListing(true);
   };
 
@@ -180,6 +217,8 @@ export default function AdminPage() {
     const basePrice = Number(itemPrice);
     const p3Days = itemPrice3Days ? Number(itemPrice3Days) : basePrice * 3;
     const pExtra = itemPriceExtraDay ? Number(itemPriceExtraDay) : basePrice;
+    const primaryImg = itemImages[0] || itemImage || undefined;
+    const allImgs = itemImages.length > 0 ? itemImages : (itemImage ? [itemImage] : undefined);
 
     let res;
     if (editingItemId) {
@@ -188,7 +227,8 @@ export default function AdminPage() {
         category: itemCategory,
         price: basePrice,
         description: itemDesc,
-        image_url: itemImage || undefined,
+        image_url: primaryImg,
+        image_urls: allImgs,
         quantity: Number(itemQuantity) || 1,
         price_3_days: p3Days,
         price_extra_day: pExtra
@@ -199,7 +239,8 @@ export default function AdminPage() {
         category: itemCategory,
         price: basePrice,
         description: itemDesc,
-        image_url: itemImage || undefined,
+        image_url: primaryImg,
+        image_urls: allImgs,
         quantity: Number(itemQuantity) || 1,
         price_3_days: p3Days,
         price_extra_day: pExtra
@@ -214,6 +255,7 @@ export default function AdminPage() {
       setItemPriceExtraDay("");
       setItemDesc("");
       setItemImage("");
+      setItemImages([]);
       setEditingItemId(null);
       loadData();
     } else {
@@ -751,15 +793,76 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Image URL (Optional)</label>
-                        <input
-                          type="url"
-                          value={itemImage}
-                          onChange={(e) => setItemImage(e.target.value)}
-                          placeholder="https://..."
-                          className="form-input"
-                        />
+                      {/* Multi-Image Storage Upload Area */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">
+                          Product Images (Supabase Storage Upload)
+                        </label>
+
+                        <div className="relative border-2 border-dashed border-neutral-300 hover:border-[#246596] rounded-xl p-4 text-center bg-neutral-50/50 transition-all cursor-pointer group">
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => handleMultipleImageUpload(e.target.files)}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <div className="space-y-1">
+                            <div className="mx-auto h-9 w-9 rounded-full bg-[#246596]/10 text-[#246596] flex items-center justify-center">
+                              <HugeiconsIcon icon={PlusSignIcon} size={18} />
+                            </div>
+                            <p className="text-xs font-bold text-neutral-700">Click or Drag & Drop Product Photos</p>
+                            <p className="text-[10px] text-neutral-450 font-light">Select 1 or multiple images to upload directly to Supabase Storage</p>
+                          </div>
+                        </div>
+
+                        {uploadingImages && (
+                          <div className="flex items-center gap-2 p-2.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-200">
+                            <div className="h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Uploading image(s) to Supabase Storage bucket...</span>
+                          </div>
+                        )}
+
+                        {/* Multi Image Thumbnails Gallery */}
+                        {itemImages.length > 0 && (
+                          <div className="grid grid-cols-4 gap-2 pt-1">
+                            {itemImages.map((imgUrl, idx) => (
+                              <div key={idx} className="relative group rounded-lg overflow-hidden border border-neutral-200 aspect-square bg-neutral-100 shadow-xs">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={imgUrl} alt={`Product Image ${idx + 1}`} className="w-full h-full object-cover" />
+                                {idx === 0 && (
+                                  <span className="absolute bottom-1 left-1 bg-emerald-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-xs">
+                                    Primary Cover
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(idx)}
+                                  className="absolute top-1 right-1 bg-black/75 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-20"
+                                  title="Remove Image"
+                                >
+                                  <HugeiconsIcon icon={Delete01Icon} size={12} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="pt-1">
+                          <label className="text-[9px] font-semibold text-neutral-500 block uppercase">Or External Image URL (Fallback)</label>
+                          <input
+                            type="url"
+                            value={itemImage}
+                            onChange={(e) => {
+                              setItemImage(e.target.value);
+                              if (e.target.value && !itemImages.includes(e.target.value)) {
+                                setItemImages((prev) => [e.target.value, ...prev]);
+                              }
+                            }}
+                            placeholder="https://..."
+                            className="form-input text-xs"
+                          />
+                        </div>
                       </div>
 
                       <div className="space-y-1">
@@ -786,7 +889,7 @@ export default function AdminPage() {
                         </button>
                         <button
                           type="submit"
-                          disabled={addingItem}
+                          disabled={addingItem || uploadingImages}
                           className="flex-1 py-2.5 rounded btn-glow-pill text-xs font-bold text-white flex justify-center items-center gap-1.5 cursor-pointer disabled:opacity-50"
                         >
                           {addingItem ? (
@@ -825,6 +928,7 @@ export default function AdminPage() {
                         setItemPriceExtraDay("");
                         setItemDesc("");
                         setItemImage("");
+                        setItemImages([]);
                         setIsAddingListing(true);
                       }}
                       className="px-3.5 py-2 btn-glow-pill text-xs font-bold flex items-center gap-1.5 cursor-pointer text-white"
@@ -845,6 +949,7 @@ export default function AdminPage() {
                       <table className="dense-table">
                         <thead>
                           <tr>
+                            <th>Image</th>
                             <th>Product Name</th>
                             <th>Category</th>
                             <th>Stock Units</th>
@@ -856,6 +961,19 @@ export default function AdminPage() {
                         <tbody>
                           {items.map((item) => (
                             <tr key={item.id}>
+                              <td>
+                                <div className="h-10 w-10 rounded-lg overflow-hidden border border-neutral-200 bg-neutral-100 flex items-center justify-center shrink-0">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img 
+                                    src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"} 
+                                    alt={item.name} 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = "/ps5.png";
+                                    }}
+                                  />
+                                </div>
+                              </td>
                               <td>
                                 <span className="font-semibold block text-xs">{item.name}</span>
                                 <span className="text-[10px] text-neutral-500 block line-clamp-1 leading-tight">{item.description}</span>

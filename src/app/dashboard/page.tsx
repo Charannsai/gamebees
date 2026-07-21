@@ -587,22 +587,43 @@ export default function UserDashboard() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                       {items.map((item) => (
-                        <div key={item.id} className="card-polished p-5 flex flex-col justify-between h-[230px] border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-all">
+                        <div key={item.id} className="card-polished p-5 flex flex-col justify-between border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-all rounded-2xl">
                           <div className="space-y-3">
-                            <div className="flex justify-between items-start">
-                              <span className="text-[9px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/35 border border-gamebees-accent-blue/20 px-2 py-0.5 rounded-full">
-                                {item.category}
-                              </span>
-                              <div className="text-right">
-                                <span className="text-lg font-black text-white">₹{item.price}</span>
-                                <span className="text-[9px] text-white/30 block">/ day</span>
+                            {/* Uploaded Product Image Container */}
+                            <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/40 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"}
+                                alt={item.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/ps5.png";
+                                }}
+                              />
+                              <div className="absolute top-2 left-2">
+                                <span className="text-[9px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/80 backdrop-blur-md border border-gamebees-accent-blue/30 px-2.5 py-1 rounded-full shadow-md">
+                                  {item.category}
+                                </span>
                               </div>
+
+                              {Array.isArray(item.image_urls) && item.image_urls.length > 1 && (
+                                <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-md border border-white/10">
+                                  📷 {item.image_urls.length} Photos
+                                </div>
+                              )}
                             </div>
-                            <div>
-                              <h4 className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors">
-                                {item.name}
-                              </h4>
-                              <p className="text-xs text-white/40 font-light mt-1.5 leading-relaxed line-clamp-3">
+
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-baseline gap-2">
+                                <h4 className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate">
+                                  {item.name}
+                                </h4>
+                                <div className="text-right shrink-0">
+                                  <span className="text-lg font-black text-gamebees-glow-blue">₹{item.price}</span>
+                                  <span className="text-[9px] text-white/30 block">/ day</span>
+                                </div>
+                              </div>
+                              <p className="text-xs text-white/50 font-light leading-relaxed line-clamp-2">
                                 {item.description || "Fully configured console with active game library ready for plug-and-play."}
                               </p>
                             </div>
@@ -610,10 +631,10 @@ export default function UserDashboard() {
 
                           <button
                             onClick={() => handleOpenBooking(item)}
-                            className="w-full mt-4 py-2.5 bg-gamebees-accent-blue/70 hover:bg-gamebees-accent-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.15)] cursor-pointer"
+                            className="w-full mt-4 py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
                           >
                             <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                            <span>Rent Now</span>
+                            <span>Reserve Gear Now</span>
                           </button>
                         </div>
                       ))}
