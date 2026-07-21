@@ -61,7 +61,7 @@ export async function fetchItemAvailability(itemId: string) {
     // 2. Fetch active bookings for this item
     const { data: bookings, error: bookingsError } = await supabaseServer
       .from("bookings")
-      .select("id, item_id, start_date, end_date, duration_days, created_at, status")
+      .select("*")
       .eq("item_id", itemId)
       .not("status", "in", '("cancelled","declined")');
 
@@ -124,10 +124,25 @@ export async function createBooking(formData: {
     if (formData.startDate) bookingPayload.start_date = formData.startDate;
     if (formData.endDate) bookingPayload.end_date = formData.endDate;
 
-    const { data, error } = await supabaseServer
+    let { data, error } = await supabaseServer
       .from("bookings")
       .insert([bookingPayload])
       .select();
+
+    // Fallback: If DB table schema doesn't have start_date/end_date columns yet
+    if (error && (error.message.includes("end_date") || error.message.includes("start_date") || error.message.includes("schema cache") || error.message.includes("column"))) {
+      console.warn("Retrying insert without start_date/end_date columns due to DB schema cache:", error.message);
+      delete bookingPayload.start_date;
+      delete bookingPayload.end_date;
+
+      const retryRes = await supabaseServer
+        .from("bookings")
+        .insert([bookingPayload])
+        .select();
+
+      data = retryRes.data;
+      error = retryRes.error;
+    }
 
     if (error) throw error;
     return { success: true, data };

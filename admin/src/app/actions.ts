@@ -86,21 +86,35 @@ export async function adminAddProduct(product: {
   if (!isAuth) return { success: false, error: "Unauthorized" };
 
   try {
-    const { data, error } = await supabaseServer
+    const itemPayload: any = {
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      description: product.description,
+      image_url: product.image_url || null,
+      quantity: product.quantity || 1,
+      price_3_days: product.price_3_days || (product.price * 3),
+      price_extra_day: product.price_extra_day || product.price,
+    };
+
+    let { data, error } = await supabaseServer
       .from("items")
-      .insert([
-        {
-          name: product.name,
-          category: product.category,
-          price: product.price,
-          description: product.description,
-          image_url: product.image_url || null,
-          quantity: product.quantity || 1,
-          price_3_days: product.price_3_days || (product.price * 3),
-          price_extra_day: product.price_extra_day || product.price,
-        },
-      ])
+      .insert([itemPayload])
       .select();
+
+    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
+      delete itemPayload.quantity;
+      delete itemPayload.price_3_days;
+      delete itemPayload.price_extra_day;
+
+      const retryRes = await supabaseServer
+        .from("items")
+        .insert([itemPayload])
+        .select();
+
+      data = retryRes.data;
+      error = retryRes.error;
+    }
 
     if (error) throw error;
     return { success: true, data };
@@ -123,13 +137,28 @@ export async function adminUpdateProduct(id: string, product: {
   if (!isAuth) return { success: false, error: "Unauthorized" };
 
   try {
-    const { data, error } = await supabaseServer
+    const payload: any = { ...product };
+
+    let { data, error } = await supabaseServer
       .from("items")
-      .update({
-        ...product,
-      })
+      .update(payload)
       .eq("id", id)
       .select();
+
+    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
+      delete payload.quantity;
+      delete payload.price_3_days;
+      delete payload.price_extra_day;
+
+      const retryRes = await supabaseServer
+        .from("items")
+        .update(payload)
+        .eq("id", id)
+        .select();
+
+      data = retryRes.data;
+      error = retryRes.error;
+    }
 
     if (error) throw error;
     return { success: true, data };
