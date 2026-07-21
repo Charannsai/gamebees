@@ -622,19 +622,22 @@ export default function AdminPage() {
           {activeTab === "items" && (
             <div className="space-y-4 animate-fadeInUp">
               {isAddingListing ? (
-                /* Add Product Sub-Screen */
+                /* Add / Edit Product Sub-Screen */
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-1">
                     <div>
                       <h3 className="text-lg font-bold text-[#141414]">
-                        Add Product Listing
+                        {editingItemId ? "Edit Product Listing" : "Add Product Listing"}
                       </h3>
                       <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                        Add a new hardware rental console, accessory, or bundle package.
+                        Manage rental inventory stock units and flexible tiered pricing rules.
                       </p>
                     </div>
                     <button
-                      onClick={() => setIsAddingListing(false)}
+                      onClick={() => {
+                        setIsAddingListing(false);
+                        setEditingItemId(null);
+                      }}
                       className="px-3 py-1.5 btn-secondary text-xs font-semibold"
                     >
                       Back to Listings
@@ -686,16 +689,65 @@ export default function AdminPage() {
                         )}
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Price per Day (₹)</label>
-                        <input
-                          type="number"
-                          required
-                          value={itemPrice}
-                          onChange={(e) => setItemPrice(e.target.value)}
-                          placeholder="12"
-                          className="form-input"
-                        />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Stock Units (Quantity)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            value={itemQuantity}
+                            onChange={(e) => setItemQuantity(e.target.value)}
+                            placeholder="1"
+                            className="form-input"
+                          />
+                          <span className="text-[9px] text-neutral-400 block">Hidden from public users</span>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Baseline Daily Rate (₹)</label>
+                          <input
+                            type="number"
+                            required
+                            value={itemPrice}
+                            onChange={(e) => setItemPrice(e.target.value)}
+                            placeholder="499"
+                            className="form-input"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Tiered Pricing Rules */}
+                      <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-3">
+                        <span className="text-[10px] font-bold text-neutral-700 uppercase tracking-wider block">
+                          Flexible Tiered Pricing Rules
+                        </span>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-semibold text-neutral-600 block">Base 3-Day Rate (₹)</label>
+                            <input
+                              type="number"
+                              value={itemPrice3Days}
+                              onChange={(e) => setItemPrice3Days(e.target.value)}
+                              placeholder={itemPrice ? String(Number(itemPrice) * 3) : "1497"}
+                              className="form-input bg-white"
+                            />
+                            <span className="text-[9px] text-neutral-400 block">Initial 3 days total</span>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-semibold text-neutral-600 block">Extra Day Rate (₹/day)</label>
+                            <input
+                              type="number"
+                              value={itemPriceExtraDay}
+                              onChange={(e) => setItemPriceExtraDay(e.target.value)}
+                              placeholder={itemPrice || "400"}
+                              className="form-input bg-white"
+                            />
+                            <span className="text-[9px] text-neutral-400 block">For days 4+</span>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="space-y-1">
@@ -712,7 +764,7 @@ export default function AdminPage() {
                       <div className="space-y-1">
                         <label className="text-[10px] font-semibold text-neutral-600 block uppercase">Description</label>
                         <textarea
-                          rows={4}
+                          rows={3}
                           value={itemDesc}
                           onChange={(e) => setItemDesc(e.target.value)}
                           placeholder="Controller attachments, dynamic specs, bundled game CD details..."
@@ -723,7 +775,10 @@ export default function AdminPage() {
                       <div className="flex gap-3 pt-2">
                         <button
                           type="button"
-                          onClick={() => setIsAddingListing(false)}
+                          onClick={() => {
+                            setIsAddingListing(false);
+                            setEditingItemId(null);
+                          }}
                           className="flex-1 py-2.5 btn-secondary text-xs font-semibold"
                         >
                           Cancel
@@ -738,7 +793,7 @@ export default function AdminPage() {
                           ) : (
                             <>
                               <HugeiconsIcon icon={PlusSignIcon} size={14} />
-                              <span>Add to Listings</span>
+                              <span>{editingItemId ? "Update Product" : "Add to Listings"}</span>
                             </>
                           )}
                         </button>
@@ -755,11 +810,22 @@ export default function AdminPage() {
                         Catalog Inventory
                       </h3>
                       <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                        Add, view, and delete rental hardware packages.
+                        Manage rental stock quantities and pricing tiers.
                       </p>
                     </div>
                     <button
-                      onClick={() => setIsAddingListing(true)}
+                      onClick={() => {
+                        setEditingItemId(null);
+                        setItemName("");
+                        setItemCategory("");
+                        setItemPrice("");
+                        setItemQuantity("1");
+                        setItemPrice3Days("");
+                        setItemPriceExtraDay("");
+                        setItemDesc("");
+                        setItemImage("");
+                        setIsAddingListing(true);
+                      }}
                       className="px-3.5 py-2 btn-glow-pill text-xs font-bold flex items-center gap-1.5 cursor-pointer text-white"
                     >
                       <HugeiconsIcon icon={PlusSignIcon} size={13} />
@@ -780,8 +846,10 @@ export default function AdminPage() {
                           <tr>
                             <th>Product Name</th>
                             <th>Category</th>
-                            <th>Price per Day</th>
-                            <th>Action</th>
+                            <th>Stock Units</th>
+                            <th>3-Day Base Rate</th>
+                            <th>Extra Day Rate</th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -797,15 +865,35 @@ export default function AdminPage() {
                                 </span>
                               </td>
                               <td>
-                                <span className="text-xs font-black text-[#141414]">₹{item.price}</span>
+                                <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                  {item.quantity || 1} Units
+                                </span>
                               </td>
                               <td>
-                                <button
-                                  onClick={() => handleDeleteItem(item.id)}
-                                  className="text-red-600 hover:bg-red-50 p-1.5 rounded border border-transparent hover:border-red-200 transition-all cursor-pointer"
-                                >
-                                  <HugeiconsIcon icon={Delete01Icon} size={14} />
-                                </button>
+                                <span className="text-xs font-black text-[#141414]">
+                                  ₹{item.price_3_days || (item.price ? item.price * 3 : 1497)}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="text-xs font-semibold text-neutral-700">
+                                  ₹{item.price_extra_day || item.price || 400}/day
+                                </span>
+                              </td>
+                              <td>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleEditItem(item)}
+                                    className="text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-transparent hover:border-blue-200 text-[10px] font-semibold transition-all cursor-pointer"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem(item.id)}
+                                    className="text-red-600 hover:bg-red-50 p-1.5 rounded border border-transparent hover:border-red-200 transition-all cursor-pointer"
+                                  >
+                                    <HugeiconsIcon icon={Delete01Icon} size={14} />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
