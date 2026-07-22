@@ -1211,29 +1211,230 @@ export default function UserDashboard() {
                       Account & Legal Settings
                     </h3>
                     <p className="text-white/50 text-xs mt-1 font-light">
-                      Manage account details and review platforms legal information.
+                      Manage account details, billing history, and review platforms legal information.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="card-polished p-5 space-y-4">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
-                        <HugeiconsIcon icon={UserIcon} size={16} className="text-gamebees-glow-blue" />
-                        <span>Profile Information</span>
-                      </h4>
+                  {/* Sub Tabs Selection */}
+                  <div className="flex border-b border-white/[0.06] gap-6 pb-2">
+                    <button
+                      onClick={() => setSettingsSubTab("profile")}
+                      className={`pb-2 text-xs font-bold uppercase tracking-wider transition-all relative cursor-pointer ${
+                        settingsSubTab === "profile" 
+                          ? "text-gamebees-glow-blue" 
+                          : "text-white/40 hover:text-white/70"
+                      }`}
+                    >
+                      Profile & Theme
+                      {settingsSubTab === "profile" && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gamebees-accent-blue" />
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={() => setSettingsSubTab("orders")}
+                      className={`pb-2 text-xs font-bold uppercase tracking-wider transition-all relative cursor-pointer flex items-center gap-1.5 ${
+                        settingsSubTab === "orders" 
+                          ? "text-gamebees-glow-blue" 
+                          : "text-white/40 hover:text-white/70"
+                      }`}
+                    >
+                      <span>Order History</span>
+                      {bookings.length > 0 && (
+                        <span className="bg-gamebees-accent-blue/20 text-gamebees-glow-blue border border-gamebees-accent-blue/30 text-[9px] font-mono px-1.5 py-0.2 rounded-md">
+                          {bookings.length}
+                        </span>
+                      )}
+                      {settingsSubTab === "orders" && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gamebees-accent-blue" />
+                      )}
+                    </button>
 
-                      <div className="space-y-3 text-xs font-light">
-                        <div className="flex justify-between items-center py-1">
-                          <span className="text-white/40">Username</span>
-                          <span className="text-white font-semibold">{user?.fullName || "Not provided"}</span>
+                    <button
+                      onClick={() => setSettingsSubTab("policies")}
+                      className={`pb-2 text-xs font-bold uppercase tracking-wider transition-all relative cursor-pointer ${
+                        settingsSubTab === "policies" 
+                          ? "text-gamebees-glow-blue" 
+                          : "text-white/40 hover:text-white/70"
+                      }`}
+                    >
+                      Rental Agreement
+                      {settingsSubTab === "policies" && (
+                        <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gamebees-accent-blue" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Sub Tab: Profile */}
+                  {settingsSubTab === "profile" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeInUp">
+                      <div className="card-polished p-5 space-y-4">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
+                          <HugeiconsIcon icon={UserIcon} size={16} className="text-gamebees-glow-blue" />
+                          <span>Profile Information</span>
+                        </h4>
+
+                        <div className="space-y-3 text-xs font-light">
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-white/40">Username</span>
+                            <span className="text-white font-semibold">{user?.fullName || "Not provided"}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1 border-t border-white/[0.02]">
+                            <span className="text-white/40">Contact Email</span>
+                            <span className="text-white font-semibold">{user?.primaryEmailAddress?.emailAddress}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center py-1 border-t border-white/[0.02]">
-                          <span className="text-white/40">Contact Email</span>
-                          <span className="text-white font-semibold">{user?.primaryEmailAddress?.emailAddress}</span>
+                      </div>
+
+                      <div className="card-polished p-5 space-y-4">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
+                          <Sun className="h-4 w-4 text-gamebees-glow-blue" />
+                          <span>Display Theme</span>
+                        </h4>
+
+                        <p className="text-white/50 text-[11px] font-light leading-relaxed">
+                          Customize the visual aesthetic of the platform. Choose between the premium dark immersive interface or the clean light layout.
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <button
+                            onClick={() => handleThemeChange("dark")}
+                            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                              theme === "dark"
+                                ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
+                                : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
+                            }`}
+                          >
+                            <Moon className="h-4 w-4" />
+                            <span>Dark Theme</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleThemeChange("light")}
+                            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                              theme === "light"
+                                ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
+                                : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
+                            }`}
+                          >
+                            <Sun className="h-4 w-4" />
+                            <span>White Theme</span>
+                          </button>
                         </div>
                       </div>
                     </div>
-                    <div className="card-polished p-5 space-y-4">
+                  )}
+
+                  {/* Sub Tab: Orders */}
+                  {settingsSubTab === "orders" && (
+                    <div className="space-y-4 animate-fadeInUp">
+                      {bookings.length === 0 ? (
+                        <div className="card-polished p-16 text-center space-y-3">
+                          <HugeiconsIcon icon={ShoppingBag01Icon} size={40} className="text-white/10 mx-auto" />
+                          <p className="text-xs sm:text-sm text-white/50 font-light">You have no order history yet.</p>
+                          <button 
+                            onClick={() => setActiveTab("bookings")}
+                            className="btn-glow-pill px-5 py-2.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            Rent a Console Now
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-6">
+                          {bookings.map((booking: any) => {
+                            const dailyPrice = booking.items?.price || 499;
+                            const totalBasePrice = dailyPrice * booking.duration_days;
+                            const gst = Math.round(totalBasePrice * 0.18);
+                            const totalBillingPrice = totalBasePrice + gst;
+                            
+                            return (
+                              <div key={booking.id} className="card-polished p-5 sm:p-6 space-y-5 border border-white/[0.03]">
+                                {/* Card Header */}
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/[0.04] pb-4">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[9px] uppercase tracking-wider font-mono font-bold text-gamebees-glow-blue bg-gamebees-accent-blue/10 px-2.5 py-1 rounded border border-gamebees-accent-blue/20">
+                                        {booking.items?.category || "Console"}
+                                      </span>
+                                      <span className="text-[10px] text-white/40 font-mono">
+                                        ID: #{booking.id.slice(-8).toUpperCase()}
+                                      </span>
+                                    </div>
+                                    <h4 className="text-base font-bold text-white mt-1">
+                                      {booking.items?.name || "Gaming Console Setup"}
+                                    </h4>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border ${getStatusColor(booking.status)}`}>
+                                      {booking.status}
+                                    </span>
+                                    <span className="text-[10px] text-white/40">
+                                      {new Date(booking.created_at).toLocaleDateString("en-IN", {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Order & Delivery Info */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-light text-white/60">
+                                  <div className="space-y-3">
+                                    <div>
+                                      <strong className="text-white/80 block mb-0.5 font-bold">Rental Window:</strong>
+                                      <span>{booking.duration_days} Days ({booking.start_date || "Immediate"} to {booking.end_date || "Immediate"})</span>
+                                    </div>
+                                    <div>
+                                      <strong className="text-white/80 block mb-0.5 font-bold">Delivery Address:</strong>
+                                      <span className="line-clamp-2">{booking.address}</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Billing Breakdown (Order Summary) */}
+                                  <div className="bg-black/35 rounded-xl border border-white/[0.04] p-4 space-y-2 text-xs">
+                                    <span className="text-[10px] uppercase font-bold text-white/30 tracking-wider block border-b border-white/[0.04] pb-1.5">
+                                      Billing & Invoice Summary
+                                    </span>
+                                    
+                                    <div className="flex justify-between">
+                                      <span className="text-white/40">Daily rental price</span>
+                                      <span className="text-white font-mono">₹{dailyPrice} / day</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between">
+                                      <span className="text-white/40">Base fare ({booking.duration_days} days)</span>
+                                      <span className="text-white font-mono">₹{totalBasePrice}</span>
+                                    </div>
+
+                                    <div className="flex justify-between">
+                                      <span className="text-white/40">GST & Service Tax (18%)</span>
+                                      <span className="text-white font-mono">₹{gst}</span>
+                                    </div>
+
+                                    <div className="flex justify-between text-green-400">
+                                      <span>Security Deposit</span>
+                                      <span className="font-mono">₹0 (WAIVED)</span>
+                                    </div>
+
+                                    <div className="flex justify-between border-t border-white/[0.06] pt-2 font-bold">
+                                      <span className="text-white">Total Amount Paid</span>
+                                      <span className="text-gamebees-glow-blue font-mono">₹{booking.total_price || totalBillingPrice}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Sub Tab: Policies */}
+                  {settingsSubTab === "policies" && (
+                    <div className="card-polished p-5 space-y-4 animate-fadeInUp">
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
                         <HugeiconsIcon icon={File01Icon} size={16} className="text-gamebees-glow-blue" />
                         <span>Rental Agreement & Policies</span>
@@ -1251,44 +1452,7 @@ export default function UserDashboard() {
                         </p>
                       </div>
                     </div>
-
-                    <div className="card-polished p-5 space-y-4">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/[0.04] pb-2 flex items-center gap-1.5">
-                        <Sun className="h-4 w-4 text-gamebees-glow-blue" />
-                        <span>Display Theme</span>
-                      </h4>
-
-                      <p className="text-white/50 text-[11px] font-light leading-relaxed">
-                        Customize the visual aesthetic of the platform. Choose between the premium dark immersive interface or the clean light layout.
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-3 pt-2">
-                        <button
-                          onClick={() => handleThemeChange("dark")}
-                          className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                            theme === "dark"
-                              ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
-                              : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
-                          }`}
-                        >
-                          <Moon className="h-4 w-4" />
-                          <span>Dark Theme</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleThemeChange("light")}
-                          className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                            theme === "light"
-                              ? "bg-gamebees-accent-blue/20 border-gamebees-accent-blue text-gamebees-glow-blue shadow-[0_0_12px_rgba(36,101,150,0.15)]"
-                              : "bg-white/[0.015] border-white/[0.04] text-white/50 hover:text-white hover:border-white/[0.08]"
-                          }`}
-                        >
-                          <Sun className="h-4 w-4" />
-                          <span>White Theme</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </>
