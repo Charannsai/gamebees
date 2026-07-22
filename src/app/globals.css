@@ -463,10 +463,10 @@ html.light .bg-black,
 html.light .bg-black *,
 html.light .bg-slate-900,
 html.light .bg-slate-900 *,
-html.light .bg-[#0b132b],
-html.light .bg-[#0b132b] *,
-html.light .bg-[#246596],
-html.light .bg-[#246596] *,
+html.light .bg-\[\#0b132b\],
+html.light .bg-\[\#0b132b\] *,
+html.light .bg-\[\#246596\],
+html.light .bg-\[\#246596\] *,
 html.light .cl-userButtonPopoverCard * {
   color: inherit;
 }
@@ -507,10 +507,10 @@ html.light .bg-black,
 html.light .bg-black *,
 html.light .bg-slate-900,
 html.light .bg-slate-900 *,
-html.light .bg-[#0b132b],
-html.light .bg-[#0b132b] *,
-html.light .bg-[#246596],
-html.light .bg-[#246596] *,
+html.light .bg-\[\#0b132b\],
+html.light .bg-\[\#0b132b\] *,
+html.light .bg-\[\#246596\],
+html.light .bg-\[\#246596\] *,
 html.light .cl-userButtonPopoverCard * {
   --white-override: #FFFFFF !important;
   --white-override-90: rgba(255, 255, 255, 0.9) !important;
