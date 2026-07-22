@@ -66,6 +66,7 @@ export default function UserDashboard() {
 
   // Theme State
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [settingsSubTab, setSettingsSubTab] = useState<"profile" | "orders" | "policies">("profile");
 
   useEffect(() => {
     // Read theme preference on mount
@@ -661,54 +662,10 @@ export default function UserDashboard() {
                       <p className="text-xs sm:text-sm text-white/50 font-light">No bookings found to track. Rent a console first!</p>
                     </div>
                   ) : (
-                    <div className="card-polished overflow-hidden relative p-6 sm:p-10 min-h-[380px] flex flex-col justify-between border border-white/[0.03]">
+                    <div className="card-polished p-6 sm:p-10 flex flex-col justify-between border border-white/[0.03]">
                       
-                      {/* Background Faded Map */}
-                      <div className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06] overflow-hidden select-none">
-                        <svg className="w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="none">
-                          {/* Grid network */}
-                          <defs>
-                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-                            </pattern>
-                          </defs>
-                          <rect width="100%" height="100%" fill="url(#grid)" />
-                          
-                          {/* Road paths / Routes */}
-                          <path 
-                            d="M 50 300 Q 200 100 400 250 T 750 100" 
-                            fill="none" 
-                            stroke="rgba(94, 159, 208, 0.4)" 
-                            strokeWidth="4" 
-                            strokeDasharray="8 6" 
-                          />
-                          <path 
-                            d="M 50 300 Q 200 100 400 250 T 750 100" 
-                            fill="none" 
-                            stroke="#5E9FD0" 
-                            strokeWidth="4" 
-                            className="stroke-dash animate-pulse" 
-                            style={{
-                              strokeDasharray: "1000",
-                              strokeDashoffset: displayBookingForTrack.tracking_status === "preparing" ? "800" : displayBookingForTrack.tracking_status === "shipped" ? "400" : "0",
-                              transition: "stroke-dashoffset 2s ease-out-in"
-                            }}
-                          />
-
-                          {/* Map Landmarks/Nodes */}
-                          <circle cx="50" cy="300" r="12" fill="#141414" stroke="#5E9FD0" strokeWidth="3" />
-                          <circle cx="50" cy="300" r="4" fill="#5E9FD0" />
-
-                          <circle cx="280" cy="180" r="8" fill="#141414" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-                          <circle cx="520" cy="220" r="8" fill="#141414" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-
-                          <circle cx="750" cy="100" r="12" fill="#141414" stroke="#10B981" strokeWidth="3" />
-                          <circle cx="750" cy="100" r="4" fill="#10B981" />
-                        </svg>
-                      </div>
-
-                      {/* Content Container (z-10 for sitting on top of map) */}
-                      <div className="relative z-10 w-full space-y-8 flex-1 flex flex-col justify-between">
+                      {/* Content Container */}
+                      <div className="w-full space-y-8 flex-1 flex flex-col justify-between">
                         
                         {/* Header Row */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/[0.06] pb-6">
