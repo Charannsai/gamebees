@@ -1440,36 +1440,28 @@ function BookingFlow() {
             </div>
           ) : (
             /* Success Screen */
-            <div className="text-center py-8 space-y-6 animate-fadeInUp">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20">
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={40} className="text-green-600" />
+            <div className="text-center py-8 space-y-6 animate-fadeInUp max-w-md mx-auto">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 shadow-[0_0_20px_rgba(22,163,74,0.15)]">
+                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={36} className="text-green-500" />
               </div>
 
               <div className="space-y-2">
-                <h3 className={`text-2xl font-black ${headerColor}`}>Booking Requested!</h3>
-                <p className={`text-sm ${textBodyColor}`}>
-                  Congratulations, <span className="text-[#246596] font-bold">{name}</span>!
+                <h3 className={`text-2xl font-black ${headerColor}`}>Booking Confirmed!</h3>
+                <p className={`text-sm ${textBodyColor} font-light`}>
+                  Your reservation for <span className="text-[#246596] font-bold">{initialConsoleName}</span> is complete.
                 </p>
               </div>
 
-              <p className={`text-xs sm:text-sm max-w-sm mx-auto leading-relaxed font-light ${subTextColor}`}>
-                Your rental reservation for <span className={`font-semibold ${headerColor}`}>{initialConsoleName}</span> is complete. 
-                Our delivery admin is reviewing your Aadhaar + Face match details and will dispatch your gear shortly. 
-                You can track your order live inside the <strong>Dashboard</strong> tracker!
+              <p className={`text-xs sm:text-sm leading-relaxed font-light ${subTextColor}`}>
+                Track your order dispatch status live inside your dashboard panel.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 justify-center">
-                <button
-                  onClick={() => router.push("/")}
-                  className={backBtnClass}
-                >
-                  Back To Landing
-                </button>
+              <div className="pt-2">
                 <Link
                   href="/dashboard"
-                  className="flex-1 py-4 bg-green-600 hover:bg-green-700 text-xs font-bold text-white rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-3.5 bg-green-600 hover:bg-green-700 text-xs font-bold text-white rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-[0_4px_12px_rgba(22,163,74,0.2)]"
                 >
-                  Go to Dashboard
+                  <span>Go to Dashboard</span>
                 </Link>
               </div>
             </div>
