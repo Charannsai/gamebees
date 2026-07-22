@@ -661,142 +661,297 @@ export default function UserDashboard() {
                       <p className="text-xs sm:text-sm text-white/50 font-light">No bookings found to track. Rent a console first!</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      {/* Left: Progression tracker */}
-                      <div className="lg:col-span-1 card-polished p-5 flex flex-col justify-between gap-6">
-                        <div className="space-y-4">
-                          <div className="border-b border-white/[0.04] pb-3">
-                            <span className="text-[10px] text-white/40 font-mono block">Order ID: #{displayBookingForTrack.id.slice(-8).toUpperCase()}</span>
-                            <h4 className="text-sm font-bold text-white mt-1">
+                    <div className="card-polished overflow-hidden relative p-6 sm:p-10 min-h-[380px] flex flex-col justify-between border border-white/[0.03]">
+                      
+                      {/* Background Faded Map */}
+                      <div className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06] overflow-hidden select-none">
+                        <svg className="w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="none">
+                          {/* Grid network */}
+                          <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+                            </pattern>
+                          </defs>
+                          <rect width="100%" height="100%" fill="url(#grid)" />
+                          
+                          {/* Road paths / Routes */}
+                          <path 
+                            d="M 50 300 Q 200 100 400 250 T 750 100" 
+                            fill="none" 
+                            stroke="rgba(94, 159, 208, 0.4)" 
+                            strokeWidth="4" 
+                            strokeDasharray="8 6" 
+                          />
+                          <path 
+                            d="M 50 300 Q 200 100 400 250 T 750 100" 
+                            fill="none" 
+                            stroke="#5E9FD0" 
+                            strokeWidth="4" 
+                            className="stroke-dash animate-pulse" 
+                            style={{
+                              strokeDasharray: "1000",
+                              strokeDashoffset: displayBookingForTrack.tracking_status === "preparing" ? "800" : displayBookingForTrack.tracking_status === "shipped" ? "400" : "0",
+                              transition: "stroke-dashoffset 2s ease-out-in"
+                            }}
+                          />
+
+                          {/* Map Landmarks/Nodes */}
+                          <circle cx="50" cy="300" r="12" fill="#141414" stroke="#5E9FD0" strokeWidth="3" />
+                          <circle cx="50" cy="300" r="4" fill="#5E9FD0" />
+
+                          <circle cx="280" cy="180" r="8" fill="#141414" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+                          <circle cx="520" cy="220" r="8" fill="#141414" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+
+                          <circle cx="750" cy="100" r="12" fill="#141414" stroke="#10B981" strokeWidth="3" />
+                          <circle cx="750" cy="100" r="4" fill="#10B981" />
+                        </svg>
+                      </div>
+
+                      {/* Content Container (z-10 for sitting on top of map) */}
+                      <div className="relative z-10 w-full space-y-8 flex-1 flex flex-col justify-between">
+                        
+                        {/* Header Row */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/[0.06] pb-6">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] uppercase tracking-wider font-mono font-bold text-gamebees-glow-blue bg-gamebees-accent-blue/10 px-2.5 py-1 rounded-full border border-gamebees-accent-blue/20">
+                                Active Order
+                              </span>
+                              <span className="text-[10px] text-white/40 font-mono">
+                                ID: #{displayBookingForTrack.id.slice(-8).toUpperCase()}
+                              </span>
+                            </div>
+                            <h4 className="text-lg sm:text-xl font-bold text-white mt-1.5">
                               {displayBookingForTrack.items?.name || "Gaming Console Setup"}
                             </h4>
                           </div>
 
-                          <div className="relative pl-6 space-y-6">
-                            <div className="absolute left-[7px] top-1 bottom-1 w-[2px] bg-white/5" />
+                          <div className="flex flex-wrap items-center gap-3">
+                            {/* Status badge */}
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border ${
+                              displayBookingForTrack.tracking_status === "delivered" 
+                                ? "bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]" 
+                                : displayBookingForTrack.tracking_status === "shipped"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                                : "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                            }`}>
+                              Status: {displayBookingForTrack.tracking_status}
+                            </span>
+                            
+                            {/* Google Maps link if available */}
+                            {displayBookingForTrack.map_link && (
+                              <a 
+                                href={displayBookingForTrack.map_link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[10px] font-bold text-white/70 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5"
+                              >
+                                <HugeiconsIcon icon={Compass01Icon} size={12} />
+                                <span>Google Maps</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stepper progression (Responsive: Horizontal on desktop, Vertical on mobile) */}
+                        <div className="py-4 my-auto">
+                          
+                          {/* Desktop Stepper */}
+                          <div className="hidden md:flex items-stretch justify-between relative">
+                            {/* Progress bar background */}
+                            <div className="absolute top-5 left-[12.5%] right-[12.5%] h-1 bg-white/[0.04] rounded-full -translate-y-1/2 z-0" />
+                            
+                            {/* Glowing active progress fill */}
                             <div 
-                              className="absolute left-[7px] top-1 w-[2px] bg-gamebees-glow-blue transition-all duration-700" 
+                              className="absolute top-5 left-[12.5%] h-1 bg-gradient-to-r from-gamebees-accent-blue to-gamebees-glow-blue rounded-full -translate-y-1/2 transition-all duration-1000 ease-out z-0" 
                               style={{
-                                height: displayBookingForTrack.tracking_status === "preparing" ? "0%" 
-                                      : displayBookingForTrack.tracking_status === "shipped" ? "33%" 
-                                      : displayBookingForTrack.tracking_status === "delivered" ? "66%" : "100%"
+                                width: displayBookingForTrack.tracking_status === "preparing" ? "33%" 
+                                      : displayBookingForTrack.tracking_status === "shipped" ? "66%" 
+                                      : displayBookingForTrack.tracking_status === "delivered" ? "100%" : "0%"
                               }}
                             />
 
-                            {/* Steps */}
-                            <div className="relative flex gap-3.5 items-start">
-                              <div className="h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] border-green-400 text-green-400">
+                            {/* Step 1: Order Confirmed */}
+                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                              <div className="h-10 w-10 rounded-full border-2 bg-[#141414] border-green-500 text-green-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
+                              </div>
+                              <span className="text-xs font-bold text-white mt-3 block">Order Confirmed</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Booking verified</span>
+                            </div>
+
+                            {/* Step 2: Preparing */}
+                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
+                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                                  : "border-white/10 text-white/20"
+                              }`}>
+                                {["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={Time01Icon} size={16} />
+                                )}
+                              </div>
+                              <span className={`text-xs font-bold mt-3 block ${
+                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                              }`}>Pre-Installing Games</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Preparing hardware</span>
+                            </div>
+
+                            {/* Step 3: Shipped */}
+                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
+                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                                  : "border-white/10 text-white/20"
+                              }`}>
+                                {["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
+                                )}
+                              </div>
+                              <span className={`text-xs font-bold mt-3 block ${
+                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                              }`}>Out for Delivery</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Courier dispatched</span>
+                            </div>
+
+                            {/* Step 4: Delivered */}
+                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
+                                ["delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                                  : "border-white/10 text-white/20"
+                              }`}>
+                                {["delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={Shield01Icon} size={16} />
+                                )}
+                              </div>
+                              <span className={`text-xs font-bold mt-3 block ${
+                                ["delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                              }`}>Delivered & Set up</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Arrived at destination</span>
+                            </div>
+                          </div>
+
+                          {/* Mobile Stepper (Vertical Timeline) */}
+                          <div className="md:hidden space-y-6 relative pl-6">
+                            {/* Vertical connector line */}
+                            <div className="absolute left-[9px] top-2 bottom-2 w-[2px] bg-white/[0.04]" />
+                            <div 
+                              className="absolute left-[9px] top-2 w-[2px] bg-gradient-to-b from-gamebees-accent-blue to-gamebees-glow-blue transition-all duration-1000 ease-out" 
+                              style={{
+                                height: displayBookingForTrack.tracking_status === "preparing" ? "33%" 
+                                      : displayBookingForTrack.tracking_status === "shipped" ? "66%" 
+                                      : displayBookingForTrack.tracking_status === "delivered" ? "100%" : "0%"
+                              }}
+                            />
+
+                            {/* Step 1 */}
+                            <div className="relative flex items-start gap-4">
+                              <div className="h-5 w-5 rounded-full border-2 bg-[#141414] border-green-500 text-green-400 flex items-center justify-center z-10 shadow-[0_0_10px_rgba(34,197,94,0.15)]">
                                 <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                               </div>
                               <div className="space-y-0.5">
-                                <span className="text-xs font-semibold text-white block">Order Confirmed</span>
+                                <span className="text-xs font-bold text-white block">Order Confirmed</span>
                                 <span className="text-[10px] text-white/40 block font-light">Booking verified.</span>
                               </div>
                             </div>
 
-                            <div className="relative flex gap-3.5 items-start">
-                              <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
-                                ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
-                                  ? "border-green-400 text-green-400"
+                            {/* Step 2 */}
+                            <div className="relative flex items-start gap-4">
+                              <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
+                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={Time01Icon} size={10} />
                                 )}
                               </div>
                               <div className="space-y-0.5">
-                                <span className="text-xs font-semibold text-white block">Pre-Installing Games</span>
+                                <span className={`text-xs font-bold block ${
+                                  ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                }`}>Pre-Installing Games</span>
                                 <span className="text-[10px] text-white/40 block font-light">Preparing hardware.</span>
                               </div>
                             </div>
 
-                            <div className="relative flex gap-3.5 items-start">
-                              <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
-                                ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
-                                  ? "border-green-400 text-green-400"
+                            {/* Step 3 */}
+                            <div className="relative flex items-start gap-4">
+                              <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
+                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={DeliveryTruck01Icon} size={10} />
                                 )}
                               </div>
                               <div className="space-y-0.5">
-                                <span className="text-xs font-semibold text-white block">Out for Delivery</span>
+                                <span className={`text-xs font-bold block ${
+                                  ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                }`}>Out for Delivery</span>
                                 <span className="text-[10px] text-white/40 block font-light">Driver dispatched.</span>
                               </div>
                             </div>
 
-                            <div className="relative flex gap-3.5 items-start">
-                              <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center z-10 bg-[#141414] ${
-                                ["delivered", "returned"].includes(displayBookingForTrack.tracking_status)
-                                  ? "border-green-400 text-green-400 bg-green-400/10"
+                            {/* Step 4 */}
+                            <div className="relative flex items-start gap-4">
+                              <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
+                                ["delivered"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} />
+                                {["delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={Shield01Icon} size={10} />
+                                )}
                               </div>
                               <div className="space-y-0.5">
-                                <span className="text-xs font-semibold text-white block">Delivered & Set up</span>
+                                <span className={`text-xs font-bold block ${
+                                  ["delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                }`}>Delivered & Set up</span>
                                 <span className="text-[10px] text-white/40 block font-light">Arrived at destination.</span>
                               </div>
                             </div>
                           </div>
+
                         </div>
 
-                        <div className="p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl text-[10px] text-white/50 space-y-1.5">
-                          <div className="flex justify-between"><span>Courier Status:</span><span className="font-semibold text-white uppercase tracking-wider">{displayBookingForTrack.tracking_status}</span></div>
-                          <div className="flex justify-between"><span>Dest Link:</span><a href={displayBookingForTrack.map_link} target="_blank" rel="noopener noreferrer" className="text-gamebees-glow-blue underline truncate max-w-[120px]">View Google Maps</a></div>
-                        </div>
-                      </div>
-
-                      {/* Right: Map simulation view */}
-                      <div className="lg:col-span-2 card-polished overflow-hidden h-[300px] lg:h-[380px] relative border border-white/[0.03]">
-                        <svg className="w-full h-full absolute inset-0 bg-[#0e0e0e]" viewBox="0 0 400 300">
-                          <path d="M 0 50 L 400 50 M 0 150 L 400 150 M 0 250 L 400 250 M 80 0 L 80 300 M 200 0 L 200 300 M 320 0 L 320 300" stroke="rgba(255,255,255,0.03)" strokeWidth="4" fill="none" />
-                          <path d="M 80,250 L 200,250 L 200,150 L 320,150 L 320,50" fill="none" stroke="rgba(94, 159, 208, 0.15)" strokeWidth="3" strokeDasharray="5 4" />
-                          <path 
-                            d="M 80,250 L 200,250 L 200,150 L 320,150 L 320,50" 
-                            fill="none" 
-                            stroke="#5E9FD0" 
-                            strokeWidth="3" 
-                            className="stroke-dash" 
-                            style={{
-                              strokeDasharray: "400",
-                              strokeDashoffset: displayBookingForTrack.tracking_status === "preparing" ? "400" : displayBookingForTrack.tracking_status === "shipped" ? "200" : "0",
-                              transition: "stroke-dashoffset 2s ease-out-in"
-                            }}
-                          />
-                          <circle cx="80" cy="250" r="6" fill="#1D496B" stroke="white" strokeWidth="1.5" />
-                          <circle cx="320" cy="50" r="6" fill="#10B981" stroke="white" strokeWidth="1.5" />
-                        </svg>
-
-                        <div className="absolute bottom-[35px] left-[55px] flex flex-col items-center">
-                          <span className="text-[8px] bg-black/80 px-1.5 py-0.5 rounded border border-white/10 text-white/50">Hub</span>
-                        </div>
-                        <div className="absolute top-[25px] right-[55px] flex flex-col items-center">
-                          <span className="text-[8px] bg-black/80 px-1.5 py-0.5 rounded border border-green-500/20 text-green-400 font-bold">Delivery Dest</span>
-                        </div>
-
-                        {displayBookingForTrack.tracking_status === "shipped" && (
-                          <div className="absolute p-1.5 bg-gamebees-accent-blue rounded-lg text-white border border-white/20 animate-bounce" style={{ bottom: "135px", left: "185px" }}>
-                            <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
+                        {/* Footer Status Message / Courier details */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/[0.01] border border-white/[0.04] p-4 rounded-2xl">
+                          <div className="flex items-center gap-2.5">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gamebees-glow-blue opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-gamebees-glow-blue"></span>
+                            </span>
+                            <span className="text-[11px] text-white/60 font-light">
+                              {displayBookingForTrack.tracking_status === "preparing" 
+                                ? "Hardware check & game download in progress at the warehouse hub."
+                                : displayBookingForTrack.tracking_status === "shipped"
+                                ? "Courier agent has loaded your device and is traveling on the route."
+                                : displayBookingForTrack.tracking_status === "delivered"
+                                ? "Equipment successfully hand-delivered and set up in your room."
+                                : "Delivery status is currently updated by dispatcher."
+                              }
+                            </span>
                           </div>
-                        )}
-                        {displayBookingForTrack.tracking_status === "preparing" && (
-                          <div className="absolute p-2 bg-gamebees-dark-navy/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5" style={{ bottom: "25px", left: "125px" }}>
-                            <div className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
-                            <span className="text-[9px] font-semibold">Packaging at Warehouse...</span>
+                          
+                          <div className="text-[10px] text-white/40 font-light whitespace-nowrap self-end sm:self-center">
+                            Last update: Just now
                           </div>
-                        )}
-                        {displayBookingForTrack.tracking_status === "delivered" && (
-                          <div className="absolute p-2 bg-green-500/80 rounded-xl text-white border border-white/10 flex items-center gap-1.5" style={{ top: "65px", right: "75px" }}>
-                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-white" />
-                            <span className="text-[9px] font-bold">Courier Arrived!</span>
-                          </div>
-                        )}
+                        </div>
+
                       </div>
                     </div>
                   )}
