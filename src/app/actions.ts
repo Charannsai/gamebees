@@ -63,7 +63,7 @@ export async function fetchItemAvailability(itemId: string) {
       .from("bookings")
       .select("*")
       .eq("item_id", itemId)
-      .not("status", "in", '("cancelled","declined")');
+      .not("status", "in", '("cancelled","declined","returned","discarded","completed")');
 
     if (bookingsError) {
       console.warn("fetchItemAvailability bookings lookup warn:", bookingsError.message);

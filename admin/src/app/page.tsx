@@ -28,7 +28,9 @@ import {
   PackageIcon,
   ArrowUpRight01Icon,
   LockIcon,
-  Cancel01Icon
+  Cancel01Icon,
+  Time01Icon,
+  DeliveryTruck01Icon
 } from "@hugeicons/core-free-icons";
 
 const TableSkeleton = () => (
@@ -324,6 +326,7 @@ export default function AdminPage() {
       case "delivered": return "bg-green-50 text-green-700 border border-green-200";
       case "discarded": return "bg-red-50 text-red-700 border border-red-200";
       case "completed": return "bg-neutral-50 text-neutral-600 border border-neutral-200";
+      case "returned": return "bg-teal-50 text-teal-700 border border-teal-200";
       default: return "bg-neutral-50 text-neutral-600 border border-neutral-200";
     }
   };
@@ -509,81 +512,420 @@ export default function AdminPage() {
         <main className="lg:col-span-3 space-y-6">
           {/* Tab: Reservations Manager */}
           {activeTab === "bookings" && (
-            <div className="space-y-4 animate-fadeInUp">
-              <div>
-                <h3 className="text-lg font-bold text-[#141414]">
-                  Reservations Board
-                </h3>
-                <p className="text-neutral-500 text-xs mt-0.5 font-light">
-                  Click customer names to inspect detailed delivery coordinates, selfies, and manage console rentals.
-                </p>
-              </div>
+            selectedBooking ? (
+              <div className="space-y-6 animate-fadeInUp">
+                {/* Screen Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-neutral-200 pb-4 gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#141414] flex items-center gap-2">
+                      <span>Booking Details</span>
+                      <span className="font-mono text-sm text-neutral-400 font-normal">#{selectedBooking.id.slice(-8).toUpperCase()}</span>
+                    </h3>
+                    <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                      Created on {new Date(selectedBooking.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedBooking(null)}
+                    className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 rounded-lg text-xs font-semibold text-neutral-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>← Back to Reservations Board</span>
+                  </button>
+                </div>
 
-              {loadingData ? (
-                <TableSkeleton />
-              ) : bookings.length === 0 ? (
-                <div className="card-polished p-12 text-center space-y-2">
-                  <HugeiconsIcon icon={PackageIcon} size={32} className="text-neutral-300 mx-auto" />
-                  <p className="text-xs text-neutral-500 font-light">No customer bookings have been logged yet.</p>
+                {/* Progress Timeline Stepper */}
+                <div className="card-polished p-5 space-y-4 border border-neutral-200 bg-white shadow-xs">
+                  <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block">
+                    Order Lifecycle Pipeline
+                  </span>
+                  
+                  <div className="flex items-stretch justify-between relative py-2">
+                    {/* Stepper background line */}
+                    <div className="absolute top-4 left-[12.5%] right-[12.5%] h-0.5 bg-neutral-200 -translate-y-1/2 z-0" />
+                    
+                    {/* Stepper progress fill */}
+                    <div 
+                      className="absolute top-4 left-[12.5%] h-0.5 bg-[#246596] -translate-y-1/2 transition-all duration-500 ease-out z-0"
+                      style={{
+                        width: selectedBooking.status === "dispatched" ? "33%" 
+                              : selectedBooking.status === "delivered" ? "66%" 
+                              : selectedBooking.status === "returned" ? "100%" : "0%"
+                      }}
+                    />
+
+                    {/* Step 1: Booked */}
+                    <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                      <div className="h-8 w-8 rounded-full border-2 bg-white border-blue-600 text-blue-600 flex items-center justify-center font-bold text-xs shadow-sm mx-auto">
+                        1
+                      </div>
+                      <span className="text-[11px] font-bold text-neutral-800 mt-2 block">Booked</span>
+                      <span className="text-[9px] text-neutral-400 block font-light">Order Received</span>
+                    </div>
+
+                    {/* Step 2: Dispatched */}
+                    <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                      <div className={`h-8 w-8 rounded-full border-2 bg-white flex items-center justify-center font-bold text-xs transition-all mx-auto ${
+                        ["dispatched", "delivered", "returned"].includes(selectedBooking.status)
+                          ? "border-blue-600 text-blue-600 shadow-sm"
+                          : "border-neutral-200 text-neutral-400"
+                      }`}>
+                        2
+                      </div>
+                      <span className={`text-[11px] font-bold mt-2 block ${
+                        ["dispatched", "delivered", "returned"].includes(selectedBooking.status) ? "text-neutral-800" : "text-neutral-400"
+                      }`}>Dispatched</span>
+                      <span className="text-[9px] text-neutral-400 block font-light">In Transit</span>
+                    </div>
+
+                    {/* Step 3: Delivered */}
+                    <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                      <div className={`h-8 w-8 rounded-full border-2 bg-white flex items-center justify-center font-bold text-xs transition-all mx-auto ${
+                        ["delivered", "returned"].includes(selectedBooking.status)
+                          ? "border-blue-600 text-blue-600 shadow-sm"
+                          : "border-neutral-200 text-neutral-400"
+                      }`}>
+                        3
+                      </div>
+                      <span className={`text-[11px] font-bold mt-2 block ${
+                        ["delivered", "returned"].includes(selectedBooking.status) ? "text-neutral-800" : "text-neutral-400"
+                      }`}>Delivered</span>
+                      <span className="text-[9px] text-neutral-400 block font-light">Rental Active</span>
+                    </div>
+
+                    {/* Step 4: Returned */}
+                    <div className="relative flex flex-col items-center text-center w-1/4 z-10">
+                      <div className={`h-8 w-8 rounded-full border-2 bg-white flex items-center justify-center font-bold text-xs transition-all mx-auto ${
+                        ["returned"].includes(selectedBooking.status)
+                          ? "border-emerald-600 text-emerald-600 bg-emerald-50 shadow-sm"
+                          : "border-neutral-200 text-neutral-400"
+                      }`}>
+                        4
+                      </div>
+                      <span className={`text-[11px] font-bold mt-2 block ${
+                        ["returned"].includes(selectedBooking.status) ? "text-emerald-700" : "text-neutral-400"
+                      }`}>Returned</span>
+                      <span className="text-[9px] text-neutral-400 block font-light">Inventory Restored</span>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="overflow-x-auto card-polished">
-                  <table className="dense-table">
-                    <thead>
-                      <tr>
-                        <th>Ref ID / Date</th>
-                        <th>Customer Name</th>
-                        <th>Item Category</th>
-                        <th>Price Total</th>
-                        <th>Status Badge</th>
-                        <th>Open Detail</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bookings.map((booking) => (
-                        <tr key={booking.id}>
-                          <td className="font-mono text-[10px]">
-                            <span className="font-bold text-[#141414]">#{booking.id.slice(-8).toUpperCase()}</span>
-                            <span className="block text-[8px] text-neutral-400 mt-0.5">{new Date(booking.created_at).toLocaleDateString()}</span>
-                          </td>
-                          <td>
-                            <button
-                              onClick={() => setSelectedBooking(booking)}
-                              className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
-                            >
-                              {booking.full_name}
-                            </button>
-                            <span className="text-[10px] text-neutral-400 block mt-0.5">{booking.phone}</span>
-                          </td>
-                          <td>
-                            <span className="text-[10px] font-semibold text-neutral-600 block">
-                              {booking.items?.name || "Rental Hardware"}
+
+                {/* Detail Information Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Panel */}
+                  <div className="space-y-6">
+                    {/* Customer Info */}
+                    <div className="card-polished p-5 border border-neutral-200 bg-white rounded-xl shadow-xs">
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block border-b border-neutral-100 pb-2 mb-3">
+                        Customer & Account Profile
+                      </span>
+                      <div className="space-y-2.5 text-xs text-neutral-600">
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Full Name</span>
+                          <span className="font-bold text-neutral-800">{selectedBooking.full_name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Mobile Phone</span>
+                          <span className="font-mono font-semibold text-neutral-800">{selectedBooking.phone}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Clerk User ID</span>
+                          <span className="font-mono text-[10px] bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-500 max-w-[200px] truncate" title={selectedBooking.user_id}>
+                            {selectedBooking.user_id}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rental Listing Info */}
+                    <div className="card-polished p-5 border border-neutral-200 bg-white rounded-xl shadow-xs">
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block border-b border-neutral-100 pb-2 mb-3">
+                        Rental Order Summary
+                      </span>
+                      <div className="space-y-2.5 text-xs text-neutral-600">
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Hardware Package</span>
+                          <span className="font-bold text-neutral-800">{selectedBooking.items?.name || "Console Hardware"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Hardware Category</span>
+                          <span className="text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded border border-neutral-200 text-[10px] font-medium uppercase">
+                            {selectedBooking.items?.category || "Consoles"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Rental duration</span>
+                          <span className="font-semibold text-neutral-800">{selectedBooking.duration_days} Days</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Rental Date Range</span>
+                          <span className="font-mono text-neutral-800 font-medium">
+                            {selectedBooking.start_date || "N/A"} to {selectedBooking.end_date || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-t border-neutral-100 pt-2.5">
+                          <span className="text-neutral-700 font-semibold">Total Price Paid</span>
+                          <span className="text-sm font-black text-blue-700">₹{selectedBooking.total_price}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Panel */}
+                  <div className="space-y-6">
+                    {/* Delivery Location & Map */}
+                    <div className="card-polished p-5 border border-neutral-200 bg-white rounded-xl shadow-xs">
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block border-b border-neutral-100 pb-2 mb-3">
+                        Delivery Logistics & Map Location
+                      </span>
+                      <div className="space-y-3.5 text-xs text-neutral-600">
+                        <div>
+                          <span className="text-neutral-400 block mb-1">Target Address</span>
+                          <p className="font-medium text-neutral-850 leading-relaxed bg-[#F8F8FA] p-3 rounded-lg border border-neutral-200">
+                            {selectedBooking.address}
+                          </p>
+                        </div>
+                        {selectedBooking.map_link && (
+                          <a 
+                            href={selectedBooking.map_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-full py-2.5 bg-[#246596]/10 hover:bg-[#246596]/20 border border-[#246596]/20 hover:border-[#246596]/40 rounded-lg text-xs font-semibold text-[#246596] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <HugeiconsIcon icon={Compass01Icon} size={14} />
+                            <span>Locate Exact Coordinates on Google Maps</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Aadhaar Registry */}
+                    <div className="card-polished p-5 border border-neutral-200 bg-white rounded-xl shadow-xs">
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block border-b border-neutral-100 pb-2 mb-3">
+                        Identity Verification Status
+                      </span>
+                      <div className="space-y-2.5 text-xs text-neutral-600">
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Aadhaar Reference ID</span>
+                          <span className="font-mono font-bold text-neutral-800">
+                            {selectedBooking.aadhaar_number === "PROFILE_VERIFIED" 
+                              ? "Account Verified" 
+                              : `xxxx-xxxx-${selectedBooking.aadhaar_number?.slice(-4) || "PENDING"}`}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">Aadhaar Verification status</span>
+                          {selectedBooking.aadhaar_verified ? (
+                            <span className="text-green-700 font-extrabold bg-green-50 px-2 py-0.5 rounded border border-green-200 text-[10px]">
+                              Approved & Verified
                             </span>
-                            <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
-                          </td>
-                          <td className="font-mono text-xs font-bold text-[#141414]">
-                            ₹{booking.total_price}
-                          </td>
-                          <td>
-                            <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
-                              {booking.status}
+                          ) : (
+                            <span className="text-amber-700 font-extrabold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[10px]">
+                              Pending Audit Verification
                             </span>
-                          </td>
-                          <td>
-                            <button
-                              onClick={() => setSelectedBooking(booking)}
-                              className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
-                            >
-                              Open Details
-                            </button>
-                          </td>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* selfie and verification photo */}
+                {selectedBooking.selfie_url && (
+                  <div className="card-polished p-5 border border-neutral-200 bg-white rounded-xl shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block border-b border-neutral-100 pb-2 mb-3">
+                      Customer Selfie Verification Photo
+                    </span>
+                    <div className="h-56 bg-neutral-50 rounded-xl border border-neutral-200 flex items-center justify-center overflow-hidden relative max-w-sm">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img 
+                        src={selectedBooking.selfie_url} 
+                        alt="Captured Selfie Match" 
+                        className="h-full object-contain cursor-zoom-in" 
+                        onClick={() => {
+                          const w = window.open();
+                          w?.document.write(`<img src="${selectedBooking.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Operations & Action Control Box */}
+                <div className="card-polished p-6 border-2 border-[#246596]/10 rounded-2xl bg-[#246596]/5 space-y-4">
+                  <div className="border-b border-[#246596]/10 pb-2.5">
+                    <span className="text-[10px] uppercase font-black text-[#246596] tracking-wider block">
+                      Operations Management Console
+                    </span>
+                    <p className="text-[11px] text-neutral-500 font-light mt-0.5">
+                      Process order workflow status and manage inventory levels.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    {/* Status instructions and buttons */}
+                    {selectedBooking.status === "booked" && (
+                      <div className="flex-1 space-y-3">
+                        <p className="text-[11px] text-neutral-600 leading-relaxed font-light">
+                          <strong>Order Status: Booked.</strong> The order is confirmed. Approve and dispatch the console to the customer.
+                        </p>
+                        <div className="flex flex-wrap gap-2.5">
+                          <button
+                            onClick={() => {
+                              handleUpdateStatus(selectedBooking.id, "dispatched", "shipped");
+                              setSelectedBooking(null);
+                            }}
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                          >
+                            <span>Approve & Dispatch Order</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleUpdateStatus(selectedBooking.id, "discarded", "returned");
+                              setSelectedBooking(null);
+                            }}
+                            className="px-5 py-2.5 border border-red-500 hover:bg-red-50 text-red-600 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5"
+                          >
+                            <span>Discard / Cancel Booking</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBooking.status === "dispatched" && (
+                      <div className="flex-1 space-y-3">
+                        <p className="text-[11px] text-neutral-600 leading-relaxed font-light">
+                          <strong>Order Status: Dispatched.</strong> The console hardware has been shipped and is in transit. Once it arrives, mark as delivered.
+                        </p>
+                        <button
+                          onClick={() => {
+                            handleUpdateStatus(selectedBooking.id, "delivered", "delivered");
+                            setSelectedBooking(null);
+                          }}
+                          className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                          <span>Confirm Order Delivered</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {selectedBooking.status === "delivered" && (
+                      <div className="flex-1 space-y-3">
+                        <p className="text-[11px] text-neutral-600 leading-relaxed font-light">
+                          <strong>Order Status: Delivered.</strong> The rental period is active. When the user returns the console, click the button below to mark as returned and restore product availability.
+                        </p>
+                        <button
+                          onClick={() => {
+                            handleUpdateStatus(selectedBooking.id, "returned", "returned");
+                            setSelectedBooking(null);
+                          }}
+                          className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                          <span>Mark Booking as Returned</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {selectedBooking.status === "returned" && (
+                      <div className="flex-1 space-y-1.5 text-xs">
+                        <p className="text-[11px] text-emerald-700 font-semibold leading-relaxed flex items-center gap-1">
+                          <span>✔ Finalized Status: Returned.</span>
+                        </p>
+                        <p className="text-[10px] text-neutral-500 font-light leading-normal">
+                          The hardware has been returned. Product dates are now freed and available for subsequent reservations.
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedBooking.status === "discarded" && (
+                      <div className="flex-1 space-y-1.5 text-xs">
+                        <p className="text-[11px] text-red-700 font-semibold leading-relaxed flex items-center gap-1">
+                          <span>✖ Finalized Status: Discarded.</span>
+                        </p>
+                        <p className="text-[10px] text-neutral-500 font-light leading-normal">
+                          This booking is inactive and will not affect inventory calendar dates.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-bold text-[#141414]">
+                    Reservations Board
+                  </h3>
+                  <p className="text-neutral-500 text-xs mt-0.5 font-light">
+                    Click customer names to inspect detailed delivery coordinates, selfies, and manage console rentals.
+                  </p>
+                </div>
+
+                {loadingData ? (
+                  <TableSkeleton />
+                ) : bookings.length === 0 ? (
+                  <div className="card-polished p-12 text-center space-y-2">
+                    <HugeiconsIcon icon={PackageIcon} size={32} className="text-neutral-300 mx-auto" />
+                    <p className="text-xs text-neutral-500 font-light">No customer bookings have been logged yet.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto card-polished">
+                    <table className="dense-table">
+                      <thead>
+                        <tr>
+                          <th>Ref ID / Date</th>
+                          <th>Customer Name</th>
+                          <th>Item Category</th>
+                          <th>Price Total</th>
+                          <th>Status Badge</th>
+                          <th>Open Detail</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                      </thead>
+                      <tbody>
+                        {bookings.map((booking) => (
+                          <tr key={booking.id}>
+                            <td className="font-mono text-[10px]">
+                              <span className="font-bold text-[#141414]">#{booking.id.slice(-8).toUpperCase()}</span>
+                              <span className="block text-[8px] text-neutral-400 mt-0.5">{new Date(booking.created_at).toLocaleDateString()}</span>
+                            </td>
+                            <td>
+                              <button
+                                onClick={() => setSelectedBooking(booking)}
+                                className="font-bold text-blue-600 hover:text-blue-800 hover:underline text-left cursor-pointer"
+                              >
+                                {booking.full_name}
+                              </button>
+                              <span className="text-[10px] text-neutral-400 block mt-0.5">{booking.phone}</span>
+                            </td>
+                            <td>
+                              <span className="text-[10px] font-semibold text-neutral-600 block">
+                                {booking.items?.name || "Rental Hardware"}
+                              </span>
+                              <span className="text-[8px] text-neutral-400 block uppercase mt-0.5">{booking.items?.category}</span>
+                            </td>
+                            <td className="font-mono text-xs font-bold text-[#141414]">
+                              ₹{booking.total_price}
+                            </td>
+                            <td>
+                              <span className={`text-[8px] uppercase tracking-wider font-semibold border rounded px-1.5 py-0.5 ${getStatusColor(booking.status)}`}>
+                                {booking.status}
+                              </span>
+                            </td>
+                            <td>
+                              <button
+                                onClick={() => setSelectedBooking(booking)}
+                                className="text-neutral-600 hover:text-black font-semibold text-[10px] hover:underline cursor-pointer"
+                              >
+                                Open Details
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )
           )}
 
           {/* Tab: KYC Approvals */}
@@ -1026,169 +1368,6 @@ export default function AdminPage() {
           )}
         </main>
       </div>
-
-      {/* Modal: Booking Detail View */}
-      {selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fadeInUp">
-          <div className="bg-white border border-[#E4E4E7] rounded-lg shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-sm text-[#141414]">Booking Details: #{selectedBooking.id.slice(-8).toUpperCase()}</h3>
-                <span className="text-[10px] text-neutral-400">Created on {new Date(selectedBooking.created_at).toLocaleString()}</span>
-              </div>
-              <button 
-                onClick={() => setSelectedBooking(null)}
-                className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
-              >
-                <HugeiconsIcon icon={Cancel01Icon} size={18} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="p-6 overflow-y-auto space-y-5 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Customer & Item info */}
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Customer Info</span>
-                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
-                      <div className="flex justify-between"><span>Name:</span><span className="font-bold text-[#141414]">{selectedBooking.full_name}</span></div>
-                      <div className="flex justify-between"><span>Phone:</span><span className="font-mono">{selectedBooking.phone}</span></div>
-                      <div className="flex justify-between"><span>Clerk ID:</span><span className="font-mono text-[10px] truncate max-w-[150px]">{selectedBooking.user_id}</span></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[9px] text-neutral-455 font-bold uppercase block tracking-wider mb-1">Hardware Listing</span>
-                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
-                      <div className="flex justify-between"><span>Product:</span><span className="font-bold">{selectedBooking.items?.name || "Console Hardware"}</span></div>
-                      <div className="flex justify-between"><span>Category:</span><span>{selectedBooking.items?.category || "Consoles"}</span></div>
-                      <div className="flex justify-between"><span>Price per Day:</span><span>₹{selectedBooking.items?.price || selectedBooking.total_price / selectedBooking.duration_days}</span></div>
-                      <div className="flex justify-between"><span>Duration:</span><span>{selectedBooking.duration_days} Days</span></div>
-                      <div className="flex justify-between border-t border-neutral-200 pt-1.5 font-bold"><span>Total Paid:</span><span>₹{selectedBooking.total_price}</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Address & Verifications */}
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Delivery Address</span>
-                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-2">
-                      <p className="leading-relaxed">{selectedBooking.address}</p>
-                      <a 
-                        href={selectedBooking.map_link} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-blue-600 hover:underline flex items-center gap-0.5 font-bold"
-                      >
-                        <span>Google Maps Link</span>
-                        <HugeiconsIcon icon={ArrowUpRight01Icon} size={11} />
-                      </a>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Aadhaar Proof</span>
-                    <div className="p-3 bg-[#F8F8FA] rounded border border-neutral-200 space-y-1.5">
-                      <div className="flex justify-between"><span>Aadhaar Number:</span><span className="font-mono">xxxx-xxxx-{selectedBooking.aadhaar_number.slice(-4)}</span></div>
-                      <div className="flex justify-between">
-                        <span>Identity Status:</span>
-                        {selectedBooking.aadhaar_verified ? (
-                          <span className="text-green-700 font-bold">Verified</span>
-                        ) : (
-                          <span className="text-amber-600 font-bold">Unverified</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Selfie image */}
-              <div>
-                <span className="text-[9px] text-neutral-450 font-bold uppercase block tracking-wider mb-1">Captured Selfie Match</span>
-                <div className="h-44 bg-neutral-50 rounded border border-neutral-200 flex items-center justify-center overflow-hidden">
-                  {selectedBooking.selfie_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img 
-                      src={selectedBooking.selfie_url} 
-                      alt="Selfie Match" 
-                      className="h-full object-contain cursor-zoom-in" 
-                      onClick={() => {
-                        const w = window.open();
-                        w?.document.write(`<img src="${selectedBooking.selfie_url}" style="max-width:100%;height:auto;border-radius:6px;"/>`);
-                      }}
-                    />
-                  ) : (
-                    <span className="text-neutral-400">No selfie uploaded for this booking.</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 py-4 border-t border-neutral-200 bg-[#F8F8FA] flex justify-between items-center">
-              <div className="flex gap-2">
-                {selectedBooking.status === "booked" && (
-                  <>
-                    <button
-                      onClick={() => {
-                        handleUpdateStatus(selectedBooking.id, "dispatched", "shipped");
-                        setSelectedBooking(null);
-                      }}
-                      className="px-4 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
-                    >
-                      Approve & Dispatch
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleUpdateStatus(selectedBooking.id, "discarded", "returned");
-                        setSelectedBooking(null);
-                      }}
-                      className="px-4 py-1.5 border border-red-500 text-red-600 hover:bg-red-50 rounded text-xs font-semibold cursor-pointer"
-                    >
-                      Discard Booking
-                    </button>
-                  </>
-                )}
-
-                {selectedBooking.status === "dispatched" && (
-                  <button
-                    onClick={() => {
-                      handleUpdateStatus(selectedBooking.id, "delivered", "delivered");
-                      setSelectedBooking(null);
-                    }}
-                    className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-semibold cursor-pointer"
-                  >
-                    Mark Delivered
-                  </button>
-                )}
-
-                {selectedBooking.status === "delivered" && (
-                  <button
-                    onClick={() => {
-                      handleUpdateStatus(selectedBooking.id, "completed", "returned");
-                      setSelectedBooking(null);
-                    }}
-                    className="px-4 py-1.5 bg-[#141414] hover:bg-neutral-800 text-white rounded text-xs font-semibold cursor-pointer"
-                  >
-                    Mark Returned
-                  </button>
-                )}
-              </div>
-
-              <button 
-                onClick={() => setSelectedBooking(null)}
-                className="px-4 py-1.5 btn-secondary text-xs font-semibold"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal: KYC Detail View */}
       {selectedKycProfile && (

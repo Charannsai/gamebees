@@ -310,11 +310,12 @@ export default function UserDashboard() {
       case "delivered": return "bg-green-500/20 text-green-400 border-green-500/30";
       case "discarded": return "bg-red-500/20 text-red-400 border-red-500/30";
       case "completed": return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
+      case "returned": return "bg-teal-500/20 text-teal-400 border-teal-500/30";
       default: return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     }
   };
 
-  const activeBooking = bookings.find(b => b.status !== "completed" && b.status !== "discarded");
+  const activeBooking = bookings.find(b => b.status !== "completed" && b.status !== "returned" && b.status !== "discarded");
   const displayBookingForTrack = activeBooking || bookings[0];
 
   if (!isLoaded) {
@@ -506,7 +507,7 @@ export default function UserDashboard() {
                       Active Reservations
                     </h3>
                     
-                    {bookings.filter(b => b.status !== "completed" && b.status !== "discarded").length === 0 ? (
+                    {bookings.filter(b => b.status !== "completed" && b.status !== "returned" && b.status !== "discarded").length === 0 ? (
                       <div className="card-polished p-8 text-center space-y-4">
                         <HugeiconsIcon icon={PackageIcon} size={40} className="text-white/20 mx-auto" />
                         <div>
@@ -523,7 +524,7 @@ export default function UserDashboard() {
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {bookings
-                          .filter(b => b.status !== "completed" && b.status !== "discarded")
+                          .filter(b => b.status !== "completed" && b.status !== "returned" && b.status !== "discarded")
                           .map((b) => (
                             <div key={b.id} className="card-polished p-5 space-y-4 border border-white/[0.02]">
                               <div className="flex justify-between items-start">
