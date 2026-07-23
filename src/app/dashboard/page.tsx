@@ -719,18 +719,18 @@ export default function UserDashboard() {
                           {/* Desktop Stepper */}
                           <div className="hidden md:flex items-stretch justify-between relative">
                             {/* Progress bar background */}
-                            <div className="absolute top-5 left-[10%] right-[10%] h-1 bg-white/[0.04] rounded-full -translate-y-1/2 z-0" />
-                            
-                            {/* Glowing active progress fill */}
-                            <div 
-                              className="absolute top-5 left-[10%] h-1 bg-gradient-to-r from-gamebees-accent-blue to-gamebees-glow-blue rounded-full -translate-y-1/2 transition-all duration-1000 ease-out z-0" 
-                              style={{
-                                width: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
-                                      : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
-                                      : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
-                                      : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
-                              }}
-                            />
+                            <div className="absolute top-5 left-[10%] right-[10%] h-1 bg-white/[0.04] rounded-full -translate-y-1/2 z-0 overflow-hidden">
+                              {/* Glowing active progress fill */}
+                              <div 
+                                className="h-full bg-gradient-to-r from-gamebees-accent-blue to-gamebees-glow-blue rounded-full transition-all duration-1000 ease-out" 
+                                style={{
+                                  width: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
+                                        : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
+                                        : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
+                                        : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
+                                }}
+                              />
+                            </div>
 
                             {/* Step 1: Order Confirmed */}
                             <div className="relative flex flex-col items-center text-center w-1/5 z-10">
@@ -821,16 +821,18 @@ export default function UserDashboard() {
                           {/* Mobile Stepper (Vertical Timeline) */}
                           <div className="md:hidden space-y-6 relative pl-6">
                             {/* Vertical connector line */}
-                            <div className="absolute left-[9px] top-2 bottom-2 w-[2px] bg-white/[0.04]" />
-                            <div 
-                              className="absolute left-[9px] top-2 w-[2px] bg-gradient-to-b from-gamebees-accent-blue to-gamebees-glow-blue transition-all duration-1000 ease-out" 
-                              style={{
-                                height: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
-                                      : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
-                                      : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
-                                      : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
-                              }}
-                            />
+                            <div className="absolute left-[9px] top-2 bottom-2 w-[2px] bg-white/[0.04] overflow-hidden">
+                              {/* Glowing active progress fill */}
+                              <div 
+                                className="w-full bg-gradient-to-b from-gamebees-accent-blue to-gamebees-glow-blue transition-all duration-1000 ease-out" 
+                                style={{
+                                  height: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
+                                        : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
+                                        : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
+                                        : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
+                                }}
+                              />
+                            </div>
 
                             {/* Step 1 */}
                             <div className="relative flex items-start gap-4">
