@@ -691,6 +691,8 @@ export default function UserDashboard() {
                                 ? "bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]" 
                                 : displayBookingForTrack.tracking_status === "shipped"
                                 ? "bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                                : displayBookingForTrack.tracking_status === "returned"
+                                ? "bg-teal-500/10 text-teal-400 border-teal-500/20 shadow-[0_0_15px_rgba(20,184,166,0.1)]"
                                 : "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                             }`}>
                               Status: {displayBookingForTrack.tracking_status}
@@ -717,82 +719,102 @@ export default function UserDashboard() {
                           {/* Desktop Stepper */}
                           <div className="hidden md:flex items-stretch justify-between relative">
                             {/* Progress bar background */}
-                            <div className="absolute top-5 left-[12.5%] right-[12.5%] h-1 bg-white/[0.04] rounded-full -translate-y-1/2 z-0" />
+                            <div className="absolute top-5 left-[10%] right-[10%] h-1 bg-white/[0.04] rounded-full -translate-y-1/2 z-0" />
                             
                             {/* Glowing active progress fill */}
                             <div 
-                              className="absolute top-5 left-[12.5%] h-1 bg-gradient-to-r from-gamebees-accent-blue to-gamebees-glow-blue rounded-full -translate-y-1/2 transition-all duration-1000 ease-out z-0" 
+                              className="absolute top-5 left-[10%] h-1 bg-gradient-to-r from-gamebees-accent-blue to-gamebees-glow-blue rounded-full -translate-y-1/2 transition-all duration-1000 ease-out z-0" 
                               style={{
-                                width: displayBookingForTrack.tracking_status === "preparing" ? "33%" 
-                                      : displayBookingForTrack.tracking_status === "shipped" ? "66%" 
-                                      : displayBookingForTrack.tracking_status === "delivered" ? "100%" : "0%"
+                                width: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
+                                      : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
+                                      : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
+                                      : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
                               }}
                             />
 
                             {/* Step 1: Order Confirmed */}
-                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
-                              <div className="h-10 w-10 rounded-full border-2 bg-[#141414] border-green-500 text-green-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                            <div className="relative flex flex-col items-center text-center w-1/5 z-10">
+                              <div className="h-10 w-10 rounded-full border-2 bg-[#141414] border-green-500 text-green-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.2)] mx-auto">
                                 <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
                               </div>
                               <span className="text-xs font-bold text-white mt-3 block">Order Confirmed</span>
-                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Booking verified</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px] mx-auto">Booking verified</span>
                             </div>
 
                             {/* Step 2: Preparing */}
-                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
-                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
-                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                            <div className="relative flex flex-col items-center text-center w-1/5 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all mx-auto ${
+                                ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
                                   ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={Time01Icon} size={16} />
                                 )}
                               </div>
                               <span className={`text-xs font-bold mt-3 block ${
-                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                               }`}>Pre-Installing Games</span>
-                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Preparing hardware</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px] mx-auto">Preparing hardware</span>
                             </div>
 
                             {/* Step 3: Shipped */}
-                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
-                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
-                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                            <div className="relative flex flex-col items-center text-center w-1/5 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all mx-auto ${
+                                ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
                                   ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
                                 )}
                               </div>
                               <span className={`text-xs font-bold mt-3 block ${
-                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                               }`}>Out for Delivery</span>
-                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Courier dispatched</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px] mx-auto">Courier dispatched</span>
                             </div>
 
                             {/* Step 4: Delivered */}
-                            <div className="relative flex flex-col items-center text-center w-1/4 z-10">
-                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all ${
-                                ["delivered"].includes(displayBookingForTrack.tracking_status)
-                                  ? "border-green-500 text-green-400 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                            <div className="relative flex flex-col items-center text-center w-1/5 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all mx-auto ${
+                                ["delivered", "returned"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={Shield01Icon} size={16} />
                                 )}
                               </div>
                               <span className={`text-xs font-bold mt-3 block ${
-                                ["delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                ["delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                               }`}>Delivered & Set up</span>
-                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px]">Arrived at destination</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px] mx-auto">Arrived at destination</span>
+                            </div>
+
+                            {/* Step 5: Returned */}
+                            <div className="relative flex flex-col items-center text-center w-1/5 z-10">
+                              <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all mx-auto ${
+                                ["returned"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                                  : "border-white/10 text-white/20"
+                              }`}>
+                                {["returned"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={RefreshIcon} size={16} />
+                                )}
+                              </div>
+                              <span className={`text-xs font-bold mt-3 block ${
+                                ["returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                              }`}>Returned & Restored</span>
+                              <span className="text-[10px] text-white/40 mt-0.5 block font-light max-w-[130px] mx-auto">Inventory returned</span>
                             </div>
                           </div>
 
@@ -803,9 +825,10 @@ export default function UserDashboard() {
                             <div 
                               className="absolute left-[9px] top-2 w-[2px] bg-gradient-to-b from-gamebees-accent-blue to-gamebees-glow-blue transition-all duration-1000 ease-out" 
                               style={{
-                                height: displayBookingForTrack.tracking_status === "preparing" ? "33%" 
-                                      : displayBookingForTrack.tracking_status === "shipped" ? "66%" 
-                                      : displayBookingForTrack.tracking_status === "delivered" ? "100%" : "0%"
+                                height: displayBookingForTrack.tracking_status === "preparing" ? "25%" 
+                                      : displayBookingForTrack.tracking_status === "shipped" ? "50%" 
+                                      : displayBookingForTrack.tracking_status === "delivered" ? "75%" 
+                                      : displayBookingForTrack.tracking_status === "returned" ? "100%" : "0%"
                               }}
                             />
 
@@ -823,11 +846,11 @@ export default function UserDashboard() {
                             {/* Step 2 */}
                             <div className="relative flex items-start gap-4">
                               <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
-                                ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
                                   ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={Time01Icon} size={10} />
@@ -835,7 +858,7 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className={`text-xs font-bold block ${
-                                  ["preparing", "shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                  ["preparing", "shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                                 }`}>Pre-Installing Games</span>
                                 <span className="text-[10px] text-white/40 block font-light">Preparing hardware.</span>
                               </div>
@@ -844,11 +867,11 @@ export default function UserDashboard() {
                             {/* Step 3 */}
                             <div className="relative flex items-start gap-4">
                               <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
-                                ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status)
+                                ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status)
                                   ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={DeliveryTruck01Icon} size={10} />
@@ -856,7 +879,7 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className={`text-xs font-bold block ${
-                                  ["shipped", "delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                  ["shipped", "delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                                 }`}>Out for Delivery</span>
                                 <span className="text-[10px] text-white/40 block font-light">Driver dispatched.</span>
                               </div>
@@ -865,11 +888,11 @@ export default function UserDashboard() {
                             {/* Step 4 */}
                             <div className="relative flex items-start gap-4">
                               <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
-                                ["delivered"].includes(displayBookingForTrack.tracking_status)
+                                ["delivered", "returned"].includes(displayBookingForTrack.tracking_status)
                                   ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                                   : "border-white/10 text-white/20"
                               }`}>
-                                {["delivered"].includes(displayBookingForTrack.tracking_status) ? (
+                                {["delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? (
                                   <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
                                 ) : (
                                   <HugeiconsIcon icon={Shield01Icon} size={10} />
@@ -877,9 +900,30 @@ export default function UserDashboard() {
                               </div>
                               <div className="space-y-0.5">
                                 <span className={`text-xs font-bold block ${
-                                  ["delivered"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                  ["delivered", "returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
                                 }`}>Delivered & Set up</span>
                                 <span className="text-[10px] text-white/40 block font-light">Arrived at destination.</span>
+                              </div>
+                            </div>
+
+                            {/* Step 5 */}
+                            <div className="relative flex items-start gap-4">
+                              <div className={`h-5 w-5 rounded-full border-2 bg-[#141414] flex items-center justify-center z-10 transition-all ${
+                                ["returned"].includes(displayBookingForTrack.tracking_status)
+                                  ? "border-green-500 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.15)]"
+                                  : "border-white/10 text-white/20"
+                              }`}>
+                                {["returned"].includes(displayBookingForTrack.tracking_status) ? (
+                                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={10} className="stroke-[3]" />
+                                ) : (
+                                  <HugeiconsIcon icon={RefreshIcon} size={10} />
+                                )}
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className={`text-xs font-bold block ${
+                                  ["returned"].includes(displayBookingForTrack.tracking_status) ? "text-white" : "text-white/30"
+                                }`}>Returned & Restored</span>
+                                <span className="text-[10px] text-white/40 block font-light">Inventory returned.</span>
                               </div>
                             </div>
                           </div>
@@ -900,6 +944,8 @@ export default function UserDashboard() {
                                 ? "Courier agent has loaded your device and is traveling on the route."
                                 : displayBookingForTrack.tracking_status === "delivered"
                                 ? "Equipment successfully hand-delivered and set up in your room."
+                                : displayBookingForTrack.tracking_status === "returned"
+                                ? "Equipment returned and checked back into warehouse inventory."
                                 : "Delivery status is currently updated by dispatcher."
                               }
                             </span>
