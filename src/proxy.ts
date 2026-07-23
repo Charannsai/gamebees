@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 
-export default clerkMiddleware(async (auth, req) => {
+export const proxy = clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
   
   // If the user is logged in and visits the root path (/), redirect to /dashboard
