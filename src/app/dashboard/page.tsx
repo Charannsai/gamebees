@@ -802,7 +802,7 @@ export default function UserDashboard() {
                             <div className="relative flex flex-col items-center text-center w-1/5 z-10">
                               <div className={`h-10 w-10 rounded-full border-2 bg-[#141414] flex items-center justify-center transition-all mx-auto ${
                                 ["returned"].includes(displayBookingForTrack.tracking_status)
-                                  ? "border-green-500 text-green-400 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                                  ? "border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.2)]"
                                   : "border-white/10 text-white/20"
                               }`}>
                                 {["returned"].includes(displayBookingForTrack.tracking_status) ? (
