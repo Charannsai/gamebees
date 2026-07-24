@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { sendBookingNotificationEmail, sendKycNotificationEmail } from "@/lib/email";
 
 export async function fetchItems() {
   try {
@@ -145,6 +146,29 @@ export async function createBooking(formData: {
     }
 
     if (error) throw error;
+
+    // Fetch item name for email notification
+    let itemName = "Unknown Item";
+    try {
+      const { data: itemData } = await supabaseServer
+        .from("items")
+        .select("name")
+        .eq("id", formData.itemId)
+        .single();
+      if (itemData) {
+        itemName = itemData.name;
+      }
+    } catch (err) {
+      console.warn("Could not fetch item name for email:", err);
+    }
+
+    // Trigger admin email notification asynchronously to not block response
+    if (data && data.length > 0) {
+      sendBookingNotificationEmail(data[0], itemName).catch((err) => {
+        console.error("Error sending booking email:", err);
+      });
+    }
+
     return { success: true, data };
   } catch (error: any) {
     console.error("createBooking error:", error);
@@ -267,6 +291,13 @@ export async function saveKyc(formData: {
         success: false, 
         error: error.message
       };
+    }
+
+    // Trigger admin KYC notification email asynchronously
+    if (data && data.length > 0) {
+      sendKycNotificationEmail(data[0]).catch((err) => {
+        console.error("Error sending KYC email:", err);
+      });
     }
 
     return { success: true, data };
