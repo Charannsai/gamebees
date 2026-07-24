@@ -122,6 +122,8 @@ export async function createBooking(formData: {
       tracking_status: "preparing",
     };
 
+    console.log("[DEBUG] createBooking started with:", formData);
+
     if (formData.startDate) bookingPayload.start_date = formData.startDate;
     if (formData.endDate) bookingPayload.end_date = formData.endDate;
 
@@ -129,6 +131,8 @@ export async function createBooking(formData: {
       .from("bookings")
       .insert([bookingPayload])
       .select();
+
+    console.log("[DEBUG] First insert attempt. Data:", data, "Error:", error);
 
     // Fallback: If DB table schema doesn't have start_date/end_date columns yet
     if (error && (error.message.includes("end_date") || error.message.includes("start_date") || error.message.includes("schema cache") || error.message.includes("column"))) {
@@ -143,9 +147,15 @@ export async function createBooking(formData: {
 
       data = retryRes.data;
       error = retryRes.error;
+      console.log("[DEBUG] Retry insert attempt. Data:", data, "Error:", error);
     }
 
-    if (error) throw error;
+    if (error) {
+      console.error("[DEBUG] Insert failed with error:", error);
+      throw error;
+    }
+
+    console.log("[DEBUG] Booking insert succeeded. Row:", data?.[0]);
 
     // Fetch item name for email notification
     let itemName = "Unknown Item";
@@ -158,15 +168,21 @@ export async function createBooking(formData: {
       if (itemData) {
         itemName = itemData.name;
       }
+      console.log("[DEBUG] Fetched item name:", itemName);
     } catch (err) {
-      console.warn("Could not fetch item name for email:", err);
+      console.warn("[DEBUG] Could not fetch item name for email:", err);
     }
 
     // Trigger admin email notification asynchronously to not block response
     if (data && data.length > 0) {
-      sendBookingNotificationEmail(data[0], itemName).catch((err) => {
-        console.error("Error sending booking email:", err);
-      });
+      console.log("[DEBUG] Triggering booking notification email...");
+      sendBookingNotificationEmail(data[0], itemName)
+        .then((res) => console.log("[DEBUG] sendBookingNotificationEmail result:", res))
+        .catch((err) => {
+          console.error("[DEBUG] Error sending booking email:", err);
+        });
+    } else {
+      console.warn("[DEBUG] No data returned from insert. Email notification skipped.");
     }
 
     return { success: true, data };
