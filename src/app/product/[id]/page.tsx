@@ -178,12 +178,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             )}
 
-          </div>
-
-          {/* RIGHT COLUMN: Details & Calculator */}
-          <div className="md:col-span-6 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              
+            {/* Product Header & Main Price Card */}
+            <div className="space-y-4 pt-2">
               {/* Product Header */}
               <div>
                 <h2 className={`text-2xl sm:text-3xl font-black ${textTitle} leading-tight`}>
@@ -218,6 +214,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider">Waived (eKYC)</span>
                 </div>
               </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Details & Calculator */}
+          <div className="md:col-span-6 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
 
               {/* Detailed Description */}
               <div className="space-y-2">
