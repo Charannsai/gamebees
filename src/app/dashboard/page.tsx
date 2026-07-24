@@ -27,6 +27,7 @@ import {
 import { fetchItems, fetchBookings, getKycStatus, saveKyc } from "@/app/actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { RentalAgreementContent } from "@/components/RentalAgreementContent";
 
 type TabType = "overview" | "bookings" | "track" | "kyc" | "settings";
 
@@ -1489,16 +1490,8 @@ export default function UserDashboard() {
                         <span>Rental Agreement & Policies</span>
                       </h4>
 
-                      <div className="space-y-2.5 text-[11px] text-white/50 leading-relaxed font-light">
-                        <p>
-                          <strong>1. Fair Usage:</strong> Standard console rentals are intended for residential private usage. Commercial gaming setups require custom license configurations.
-                        </p>
-                        <p>
-                          <strong>2. Hardware Protection:</strong> All console kits include damage warranty buffers. High gravity falls or liquid exposure will incur fee coverage up to actual device replacement rates.
-                        </p>
-                        <p>
-                          <strong>3. Timely Return:</strong> Extensions must be logged in the system at least 24 hours prior to the return window check.
-                        </p>
+                      <div className="max-h-[60vh] overflow-y-auto pr-2">
+                        <RentalAgreementContent isLightTheme={false} />
                       </div>
                     </div>
                   )}
