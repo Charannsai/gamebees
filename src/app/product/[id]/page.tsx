@@ -9,7 +9,7 @@ import {
   ShoppingBag01Icon, 
   Shield01Icon
 } from "@hugeicons/core-free-icons";
-import { Star, Shield, Package, Laptop, Award, Layers } from "lucide-react";
+import { Star, Shield } from "lucide-react";
 import { fetchItemAvailability } from "@/app/actions";
 
 interface ProductPageProps {
@@ -178,39 +178,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             )}
 
-            {/* Specs & Hardware Features */}
-            <div className={`p-5 rounded-2xl border ${isLightTheme ? "bg-neutral-50/60 border-neutral-200" : "bg-white/[0.02] border-white/5"} space-y-4`}>
-              <h4 className={`text-xs font-bold uppercase tracking-wider ${isLightTheme ? "text-[#246596]" : "text-gamebees-glow-blue"}`}>
-                Console Specifications & Setup
-              </h4>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <li className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-[#246596] shrink-0" />
-                  <span className={textBody}>1x PlayStation 5 Console</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Laptop className="h-4 w-4 text-[#246596] shrink-0" />
-                  <span className={textBody}>1x DualSense Controller</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-[#246596] shrink-0" />
-                  <span className={textBody}>Preloaded Game Library</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-[#246596] shrink-0" />
-                  <span className={textBody}>HDMI 2.1 & Power Cables</span>
-                </li>
-              </ul>
-
-              <div className="h-[1px] bg-white/5 my-2" />
-
-              <div className="flex items-start gap-2.5 text-[11px] text-white/60">
-                <Shield className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                <p className={textSub}>
-                  <strong className="text-emerald-500 font-semibold">Security Warranty buffer included:</strong> Regular cosmetic wear is not charged. Only physical damage or unapproved software modifications are liable.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN: Details & Calculator */}
