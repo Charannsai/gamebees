@@ -18,6 +18,7 @@ import { createBooking, getKycStatus, fetchItems, fetchItemAvailability } from "
 import { useSearchParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { RentalAgreementContent } from "@/components/RentalAgreementContent";
 
 function formatDateStr(d: Date): string {
   const y = d.getFullYear();
@@ -1498,30 +1499,7 @@ function BookingFlow() {
             <div className={`flex-1 overflow-y-auto p-4 rounded-xl border space-y-4 text-xs font-light max-h-72 leading-relaxed ${
               isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-700" : "bg-black/40 border-white/5 text-white/80"
             }`}>
-              <div>
-                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">1. Equipment Care & Responsibility</h4>
-                <p>The renter agrees to handle the gaming console, controllers, and accessories with utmost care. The equipment must not be opened, modified, or transferred to any third party.</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">2. Security Deposit & Damage Liability</h4>
-                <p>Security deposit is waived based on eKYC verification. However, the renter remains fully liable for repair or replacement costs in case of liquid damage, dropped hardware, missing parts, or unapproved tampering.</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">3. Delivery & Return Timeline</h4>
-                <p>The console will be delivered to the specified delivery destination. The renter agrees to be present at the delivery location for scheduled pickup at the end of the rental period.</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">4. Identity & Legal Compliance</h4>
-                <p>Renter details, selfie capture, and Aadhaar records are securely logged for identity verification and fraud prevention purposes under Applicable Privacy Standards.</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-neutral-900 dark:text-white mb-1">5. Late Fee & Extension Terms</h4>
-                <p>Extensions must be requested 12 hours prior to rental expiry. Unannounced delays beyond 3 hours will incur standard daily penalty charges.</p>
-              </div>
+              <RentalAgreementContent isLightTheme={isLightTheme} />
             </div>
 
             {/* Modal Footer */}
