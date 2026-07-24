@@ -632,13 +632,26 @@ export default function UserDashboard() {
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => handleOpenBooking(item)}
-                            className="w-full mt-4 py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
-                          >
-                            <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                            <span>Reserve Gear Now</span>
-                          </button>
+                          <div className="grid grid-cols-2 gap-3 mt-4">
+                            <button
+                              onClick={() => router.push(`/product/${item.id}`)}
+                              className={`w-full py-3 border rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center ${
+                                theme === "light"
+                                  ? "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700"
+                                  : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80"
+                              }`}
+                            >
+                              <span>View Product</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleOpenBooking(item)}
+                              className="w-full py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
+                            >
+                              <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
+                              <span>Book Now</span>
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
