@@ -598,7 +598,7 @@ export default function UserDashboard() {
                               <img
                                 src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"}
                                 alt={item.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = "/ps5.png";
                                 }}

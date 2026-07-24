@@ -146,7 +146,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               <img
                 src={activeImage}
                 alt={item.name}
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                className="w-full h-full object-contain p-6 transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/ps5.png";
                 }}
@@ -172,7 +172,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                    <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-contain p-1.5" />
                   </button>
                 ))}
               </div>
