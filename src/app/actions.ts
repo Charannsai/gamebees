@@ -124,6 +124,8 @@ export async function createBooking(formData: {
 
     console.log("[DEBUG] createBooking started with:", formData);
 
+    console.log("[DEBUG] createBooking started with:", formData);
+
     if (formData.startDate) bookingPayload.start_date = formData.startDate;
     if (formData.endDate) bookingPayload.end_date = formData.endDate;
 
@@ -131,6 +133,8 @@ export async function createBooking(formData: {
       .from("bookings")
       .insert([bookingPayload])
       .select();
+
+    console.log("[DEBUG] First insert attempt. Data:", data, "Error:", error);
 
     console.log("[DEBUG] First insert attempt. Data:", data, "Error:", error);
 
@@ -148,8 +152,15 @@ export async function createBooking(formData: {
       data = retryRes.data;
       error = retryRes.error;
       console.log("[DEBUG] Retry insert attempt. Data:", data, "Error:", error);
+      console.log("[DEBUG] Retry insert attempt. Data:", data, "Error:", error);
     }
 
+    if (error) {
+      console.error("[DEBUG] Insert failed with error:", error);
+      throw error;
+    }
+
+    console.log("[DEBUG] Booking insert succeeded. Row:", data?.[0]);
     if (error) {
       console.error("[DEBUG] Insert failed with error:", error);
       throw error;
@@ -169,7 +180,9 @@ export async function createBooking(formData: {
         itemName = itemData.name;
       }
       console.log("[DEBUG] Fetched item name:", itemName);
+      console.log("[DEBUG] Fetched item name:", itemName);
     } catch (err) {
+      console.warn("[DEBUG] Could not fetch item name for email:", err);
       console.warn("[DEBUG] Could not fetch item name for email:", err);
     }
 
@@ -199,10 +212,10 @@ export async function seedDatabase() {
     // Email: gamebeesofficial@gmail.com
     // Password: Iamnithish@02
     const { data: userList } = await supabaseServer.auth.admin.listUsers();
-    
+
     // Check if admin user already exists
     const adminExists = userList?.users.some(u => u.email === "gamebeesofficial@gmail.com");
-    
+
     if (!adminExists) {
       const { error: authError } = await supabaseServer.auth.admin.createUser({
         email: "gamebeesofficial@gmail.com",
@@ -247,9 +260,9 @@ export async function getKycStatus() {
       .limit(1);
 
     if (!bookingsError && bookings && bookings.length > 0) {
-      return { 
-        success: true, 
-        verified: true, 
+      return {
+        success: true,
+        verified: true,
         profile: {
           full_name: bookings[0].full_name,
           phone: bookings[0].phone,
@@ -304,8 +317,8 @@ export async function saveKyc(formData: {
 
     if (error) {
       console.warn("Profiles table upsert failed:", error.message);
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error.message
       };
     }
