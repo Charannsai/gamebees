@@ -6,7 +6,8 @@ import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { fetchItems } from "@/app/actions";
+import Link from "next/link";
+import { fetchItems, fetchLandingGearOptions } from "@/app/actions";
 
 // --- Scroll Reveal ---
 function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -41,6 +42,7 @@ interface GearItem {
   price: number;
   image: string;
   required?: boolean;
+  description?: string;
 }
 
 const GEAR_OPTIONS: GearItem[] = [
@@ -56,14 +58,28 @@ export default function Home() {
   const [phoneStep, setPhoneStep] = useState(0);
   const [typingText, setTypingText] = useState("");
   const [dbProducts, setDbProducts] = useState<any[]>([]);
+  const [gearOptions, setGearOptions] = useState<GearItem[]>(GEAR_OPTIONS);
+  const [openGearDescription, setOpenGearDescription] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchItems().then((res) => {
-      if (res.success && res.data) {
-        setDbProducts(res.data);
+    Promise.all([fetchItems(), fetchLandingGearOptions()]).then(([itemsRes, gearRes]) => {
+      if (itemsRes.success && itemsRes.data) setDbProducts(itemsRes.data);
+      if (gearRes.success && gearRes.data?.length) {
+        setGearOptions(gearRes.data.map((item: any) => ({
+          id: item.id, name: item.name, price: Number(item.price) || 0,
+          image: item.image_url || "/ps5.png", required: !!item.required, description: item.description || ""
+        })));
       }
     });
   }, []);
+
+  useEffect(() => {
+    const requiredIds = gearOptions.filter((item) => item.required).map((item) => item.id);
+    setSelectedGear((prev) => {
+      const valid = prev.filter((id) => gearOptions.some((item) => item.id === id));
+      return Array.from(new Set([...requiredIds, ...valid]));
+    });
+  }, [gearOptions]);
 
   useEffect(() => {
     const interval = setInterval(() => setPhoneStep((prev) => (prev + 1) % 3), 5000);
@@ -86,14 +102,15 @@ export default function Home() {
   }, [phoneStep]);
 
   const handleToggleGear = (gearId: string) => {
-    if (gearId === "ps5") return;
+    const gear = gearOptions.find((item) => item.id === gearId);
+    if (gear?.required) return;
     setSelectedGear((prev) =>
       prev.includes(gearId) ? prev.filter((id) => id !== gearId) : [...prev, gearId]
     );
   };
 
   const calculateDailyPrice = () =>
-    GEAR_OPTIONS.reduce((acc, item) => (selectedGear.includes(item.id) ? acc + item.price : acc), 0);
+    gearOptions.reduce((acc, item) => (selectedGear.includes(item.id) ? acc + item.price : acc), 0);
 
   const currentDailyTotal = calculateDailyPrice();
 
@@ -192,7 +209,7 @@ export default function Home() {
                 
                 {/* Left — Gear checklist */}
                 <div className="space-y-3.5">
-                  {GEAR_OPTIONS.map((item) => {
+                  {gearOptions.map((item) => {
                     const isChecked = selectedGear.includes(item.id);
                     return (
                       <div
@@ -212,12 +229,23 @@ export default function Home() {
                           }`}>
                             {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
                           </div>
-                          <div>
-                            <span className="text-sm font-semibold block text-white">{item.name}</span>
+                          <div className="min-w-0">
+                            <button
+                              type="button"
+                              onClick={(event) => { event.stopPropagation(); setOpenGearDescription(openGearDescription === item.id ? null : item.id); }}
+                              className="text-sm font-semibold block text-white text-left hover:text-gamebees-glow-blue transition-colors cursor-pointer"
+                            >
+                              {item.name}
+                            </button>
                             {item.required && (
                               <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue font-semibold">
                                 Required
                               </span>
+                            )}
+                            {openGearDescription === item.id && (
+                              <p className="text-[10px] text-white/45 leading-relaxed mt-1.5 max-w-sm">
+                                {item.description || "View product details and rental information."}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -238,7 +266,7 @@ export default function Home() {
                   </h3>
 
                   <div className="space-y-3 my-1">
-                    {GEAR_OPTIONS.map((item) => {
+                    {gearOptions.map((item) => {
                       if (!selectedGear.includes(item.id)) return null;
                       return (
                         <div key={item.id} className="flex justify-between items-center text-sm">
@@ -328,9 +356,9 @@ export default function Home() {
 
                         <div className="space-y-1.5">
                           <div className="flex justify-between items-baseline gap-2">
-                            <h3 className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate">
+                            <Link href={`/product/${prod.id}`} className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate hover:underline">
                               {prod.name}
-                            </h3>
+                            </Link>
                             <div className="text-right shrink-0">
                               <span className="text-lg font-black text-gamebees-glow-blue">₹{prod.price}</span>
                               <span className="text-[9px] text-white/40 block">/ day</span>

@@ -4,6 +4,39 @@ import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { sendBookingNotificationEmail, sendKycNotificationEmail } from "@/lib/email";
 
+export async function fetchRentalDiscountSettings() {
+  try {
+    const { data, error } = await supabaseServer
+      .from("rental_discount_settings")
+      .select("days, discount_percent")
+      .in("days", [14, 30]);
+    if (error) throw error;
+    const settings: Record<number, number> = { 14: 0.10, 30: 0.20 };
+    (data || []).forEach((row: any) => { settings[Number(row.days)] = Number(row.discount_percent) / 100; });
+    return { success: true, data: settings };
+  } catch (error: any) {
+    console.error("fetchRentalDiscountSettings error:", error);
+    return { success: false, error: error.message, data: { 14: 0.10, 30: 0.20 } };
+  }
+}
+
+export async function fetchLandingGearOptions() {
+  try {
+    const { data, error } = await supabaseServer
+      .from("landing_gear_options")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (error: any) {
+    console.error("fetchLandingGearOptions error:", error);
+    return { success: false, error: error.message, data: [] };
+  }
+}
+
 export async function fetchItems() {
   try {
     const { data, error } = await supabaseServer
@@ -99,6 +132,9 @@ export async function createBooking(formData: {
   endDate?: string;
   durationDays: number;
   totalPrice: number;
+  subtotalPrice?: number;
+  discountAmount?: number;
+  couponCode?: string;
 }) {
   try {
     const { userId } = await auth();
@@ -117,7 +153,11 @@ export async function createBooking(formData: {
       selfie_url: formData.selfieUrl,
       item_id: formData.itemId,
       duration_days: formData.durationDays,
-      total_price: formData.totalPrice,
+      total_price: Number(formData.totalPrice) + 100,
+      delivery_fee: 100,
+      subtotal_price: Number(formData.subtotalPrice ?? formData.totalPrice),
+      discount_amount: Math.max(0, Number(formData.discountAmount) || 0),
+      coupon_code: formData.couponCode || null,
       status: "booked",
       tracking_status: "preparing",
     };
@@ -139,10 +179,13 @@ export async function createBooking(formData: {
     console.log("[DEBUG] First insert attempt. Data:", data, "Error:", error);
 
     // Fallback: If DB table schema doesn't have start_date/end_date columns yet
-    if (error && (error.message.includes("end_date") || error.message.includes("start_date") || error.message.includes("schema cache") || error.message.includes("column"))) {
+    if (error && (error.message.includes("end_date") || error.message.includes("start_date") || error.message.includes("schema cache") || error.message.includes("column") || error.message.includes("subtotal_price") || error.message.includes("discount_amount") || error.message.includes("coupon_code"))) {
       console.warn("Retrying insert without start_date/end_date columns due to DB schema cache:", error.message);
       delete bookingPayload.start_date;
       delete bookingPayload.end_date;
+      delete bookingPayload.subtotal_price;
+      delete bookingPayload.discount_amount;
+      delete bookingPayload.coupon_code;
 
       const retryRes = await supabaseServer
         .from("bookings")
@@ -335,6 +378,128 @@ export async function saveKyc(formData: {
     return { success: true, data };
   } catch (error: any) {
     console.error("saveKyc error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function validateCoupon(code: string, subtotal: number) {
+  try {
+    const normalized = code.trim().toUpperCase();
+    if (!normalized) return { success: false, error: "Enter a promo code." };
+
+    const { data: coupon, error } = await supabaseServer
+      .from("coupons")
+      .select("*")
+      .eq("code", normalized)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!coupon || !coupon.is_active) return { success: false, error: "Invalid or inactive promo code." };
+
+    const now = Date.now();
+    if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) return { success: false, error: "This promo code is not active yet." };
+    if (coupon.expires_at && new Date(coupon.expires_at).getTime() < now) return { success: false, error: "This promo code has expired." };
+    if (coupon.usage_limit !== null && coupon.usage_limit !== undefined && coupon.used_count >= coupon.usage_limit) return { success: false, error: "This promo code has reached its usage limit." };
+    if (Number(subtotal) < Number(coupon.min_order_amount || 0)) return { success: false, error: `Minimum order value is ₹${Number(coupon.min_order_amount).toFixed(0)}.` };
+
+    let discount = coupon.discount_type === "percent"
+      ? Number(subtotal) * Number(coupon.discount_value) / 100
+      : Number(coupon.discount_value);
+    if (coupon.max_discount_amount) discount = Math.min(discount, Number(coupon.max_discount_amount));
+    discount = Math.max(0, Math.min(Number(subtotal), Math.round(discount * 100) / 100));
+
+    return {
+      success: true,
+      data: {
+        code: normalized,
+        discount,
+        discountType: coupon.discount_type,
+        discountValue: Number(coupon.discount_value),
+      }
+    };
+  } catch (error: any) {
+    console.error("validateCoupon error:", error);
+    return { success: false, error: "Promo codes are temporarily unavailable. Please try again." };
+  }
+}
+
+export async function createBookings(formData: {
+  fullName: string;
+  phone: string;
+  address: string;
+  mapLink: string;
+  aadhaarNumber: string;
+  aadhaarVerified: boolean;
+  selfieUrl: string;
+  items: Array<{ itemId: string; durationDays: number; totalPrice: number; startDate?: string; endDate?: string }>;
+  subtotalPrice: number;
+  discountAmount: number;
+  couponCode?: string;
+}) {
+  try {
+    const { userId } = await auth();
+    if (!userId) return { success: false, error: "Unauthorized" };
+    if (!formData.items?.length) return { success: false, error: "Your cart is empty." };
+
+    const orderId = crypto.randomUUID();
+    const subtotal = Number(formData.subtotalPrice) || 0;
+    const discount = Math.max(0, Number(formData.discountAmount) || 0);
+
+    const rows = formData.items.map((item, index) => {
+      const itemSubtotal = Number(item.totalPrice) || 0;
+      const share = subtotal > 0 ? itemSubtotal / subtotal : 0;
+      const itemDiscount = Math.round(discount * share * 100) / 100;
+      const deliveryFee = index === 0 ? 100 : 0;
+      return {
+        user_id: userId,
+        full_name: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        map_link: formData.mapLink,
+        aadhaar_number: formData.aadhaarNumber,
+        aadhaar_verified: formData.aadhaarVerified,
+        selfie_url: formData.selfieUrl,
+        item_id: item.itemId,
+        duration_days: item.durationDays,
+        total_price: Math.max(0, itemSubtotal - itemDiscount) + deliveryFee,
+        delivery_fee: deliveryFee,
+        subtotal_price: itemSubtotal,
+        discount_amount: itemDiscount,
+        coupon_code: formData.couponCode || null,
+        order_id: orderId,
+        status: "booked",
+        tracking_status: "preparing",
+        ...(item.startDate ? { start_date: item.startDate } : {}),
+        ...(item.endDate ? { end_date: item.endDate } : {}),
+      };
+    });
+
+    let { data, error } = await supabaseServer.from("bookings").insert(rows).select();
+    if (error && (error.message.includes("start_date") || error.message.includes("end_date") || error.message.includes("schema cache"))) {
+      const stripped = rows.map(({ start_date, end_date, ...row }) => row);
+      const retry = await supabaseServer.from("bookings").insert(stripped).select();
+      data = retry.data;
+      error = retry.error;
+    }
+    if (error) throw error;
+
+    if (formData.couponCode) {
+      const { data: coupon } = await supabaseServer.from("coupons").select("id, used_count").eq("code", formData.couponCode).maybeSingle();
+      if (coupon) await supabaseServer.from("coupons").update({ used_count: Number(coupon.used_count || 0) + 1, updated_at: new Date().toISOString() }).eq("id", coupon.id);
+    }
+
+    for (const row of data || []) {
+      try {
+        const { data: itemData } = await supabaseServer.from("items").select("name").eq("id", row.item_id).single();
+        await sendBookingNotificationEmail(row, itemData?.name || "Rental Item");
+      } catch (emailError) {
+        console.warn("Booking notification email failed:", emailError);
+      }
+    }
+
+    return { success: true, data, orderId };
+  } catch (error: any) {
+    console.error("createBookings error:", error);
     return { success: false, error: error.message };
   }
 }

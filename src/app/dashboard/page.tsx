@@ -26,6 +26,8 @@ import {
 } from "@hugeicons/core-free-icons";
 import { fetchItems, fetchBookings, getKycStatus, saveKyc } from "@/app/actions";
 import Link from "next/link";
+import CartButton from "@/components/CartButton";
+import { addToCart } from "@/lib/cart";
 import { useRouter } from "next/navigation";
 import { RentalAgreementContent } from "@/components/RentalAgreementContent";
 
@@ -68,6 +70,7 @@ export default function UserDashboard() {
   // Theme State
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [settingsSubTab, setSettingsSubTab] = useState<"profile" | "orders" | "policies">("profile");
+  const [cartNotice, setCartNotice] = useState("");
 
   useEffect(() => {
     // Read theme preference on mount
@@ -146,6 +149,12 @@ export default function UserDashboard() {
 
   const handleOpenBooking = (item: any) => {
     router.push(`/book?itemId=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&duration=3`);
+  };
+
+  const handleAddToCart = (item: any) => {
+    addToCart({ id: item.id, name: item.name, category: item.category, price: Number(item.price) || 0, price_3_days: Number(item.price_3_days) || undefined, price_extra_day: Number(item.price_extra_day) || undefined, image_url: item.image_url || (Array.isArray(item.image_urls) ? item.image_urls[0] : undefined) });
+    setCartNotice(`${item.name} added to cart`);
+    window.setTimeout(() => setCartNotice(""), 2600);
   };
 
   // Manual KYC Handlers
@@ -354,6 +363,7 @@ export default function UserDashboard() {
           </Link>
 
           <div className="flex items-center gap-3">
+            <CartButton />
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/[0.04] text-xs text-white/70">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
               <span>Signed in as: <strong>{user?.primaryEmailAddress?.emailAddress}</strong></span>
@@ -593,12 +603,12 @@ export default function UserDashboard() {
                         <div key={item.id} className="card-polished p-5 flex flex-col justify-between border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-all rounded-2xl">
                           <div className="space-y-3">
                             {/* Uploaded Product Image Container */}
-                            <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/40 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
+                            <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/20 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"}
                                 alt={item.name}
-                                className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                                className="w-full h-full object-contain p-0 group-hover:scale-[1.02] transition-transform duration-500"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = "/ps5.png";
                                 }}
@@ -618,9 +628,9 @@ export default function UserDashboard() {
 
                             <div className="space-y-1">
                               <div className="flex justify-between items-baseline gap-2">
-                                <h4 className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate">
+                                <Link href={`/product/${item.id}`} className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate hover:underline">
                                   {item.name}
-                                </h4>
+                                </Link>
                                 <div className="text-right shrink-0">
                                   <span className="text-lg font-black text-gamebees-glow-blue">₹{item.price}</span>
                                   <span className="text-[9px] text-white/30 block">/ day</span>
@@ -644,13 +654,22 @@ export default function UserDashboard() {
                               <span>View Product</span>
                             </button>
 
-                            <button
-                              onClick={() => handleOpenBooking(item)}
-                              className="w-full py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
-                            >
-                              <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                              <span>Book Now</span>
-                            </button>
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                onClick={() => handleAddToCart(item)}
+                                className="w-full py-3 rounded-xl border border-gamebees-accent-blue/60 bg-gradient-to-r from-gamebees-accent-blue/20 to-gamebees-medium-blue/15 hover:from-gamebees-accent-blue/35 hover:to-gamebees-medium-blue/25 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_14px_rgba(36,101,150,0.18)] ring-1 ring-gamebees-accent-blue/15"
+                              >
+                                <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
+                                <span>Add Cart</span>
+                              </button>
+                              <button
+                                onClick={() => handleOpenBooking(item)}
+                                className="w-full py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
+                              >
+                                <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
+                                <span>Book Now</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1574,6 +1593,12 @@ export default function UserDashboard() {
         </button>
       </nav>
 
+      {cartNotice && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-2xl border border-emerald-500/30 bg-[#0f1b16]/95 px-4 py-3 shadow-2xl backdrop-blur-md text-xs text-white flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span>{cartNotice}</span>
+        </div>
+      )}
     </div>
   );
 }

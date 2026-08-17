@@ -4,6 +4,7 @@ import React from "react";
 import { LayoutDashboard } from "lucide-react";
 import { SignInButton, Show, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import CartButton from "@/components/CartButton";
 
 interface NavbarProps {}
 
@@ -26,7 +27,8 @@ export default function Navbar({}: NavbarProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <CartButton />
             <Show when="signed-out">
               <Link href="/sign-in" className="px-4 py-2.5 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.02] text-xs font-semibold text-white/80 hover:text-white transition-all cursor-pointer">
                 Sign In

@@ -14,7 +14,18 @@ import {
   adminFetchKycProfiles,
   adminApproveKyc,
   adminDeclineKyc,
-  adminUploadProductImage
+  adminUploadProductImage,
+  adminFetchCoupons,
+  adminAddCoupon,
+  adminUpdateCoupon,
+  adminDeleteCoupon,
+  adminFetchLandingGear,
+  adminEnsureLandingDefaults,
+  adminAddLandingGear,
+  adminUpdateLandingGear,
+  adminDeleteLandingGear,
+  adminFetchRentalDiscounts,
+  adminUpdateRentalDiscount
 } from "./actions";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
@@ -53,12 +64,17 @@ export default function AdminPage() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<"items" | "bookings" | "kyc">("bookings");
+  const [activeTab, setActiveTab] = useState<"items" | "bookings" | "kyc" | "coupons" | "landing">("bookings");
 
   // Database Data State
   const [items, setItems] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [kycProfiles, setKycProfiles] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [landingGear, setLandingGear] = useState<any[]>([]);
+  const [landingForm, setLandingForm] = useState({ name: "", price: "", image_url: "", description: "", required: false, is_active: true, sort_order: "0" });
+  const [editingLandingId, setEditingLandingId] = useState<string | null>(null);
+  const [savingLanding, setSavingLanding] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   // Detail view state variables
@@ -115,6 +131,11 @@ export default function AdminPage() {
   
   const [initialLoad, setInitialLoad] = useState(true);
   const [isAddingListing, setIsAddingListing] = useState(false);
+  const [couponForm, setCouponForm] = useState({ code: "", discount_type: "percent" as "percent" | "fixed", discount_value: "", min_order_amount: "0", max_discount_amount: "", usage_limit: "", starts_at: "", expires_at: "" });
+  const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
+  const [savingCoupon, setSavingCoupon] = useState(false);
+  const [longRentalDiscounts, setLongRentalDiscounts] = useState({ 14: "10", 30: "20" });
+  const [savingLongRental, setSavingLongRental] = useState(false);
 
   const checkSession = async () => {
     setCheckingAuth(true);
@@ -128,14 +149,31 @@ export default function AdminPage() {
 
   const loadData = async () => {
     if (initialLoad) setLoadingData(true);
-    const [itemsRes, bookingsRes, kycRes] = await Promise.all([
+    const [itemsRes, bookingsRes, kycRes, couponsRes, landingRes, discountRes] = await Promise.all([
       adminFetchItems(),
       adminFetchBookings(),
-      adminFetchKycProfiles()
+      adminFetchKycProfiles(),
+      adminFetchCoupons(),
+      adminFetchLandingGear(),
+      adminFetchRentalDiscounts()
     ]);
+    if (landingRes.success && (!landingRes.data || landingRes.data.length === 0)) {
+      const seeded = await adminEnsureLandingDefaults();
+      if (seeded.success && seeded.created) {
+        const refreshed = await adminFetchLandingGear();
+        if (refreshed.success) landingRes.data = refreshed.data;
+      }
+    }
     if (itemsRes.success) setItems(itemsRes.data || []);
     if (bookingsRes.success) setBookings(bookingsRes.data || []);
     if (kycRes.success) setKycProfiles(kycRes.data || []);
+    if (couponsRes.success) setCoupons(couponsRes.data || []);
+    if (landingRes.success) setLandingGear(landingRes.data || []);
+    if (discountRes.success) {
+      const next = { 14: "10", 30: "20" };
+      (discountRes.data || []).forEach((row: any) => { if (Number(row.days) === 14 || Number(row.days) === 30) next[Number(row.days) as 14 | 30] = String(row.discount_percent); });
+      setLongRentalDiscounts(next);
+    }
     setLoadingData(false);
     setInitialLoad(false);
   };
@@ -143,6 +181,82 @@ export default function AdminPage() {
   useEffect(() => {
     checkSession();
   }, []);
+
+  const resetCouponForm = () => {
+    setCouponForm({ code: "", discount_type: "percent", discount_value: "", min_order_amount: "0", max_discount_amount: "", usage_limit: "", starts_at: "", expires_at: "" });
+    setEditingCouponId(null);
+  };
+
+  const handleSaveCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingCoupon(true);
+    const payload = {
+      code: couponForm.code,
+      discount_type: couponForm.discount_type,
+      discount_value: Number(couponForm.discount_value),
+      min_order_amount: Number(couponForm.min_order_amount || 0),
+      max_discount_amount: couponForm.max_discount_amount ? Number(couponForm.max_discount_amount) : null,
+      usage_limit: couponForm.usage_limit ? Number(couponForm.usage_limit) : null,
+      starts_at: couponForm.starts_at ? new Date(couponForm.starts_at).toISOString() : null,
+      expires_at: couponForm.expires_at ? new Date(couponForm.expires_at).toISOString() : null,
+      is_active: true,
+    };
+    const res = editingCouponId ? await adminUpdateCoupon(editingCouponId, payload) : await adminAddCoupon(payload);
+    setSavingCoupon(false);
+    if (res.success) { resetCouponForm(); await loadData(); }
+    else triggerAlert("Coupon Save Failed", res.error || "Unable to save coupon.");
+  };
+
+  const handleSaveLongRentalDiscount = async (days: 14 | 30) => {
+    setSavingLongRental(true);
+    const res = await adminUpdateRentalDiscount(days, Number(longRentalDiscounts[days]));
+    setSavingLongRental(false);
+    if (res.success) {
+      await loadData();
+    } else {
+      triggerAlert("Long-Rental Discount Save Failed", res.error || "Unable to update discount.");
+    }
+  };
+
+  const handleEditCoupon = (coupon: any) => {
+    const toLocal = (value: string | null) => value ? new Date(value).toISOString().slice(0, 16) : "";
+    setEditingCouponId(coupon.id);
+    setCouponForm({ code: coupon.code || "", discount_type: coupon.discount_type || "percent", discount_value: String(coupon.discount_value || ""), min_order_amount: String(coupon.min_order_amount || 0), max_discount_amount: coupon.max_discount_amount ? String(coupon.max_discount_amount) : "", usage_limit: coupon.usage_limit ? String(coupon.usage_limit) : "", starts_at: toLocal(coupon.starts_at), expires_at: toLocal(coupon.expires_at) });
+  };
+
+  const handleDeleteCoupon = (coupon: any) => triggerConfirm("Delete Coupon", `Delete ${coupon.code}? Existing bookings using this code will remain unchanged.`, async () => {
+    const res = await adminDeleteCoupon(coupon.id);
+    if (res.success) await loadData(); else triggerAlert("Delete Failed", res.error || "Unable to delete coupon.");
+  });
+
+  const resetLandingForm = () => {
+    setLandingForm({ name: "", price: "", image_url: "", description: "", required: false, is_active: true, sort_order: "0" });
+    setEditingLandingId(null);
+  };
+
+  const handleSaveLanding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingLanding(true);
+    const payload = {
+      name: landingForm.name, price: Number(landingForm.price), image_url: landingForm.image_url || undefined,
+      description: landingForm.description, required: landingForm.required, is_active: landingForm.is_active,
+      sort_order: Number(landingForm.sort_order || 0)
+    };
+    const res = editingLandingId ? await adminUpdateLandingGear(editingLandingId, payload) : await adminAddLandingGear(payload);
+    setSavingLanding(false);
+    if (res.success) { resetLandingForm(); await loadData(); }
+    else triggerAlert("Landing Section Save Failed", res.error || "Unable to save landing option.");
+  };
+
+  const handleEditLanding = (item: any) => {
+    setEditingLandingId(item.id);
+    setLandingForm({ name: item.name || "", price: String(item.price ?? ""), image_url: item.image_url || "", description: item.description || "", required: !!item.required, is_active: item.is_active !== false, sort_order: String(item.sort_order ?? 0) });
+  };
+
+  const handleDeleteLanding = (item: any) => triggerConfirm("Delete Landing Option", `Delete ${item.name} from the Pick Your Choice section?`, async () => {
+    const res = await adminDeleteLandingGear(item.id);
+    if (res.success) await loadData(); else triggerAlert("Delete Failed", res.error || "Unable to delete landing option.");
+  });
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -473,6 +587,27 @@ export default function AdminPage() {
                   {kycProfiles.filter(p => p.kyc_status === "pending").length}
                 </span>
               )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("landing")}
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "landing" ? "bg-[#141414] text-white" : "text-[#141414] hover:bg-[#F4F4F5]"
+              }`}
+            >
+              <HugeiconsIcon icon={PackageIcon} size={15} />
+              <span>Landing Page</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("coupons")}
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "coupons" ? "bg-[#141414] text-white" : "text-[#141414] hover:bg-[#F4F4F5]"
+              }`}
+            >
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
+              <span>Promo Codes</span>
+              <span className="ml-auto text-[9px] text-neutral-400">{coupons.length}</span>
             </button>
 
             <button
@@ -1000,6 +1135,77 @@ export default function AdminPage() {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Tab: Landing Page */}
+          {activeTab === "landing" && (
+            <div className="space-y-6 animate-fadeInUp">
+              <div className="flex items-center justify-between">
+                <div><h3 className="text-xl font-black text-[#141414]">Landing Page — Pick Your Choice</h3><p className="text-xs text-neutral-500 mt-1">Add, edit, hide, reorder or delete the four products shown in the landing-page “Pick Your Choice” section.</p></div>
+                {editingLandingId && <button onClick={resetLandingForm} className="text-xs font-bold text-neutral-500 hover:text-neutral-900">Cancel edit</button>}
+              </div>
+
+              <form onSubmit={handleSaveLanding} className="card-polished p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Product name</label><input required value={landingForm.name} onChange={e => setLandingForm({...landingForm, name:e.target.value})} placeholder="Extra DualSense Controller" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Daily price (₹)</label><input required type="number" min="0" step="0.01" value={landingForm.price} onChange={e => setLandingForm({...landingForm, price:e.target.value})} placeholder="300" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Image URL</label><input value={landingForm.image_url} onChange={e => setLandingForm({...landingForm, image_url:e.target.value})} placeholder="/controller.png" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Display order</label><input type="number" value={landingForm.sort_order} onChange={e => setLandingForm({...landingForm, sort_order:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div className="md:col-span-2 lg:col-span-3"><label className="text-[10px] font-bold text-neutral-500 uppercase">Description</label><input value={landingForm.description} onChange={e => setLandingForm({...landingForm, description:e.target.value})} placeholder="Short description shown to customers" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div className="flex items-end gap-4 pb-2">
+                  <label className="text-xs font-semibold flex items-center gap-2"><input type="checkbox" checked={landingForm.required} onChange={e => setLandingForm({...landingForm, required:e.target.checked})} /> Required</label>
+                  <label className="text-xs font-semibold flex items-center gap-2"><input type="checkbox" checked={landingForm.is_active} onChange={e => setLandingForm({...landingForm, is_active:e.target.checked})} /> Visible</label>
+                </div>
+                <div className="md:col-span-2 lg:col-span-4 flex justify-end"><button disabled={savingLanding} className="btn-glow-pill px-6 py-3 rounded-xl text-xs font-bold disabled:opacity-50">{savingLanding ? "Saving…" : editingLandingId ? "Update Landing Product" : "Add Landing Product"}</button></div>
+              </form>
+
+              <div className="card-polished overflow-hidden">
+                <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b border-neutral-200 text-[9px] uppercase tracking-wider text-neutral-400"><th className="p-4">Product</th><th>Price / day</th><th>Required</th><th>Visibility</th><th>Order</th><th className="p-4 text-right">Actions</th></tr></thead><tbody>
+                  {landingGear.map(item => <tr key={item.id} className="border-b border-neutral-100 last:border-0"><td className="p-4"><div className="flex items-center gap-3"><img src={item.image_url || "/ps5.png"} alt="" className="h-10 w-12 rounded object-contain bg-neutral-100" /><div><span className="font-black block">{item.name}</span><span className="text-[9px] text-neutral-400">{item.description || "No description"}</span></div></div></td><td className="font-bold">₹{item.price}</td><td>{item.required ? "Yes" : "No"}</td><td><span className={item.is_active ? "text-emerald-600 font-bold" : "text-red-500 font-bold"}>{item.is_active ? "Visible" : "Hidden"}</span></td><td>{item.sort_order}</td><td className="p-4 text-right space-x-3"><button onClick={() => handleEditLanding(item)} className="font-bold text-blue-600">Edit</button><button onClick={() => handleDeleteLanding(item)} className="font-bold text-red-500">Delete</button></td></tr>)}
+                  {landingGear.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-neutral-400">No landing products configured.</td></tr>}
+                </tbody></table></div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Promo Codes */}
+          {activeTab === "coupons" && (
+            <div className="space-y-6 animate-fadeInUp">
+              <div className="flex items-center justify-between">
+                <div><h3 className="text-xl font-black text-[#141414]">Promo Codes</h3><p className="text-xs text-neutral-500 mt-1">Create percentage or fixed discounts customers can enter at checkout.</p></div>
+                {editingCouponId && <button onClick={resetCouponForm} className="text-xs font-bold text-neutral-500 hover:text-neutral-900">Cancel edit</button>}
+              </div>
+
+              <div className="card-polished p-5 space-y-4 border border-emerald-500/20 bg-emerald-50/40">
+                <div><h4 className="text-sm font-black text-[#141414]">Long-Rental Discounts</h4><p className="text-[11px] text-neutral-500 mt-1">These discounts are applied automatically when customers choose 14 or 30 days. Edit the percentages here.</p></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[14, 30].map((days) => (
+                    <div key={days} className="rounded-xl border border-neutral-200 bg-white p-4 flex items-end gap-3">
+                      <div className="flex-1"><label className="text-[10px] font-bold text-neutral-500 uppercase">{days}-day discount</label><div className="flex items-center mt-1"><input type="number" min="0" max="100" step="0.5" value={longRentalDiscounts[days as 14 | 30]} onChange={e => setLongRentalDiscounts({...longRentalDiscounts, [days]: e.target.value})} className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /><span className="ml-2 text-sm font-black">%</span></div></div>
+                      <button type="button" disabled={savingLongRental} onClick={() => handleSaveLongRentalDiscount(days as 14 | 30)} className="btn-glow-pill px-4 py-2.5 rounded-lg text-xs font-bold disabled:opacity-50">Save</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveCoupon} className="card-polished p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Code</label><input required value={couponForm.code} onChange={e => setCouponForm({...couponForm, code:e.target.value.toUpperCase()})} placeholder="GAMEBEES10" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Discount type</label><select value={couponForm.discount_type} onChange={e => setCouponForm({...couponForm, discount_type:e.target.value as any})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm"><option value="percent">Percentage</option><option value="fixed">Fixed ₹</option></select></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Discount value</label><input required type="number" min="0.01" step="0.01" value={couponForm.discount_value} onChange={e => setCouponForm({...couponForm, discount_value:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Minimum order</label><input type="number" min="0" value={couponForm.min_order_amount} onChange={e => setCouponForm({...couponForm, min_order_amount:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Max discount</label><input type="number" min="0" value={couponForm.max_discount_amount} onChange={e => setCouponForm({...couponForm, max_discount_amount:e.target.value})} placeholder="Optional" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Usage limit</label><input type="number" min="1" value={couponForm.usage_limit} onChange={e => setCouponForm({...couponForm, usage_limit:e.target.value})} placeholder="Unlimited" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Starts</label><input type="datetime-local" value={couponForm.starts_at} onChange={e => setCouponForm({...couponForm, starts_at:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Expires</label><input type="datetime-local" value={couponForm.expires_at} onChange={e => setCouponForm({...couponForm, expires_at:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
+                <div className="md:col-span-2 lg:col-span-4 flex justify-end"><button disabled={savingCoupon} className="btn-glow-pill px-6 py-3 rounded-xl text-xs font-bold disabled:opacity-50">{savingCoupon ? "Saving…" : editingCouponId ? "Update Coupon" : "Create Coupon"}</button></div>
+              </form>
+
+              <div className="card-polished overflow-hidden">
+                <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b border-neutral-200 text-[9px] uppercase tracking-wider text-neutral-400"><th className="p-4">Code</th><th>Discount</th><th>Minimum</th><th>Usage</th><th>Validity</th><th className="p-4 text-right">Actions</th></tr></thead><tbody>
+                  {coupons.map(c => <tr key={c.id} className="border-b border-neutral-100 last:border-0"><td className="p-4 font-black">{c.code}</td><td>{c.discount_type === "percent" ? `${c.discount_value}%` : `₹${c.discount_value}`}{c.max_discount_amount ? <span className="block text-[9px] text-neutral-400">cap ₹{c.max_discount_amount}</span> : null}</td><td>₹{c.min_order_amount || 0}</td><td>{c.used_count || 0}{c.usage_limit ? ` / ${c.usage_limit}` : " / ∞"}</td><td><span className={c.is_active ? "text-emerald-600 font-bold" : "text-red-500 font-bold"}>{c.is_active ? "Active" : "Inactive"}</span>{c.expires_at ? <span className="block text-[9px] text-neutral-400">until {new Date(c.expires_at).toLocaleDateString()}</span> : null}</td><td className="p-4 text-right space-x-3"><button onClick={() => handleEditCoupon(c)} className="font-bold text-blue-600">Edit</button><button onClick={() => handleDeleteCoupon(c)} className="font-bold text-red-500">Delete</button></td></tr>)}
+                  {coupons.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-neutral-400">No promo codes created yet.</td></tr>}
+                </tbody></table></div>
+              </div>
             </div>
           )}
 

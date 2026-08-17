@@ -3,6 +3,8 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CartButton from "@/components/CartButton";
+import { addToCart } from "@/lib/cart";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   ArrowLeft01Icon, 
@@ -10,7 +12,8 @@ import {
   Shield01Icon
 } from "@hugeicons/core-free-icons";
 import { Star, Shield } from "lucide-react";
-import { fetchItemAvailability } from "@/app/actions";
+import { fetchItemAvailability, fetchRentalDiscountSettings } from "@/app/actions";
+import { calculateRentalPricing } from "@/lib/pricing";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -24,6 +27,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [activeImage, setActiveImage] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<number>(3);
   const [isLightTheme, setIsLightTheme] = useState(false);
+  const [cartNotice, setCartNotice] = useState("");
+  const [discountSettings, setDiscountSettings] = useState<Record<number, number>>({ 14: 0.10, 30: 0.20 });
 
   // Sync theme
   useEffect(() => {
@@ -42,14 +47,15 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      fetchItemAvailability(id)
-        .then((res) => {
+      Promise.all([fetchItemAvailability(id), fetchRentalDiscountSettings()])
+        .then(([res, discountRes]) => {
           if (res.success && res.item) {
             setItem(res.item);
             setActiveImage(res.item.image_url || (Array.isArray(res.item.image_urls) && res.item.image_urls[0]) || "/ps5.png");
           } else {
             console.error("Failed to load product:", res.error);
           }
+          if (discountRes.success && discountRes.data) setDiscountSettings(discountRes.data);
         })
         .catch((err) => console.error("Error fetching product:", err))
         .finally(() => setLoading(false));
@@ -77,9 +83,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   }
 
   // Calculate pricing dynamically
-  const baseRate = item.price_3_days || (item.price * 3);
-  const extraRate = item.price_extra_day || item.price;
-  const totalPrice = selectedDuration <= 3 ? baseRate : baseRate + (selectedDuration - 3) * extraRate;
+  const pricing = calculateRentalPricing(item, selectedDuration, discountSettings);
+  const { baseRate, extraRate, total: rentalTotal, grossTotal, rentalDiscount, discountRate } = pricing;
+  const deliveryFee = 100;
+  const totalPrice = rentalTotal + deliveryFee;
 
   // Image list
   const imageUrls = Array.isArray(item.image_urls) && item.image_urls.length > 0 
@@ -91,6 +98,20 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const textSub = isLightTheme ? "text-neutral-500" : "text-white/50";
   const textBody = isLightTheme ? "text-neutral-700" : "text-white/80";
   const cardStyle = isLightTheme ? "bg-white border-neutral-200 shadow-md" : "bg-[#10324d]/10 border-white/5 shadow-2xl";
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      price: Number(item.price) || 0,
+      price_3_days: Number(item.price_3_days) || undefined,
+      price_extra_day: Number(item.price_extra_day) || undefined,
+      image_url: item.image_url || imageUrls[0],
+    });
+    setCartNotice(`${item.name} added to cart`);
+    window.setTimeout(() => setCartNotice(""), 2600);
+  };
 
   const handleBookNow = () => {
     router.push(`/book?itemId=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&duration=${selectedDuration}`);
@@ -119,6 +140,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-11 sm:h-14 w-auto object-contain select-none" />
           </Link>
           
+          <div className="flex items-center gap-2">
+          <CartButton light={isLightTheme} />
           <button 
             onClick={() => router.push("/dashboard")}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
@@ -130,6 +153,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
             <span>Go Back</span>
           </button>
+        </div>
         </div>
       </header>
 
@@ -146,7 +170,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               <img
                 src={activeImage}
                 alt={item.name}
-                className="w-full h-full object-contain p-6 transition-transform duration-300 hover:scale-105"
+                className="w-full h-full object-contain p-0 transition-transform duration-300 hover:scale-[1.02]"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/ps5.png";
                 }}
@@ -240,8 +264,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 <h4 className={`text-xs font-bold uppercase tracking-wider ${isLightTheme ? "text-[#246596]" : "text-gamebees-glow-blue"}`}>
                   Select Rental Duration
                 </h4>
-                <div className="grid grid-cols-5 gap-2">
-                  {[3, 5, 7, 14, 30].map((days) => (
+                <div className="grid grid-cols-4 gap-2">
+                  {[3, 7, 14, 30].map((days) => {
+                    const optionPricing = calculateRentalPricing(item, days, discountSettings);
+                    return (
                     <button
                       key={days}
                       onClick={() => setSelectedDuration(days)}
@@ -253,27 +279,42 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                             : "bg-white/[0.02] border-white/5 text-white/70 hover:bg-white/5"
                       }`}
                     >
-                      {days}d
+                      <span>{days}d</span>
+                      {optionPricing.discountRate > 0 && <span className="block text-[8px] text-emerald-400 mt-0.5">Save {Math.round(optionPricing.discountRate * 100)}%</span>}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
+
+              {discountRate > 0 && (
+                <div className="flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px]">
+                  <span className="font-bold text-emerald-400">Long-rental saving · {Math.round(discountRate * 100)}% off</span>
+                  <span className="font-black text-emerald-400">Save ₹{rentalDiscount}</span>
+                </div>
+              )}
 
               {/* Interactive Price Summary Breakdown */}
               <div className={`p-4 rounded-2xl border space-y-2 text-xs ${isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-black/40 border-white/5"}`}>
                 <div className="flex justify-between">
-                  <span className={textSub}>Base 3-Day Package Rate</span>
+                  <span className={textSub}>Listing price</span>
                   <span className="font-semibold">₹{baseRate}</span>
                 </div>
                 {selectedDuration > 3 && (
                   <div className="flex justify-between">
-                    <span className={textSub}>Extra Days ({selectedDuration - 3} days × ₹{extraRate})</span>
+                    <span className={textSub}>Extra days ({selectedDuration - 3} × ₹{extraRate})</span>
                     <span className="font-semibold">+₹{(selectedDuration - 3) * extraRate}</span>
                   </div>
                 )}
+                {rentalDiscount > 0 && (
+                  <div className="flex justify-between text-emerald-400">
+                    <span>Long-rental discount</span>
+                    <span className="font-bold">-₹{rentalDiscount}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <span className={textSub}>Delivery, Setup & Pickup</span>
-                  <span className="text-emerald-500 font-bold">FREE</span>
+                  <span className={textSub}>Delivery & pickup</span>
+                  <span className="font-bold">₹100</span>
                 </div>
                 <div className="h-[1px] bg-white/5 my-1" />
                 <div className="flex justify-between items-baseline pt-1">
@@ -286,13 +327,29 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
             {/* CTAs */}
             <div className="space-y-3 pt-4">
-              <button
-                onClick={handleBookNow}
-                className="w-full py-4 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_16px_rgba(36,101,150,0.3)] cursor-pointer"
-              >
-                <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
-                <span>Book Console Now</span>
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full py-4 rounded-xl border border-gamebees-accent-blue/70 bg-gradient-to-r from-gamebees-accent-blue/25 to-gamebees-medium-blue/20 hover:from-gamebees-accent-blue/40 hover:to-gamebees-medium-blue/30 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_18px_rgba(36,101,150,0.22)] ring-1 ring-gamebees-accent-blue/20"
+                >
+                  <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
+                  <span>Add to Cart</span>
+                </button>
+                <button
+                  onClick={handleBookNow}
+                  className="w-full py-4 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_16px_rgba(36,101,150,0.3)] cursor-pointer"
+                >
+                  <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
+                  <span>Book Now</span>
+                </button>
+              </div>
+
+              {cartNotice && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-2xl border border-emerald-500/30 bg-[#0f1b16]/95 px-4 py-3 shadow-2xl backdrop-blur-md text-xs text-white flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  <span>{cartNotice}</span>
+                </div>
+              )}
 
               <button
                 onClick={() => router.push("/dashboard")}
