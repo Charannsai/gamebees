@@ -255,6 +255,104 @@ export async function adminDeleteProduct(id: string) {
   }
 }
 
+export async function adminFetchRentalDiscounts() {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { data, error } = await supabaseServer.from("rental_discount_settings").select("days, discount_percent").in("days", [14, 30]).order("days");
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (error: any) { return { success: false, error: error.message }; }
+}
+
+export async function adminUpdateRentalDiscount(days: number, discountPercent: number) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  if (![14, 30].includes(Number(days))) return { success: false, error: "Only 14-day and 30-day discounts are configurable." };
+  try {
+    const { data, error } = await supabaseServer.from("rental_discount_settings").upsert({ days: Number(days), discount_percent: Math.max(0, Math.min(100, Number(discountPercent) || 0)), updated_at: new Date().toISOString() }, { onConflict: "days" }).select();
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) { return { success: false, error: error.message }; }
+}
+
+// Landing Page "Pick Your Choice" Management
+const DEFAULT_LANDING_GEAR = [
+  { name: "PlayStation 5 Pro Console", price: 12, image_url: "/ps5.png", description: "PlayStation 5 Pro console rental.", required: true, is_active: true, sort_order: 1 },
+  { name: "Extra DualSense Controller", price: 3, image_url: "/controller.png", description: "Add an extra DualSense controller.", required: false, is_active: true, sort_order: 2 },
+  { name: "Pulse 3D Wireless Headset", price: 2, image_url: "/controller.png", description: "Wireless gaming headset for immersive audio.", required: false, is_active: true, sort_order: 3 },
+  { name: "Premium Travel Case", price: 1, image_url: "/ps5.png", description: "Protective travel case for your gaming setup.", required: false, is_active: true, sort_order: 4 },
+];
+
+export async function adminEnsureLandingDefaults() {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { data, error } = await supabaseServer.from("landing_gear_options").select("id").limit(1);
+    if (error) throw error;
+    if ((data || []).length > 0) return { success: true, created: false };
+    const { error: insertError } = await supabaseServer.from("landing_gear_options").insert(DEFAULT_LANDING_GEAR.map((item) => ({ ...item, updated_at: new Date().toISOString() })));
+    if (insertError) throw insertError;
+    return { success: true, created: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminFetchLandingGear() {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { data, error } = await supabaseServer
+      .from("landing_gear_options")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminAddLandingGear(item: { name: string; price: number; image_url?: string; description?: string; required?: boolean; is_active?: boolean; sort_order?: number }) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { data, error } = await supabaseServer.from("landing_gear_options").insert([{
+      name: item.name.trim(), price: Number(item.price) || 0, image_url: item.image_url || null,
+      description: item.description || null, required: !!item.required, is_active: item.is_active ?? true,
+      sort_order: Number(item.sort_order) || 0, updated_at: new Date().toISOString()
+    }]).select();
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) { return { success: false, error: error.message }; }
+}
+
+export async function adminUpdateLandingGear(id: string, item: Partial<{ name: string; price: number; image_url: string | null; description: string | null; required: boolean; is_active: boolean; sort_order: number }>) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const payload: any = { ...item, updated_at: new Date().toISOString() };
+    if (payload.name) payload.name = payload.name.trim();
+    if (payload.price !== undefined) payload.price = Number(payload.price) || 0;
+    if (payload.sort_order !== undefined) payload.sort_order = Number(payload.sort_order) || 0;
+    const { data, error } = await supabaseServer.from("landing_gear_options").update(payload).eq("id", id).select();
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) { return { success: false, error: error.message }; }
+}
+
+export async function adminDeleteLandingGear(id: string) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { error } = await supabaseServer.from("landing_gear_options").delete().eq("id", id);
+    if (error) throw error;
+    return { success: true };
+  } catch (error: any) { return { success: false, error: error.message }; }
+}
+
 // Booking Management Actions
 export async function adminFetchBookings() {
   const isAuth = await verifyAdmin();
@@ -375,6 +473,75 @@ export async function adminDeclineKyc(userId: string) {
       .eq("user_id", userId);
 
     return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminFetchCoupons() {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { data, error } = await supabaseServer.from("coupons").select("*").order("created_at", { ascending: false });
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminAddCoupon(coupon: {
+  code: string;
+  discount_type: "percent" | "fixed";
+  discount_value: number;
+  min_order_amount?: number;
+  max_discount_amount?: number | null;
+  usage_limit?: number | null;
+  starts_at?: string | null;
+  expires_at?: string | null;
+  is_active?: boolean;
+}) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const payload = {
+      ...coupon,
+      code: coupon.code.trim().toUpperCase(),
+      min_order_amount: Number(coupon.min_order_amount || 0),
+      max_discount_amount: coupon.max_discount_amount ? Number(coupon.max_discount_amount) : null,
+      usage_limit: coupon.usage_limit ? Number(coupon.usage_limit) : null,
+      is_active: coupon.is_active ?? true,
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await supabaseServer.from("coupons").insert([payload]).select();
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminUpdateCoupon(id: string, coupon: Partial<Parameters<typeof adminAddCoupon>[0]>) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const payload: any = { ...coupon, updated_at: new Date().toISOString() };
+    if (payload.code) payload.code = payload.code.trim().toUpperCase();
+    const { data, error } = await supabaseServer.from("coupons").update(payload).eq("id", id).select();
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminDeleteCoupon(id: string) {
+  const isAuth = await verifyAdmin();
+  if (!isAuth) return { success: false, error: "Unauthorized" };
+  try {
+    const { error } = await supabaseServer.from("coupons").delete().eq("id", id);
+    if (error) throw error;
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

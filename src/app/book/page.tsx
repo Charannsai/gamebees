@@ -14,11 +14,13 @@ import {
   ArrowLeft01Icon,
   Calendar01Icon
 } from "@hugeicons/core-free-icons";
-import { createBooking, getKycStatus, fetchItems, fetchItemAvailability } from "@/app/actions";
+import { createBooking, createBookings, validateCoupon, getKycStatus, fetchItems, fetchItemAvailability, fetchRentalDiscountSettings } from "@/app/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { RentalAgreementContent } from "@/components/RentalAgreementContent";
+import { getCart, clearCart, CartItem, getCartPromoCode, clearCartPromoCode } from "@/lib/cart";
+import { calculateRentalPricing } from "@/lib/pricing";
 
 function formatDateStr(d: Date): string {
   const y = d.getFullYear();
@@ -108,6 +110,14 @@ function BookingFlow() {
   const initialTotal = pricePerDay * initialDuration;
 
   const [availableItems, setAvailableItems] = useState<any[]>([]);
+  const [cartMode, setCartMode] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [discountSettings, setDiscountSettings] = useState<Record<number, number>>({ 14: 0.10, 30: 0.20 });
+  const [cartAvailability, setCartAvailability] = useState<any[]>([]);
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [promoError, setPromoError] = useState("");
+  const [checkingPromo, setCheckingPromo] = useState(false);
   const [step, setStep] = useState(1);
   
   // Step 1: Personal Details & Availability Calendar
@@ -156,6 +166,19 @@ function BookingFlow() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  useEffect(() => {
+    fetchRentalDiscountSettings().then((res) => {
+      if (res.success && res.data) setDiscountSettings(res.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get("cart") === "1") {
+      setCartMode(true);
+      setCartItems(getCart());
+    }
+  }, [searchParams]);
+
   // Redirect to Clerk Sign In if not logged in
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -172,38 +195,43 @@ function BookingFlow() {
     });
   }, []);
 
-  // Fetch Availability & Booked Dates for selected item
+  // Fetch availability for the selected item or every item in the cart.
   useEffect(() => {
-    let targetId = selectedItemId;
-    if (!targetId && availableItems.length > 0) {
-      const match = availableItems.find((i) => i.name === initialConsoleName);
-      if (match) targetId = match.id;
-      else targetId = availableItems[0].id;
-    }
+    const load = async () => {
+      const ids = cartMode ? cartItems.map((item) => item.id) : [selectedItemId || availableItems.find((i) => i.name === initialConsoleName)?.id || availableItems[0]?.id];
+      const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+      if (!uniqueIds.length) return;
 
-    if (targetId) {
       setLoadingAvailability(true);
-      fetchItemAvailability(targetId)
-        .then((res) => {
-          if (res.success && res.item) {
-            setAvailabilityItem(res.item);
-            setActiveBookings(res.bookings || []);
-            
-            const earliestStart = findEarliestAvailableDate(new Date(), res.item.quantity || 1, res.bookings || []);
-            const startStr = formatDateStr(earliestStart);
-            const endObj = new Date(earliestStart);
-            endObj.setDate(endObj.getDate() + 2); // 3 days total
-            const endStr = formatDateStr(endObj);
-            
-            setStartDateStr(startStr);
-            setEndDateStr(endStr);
-            setCurrentCalendarMonth(new Date(earliestStart.getFullYear(), earliestStart.getMonth(), 1));
-          }
-        })
-        .catch((err) => console.error("fetchItemAvailability error:", err))
-        .finally(() => setLoadingAvailability(false));
-    }
-  }, [selectedItemId, availableItems, initialConsoleName]);
+      try {
+        const results = await Promise.all(uniqueIds.map((id) => fetchItemAvailability(id)));
+        const valid = results.filter((r) => r.success && r.item);
+        if (valid.length) {
+          setCartAvailability(valid.map((r) => ({ item: r.item, bookings: r.bookings || [] })));
+          setAvailabilityItem(valid[0].item);
+          setActiveBookings(valid[0].bookings || []);
+
+          const earliest = valid.reduce((best: Date | null, entry: any) => {
+            const candidate = findEarliestAvailableDate(new Date(), entry.item.quantity || 1, entry.bookings || []);
+            return !best || candidate.getTime() > best.getTime() ? candidate : best;
+          }, null);
+          const start = earliest || new Date();
+          const startStr = formatDateStr(start);
+          const end = new Date(start);
+          const requestedDuration = cartMode ? 3 : Math.max(3, initialDuration);
+          end.setDate(end.getDate() + requestedDuration - 1);
+          setStartDateStr(startStr);
+          setEndDateStr(formatDateStr(end));
+          setCurrentCalendarMonth(new Date(start.getFullYear(), start.getMonth(), 1));
+        }
+      } catch (err) {
+        console.error("fetch availability error:", err);
+      } finally {
+        setLoadingAvailability(false);
+      }
+    };
+    load();
+  }, [cartMode, cartItems, selectedItemId, availableItems, initialConsoleName]);
 
   const durationDays = useMemo(() => {
     if (!startDateStr || !endDateStr) return 3;
@@ -214,21 +242,49 @@ function BookingFlow() {
     return diffDays > 0 ? diffDays : 0;
   }, [startDateStr, endDateStr]);
 
-  const computedTotalPrice = useMemo(() => {
-    if (!availabilityItem) return initialTotal;
-    const base3DayRate = availabilityItem.price_3_days || (availabilityItem.price ? availabilityItem.price * 3 : 1497);
-    const extraDayRate = availabilityItem.price_extra_day || availabilityItem.price || 400;
-    
-    if (durationDays <= 3) {
-      return base3DayRate;
-    }
-    return base3DayRate + (durationDays - 3) * extraDayRate;
-  }, [availabilityItem, durationDays, initialTotal]);
+  const checkoutLines = useMemo(() => {
+    const sources = cartMode ? cartAvailability.map((entry) => entry.item) : (availabilityItem ? [availabilityItem] : []);
+    return sources.map((item: any) => {
+      const pricing = calculateRentalPricing(item, durationDays, discountSettings);
+      return {
+        itemId: item.id,
+        name: item.name,
+        totalPrice: pricing.total,
+        grossPrice: pricing.grossTotal,
+        rentalDiscount: pricing.rentalDiscount,
+        durationDays,
+      };
+    });
+  }, [cartMode, cartAvailability, availabilityItem, durationDays]);
+
+  const listingSubtotal = useMemo(() => checkoutLines.reduce((sum, line) => sum + line.grossPrice, 0) || initialTotal, [checkoutLines, initialTotal]);
+  const rentalDiscountTotal = useMemo(() => checkoutLines.reduce((sum, line) => sum + line.rentalDiscount, 0), [checkoutLines]);
+  const computedTotalPrice = useMemo(() => checkoutLines.reduce((sum, line) => sum + line.totalPrice, 0) || initialTotal, [checkoutLines, initialTotal]);
+  const deliveryFee = checkoutLines.length > 0 ? 100 : 0;
+  const finalTotalPrice = Math.max(0, computedTotalPrice + deliveryFee - (appliedPromo?.discount || 0));
+
+  useEffect(() => {
+    if (!cartMode || !computedTotalPrice) return;
+    const storedCode = getCartPromoCode();
+    if (!storedCode) return;
+    let cancelled = false;
+    validateCoupon(storedCode, computedTotalPrice).then((res) => {
+      if (cancelled) return;
+      if (res.success && res.data) {
+        setPromoCode(res.data.code);
+        setAppliedPromo({ code: res.data.code, discount: res.data.discount });
+      } else {
+        clearCartPromoCode();
+      }
+    });
+    return () => { cancelled = true; };
+  }, [cartMode, computedTotalPrice]);
 
   const isSelectionValid = useMemo(() => {
     if (!startDateStr || !endDateStr) return true;
-    return isRangeAvailable(startDateStr, endDateStr, availabilityItem?.quantity || 1, activeBookings);
-  }, [startDateStr, endDateStr, availabilityItem, activeBookings]);
+    if (!cartMode) return isRangeAvailable(startDateStr, endDateStr, availabilityItem?.quantity || 1, activeBookings);
+    return cartAvailability.every((entry) => isRangeAvailable(startDateStr, endDateStr, entry.item.quantity || 1, entry.bookings || []));
+  }, [cartMode, startDateStr, endDateStr, availabilityItem, activeBookings, cartAvailability]);
 
   const earliestAvailableDateStr = useMemo(() => {
     if (!availabilityItem) return "";
@@ -454,6 +510,23 @@ function BookingFlow() {
     startCamera();
   }
 
+  async function handleApplyPromo() {
+    setPromoError("");
+    setAppliedPromo(null);
+    if (!promoCode.trim()) return;
+    setCheckingPromo(true);
+    try {
+      const res = await validateCoupon(promoCode, computedTotalPrice);
+      if (res.success && res.data) {
+        setAppliedPromo({ code: res.data.code, discount: res.data.discount });
+      } else {
+        setPromoError(res.error || "Invalid promo code.");
+      }
+    } finally {
+      setCheckingPromo(false);
+    }
+  }
+
   // Submit Booking
   async function handleFinalSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -472,22 +545,38 @@ function BookingFlow() {
       const finalAddress = useCustomLocation ? customAddress : (kycAddress || address);
       const finalMapLink = useCustomLocation ? customMapLink : (kycMapLink || mapLink);
 
-      const res = await createBooking({
+      const payload = {
         fullName: name,
-        phone: phone,
+        phone,
         address: finalAddress,
         mapLink: finalMapLink,
         aadhaarNumber: isVerified ? "PROFILE_VERIFIED" : "UNVERIFIED_PENDING",
         aadhaarVerified: isVerified,
         selfieUrl: selfieCaptured || "data:image/png;base64,mockselfie",
-        itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f",
-        startDate: startDateStr,
-        endDate: endDateStr,
-        durationDays: durationDays,
-        totalPrice: computedTotalPrice
-      });
+      };
+
+      const res = cartMode
+        ? await createBookings({
+            ...payload,
+            items: checkoutLines.map((line) => ({ itemId: line.itemId, durationDays, totalPrice: line.totalPrice, startDate: startDateStr, endDate: endDateStr })),
+            subtotalPrice: computedTotalPrice,
+            discountAmount: appliedPromo?.discount || 0,
+            couponCode: appliedPromo?.code,
+          })
+        : await createBooking({
+            ...payload,
+            itemId: itemId || "d832c3f8-8fa3-4df4-8d48-8dfa1ad3943f",
+            startDate: startDateStr,
+            endDate: endDateStr,
+            durationDays,
+            totalPrice: finalTotalPrice,
+            subtotalPrice: computedTotalPrice,
+            discountAmount: appliedPromo?.discount || 0,
+            couponCode: appliedPromo?.code,
+          });
 
       if (res.success) {
+        if (cartMode) { clearCart(); clearCartPromoCode(); }
         setIsSuccess(true);
       } else {
         setSubmitError("Booking failed: " + res.error);
@@ -1325,6 +1414,23 @@ function BookingFlow() {
                     </div>
                   </div>
 
+                  {/* Promo code */}
+                  <div className={`p-4 sm:p-5 rounded-2xl border space-y-3 ${isLightTheme ? "bg-white border-neutral-200" : "bg-black/20 border-white/10"}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <span className={`text-xs font-bold ${headerColor}`}>Promo / Discount Code</span>
+                        <p className={`text-[10px] mt-1 ${subTextColor}`}>Apply a valid GameBees coupon to reduce your rental total.</p>
+                      </div>
+                      {appliedPromo && <span className="text-[10px] font-bold text-emerald-500">{appliedPromo.code} applied</span>}
+                    </div>
+                    <div className="flex gap-2">
+                      <input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }} placeholder="ENTER PROMO CODE" disabled={!!appliedPromo} className={inputClassName + " !pl-4"} />
+                      <button type="button" onClick={appliedPromo ? () => { setAppliedPromo(null); setPromoCode(""); clearCartPromoCode(); } : handleApplyPromo} disabled={checkingPromo} className="shrink-0 px-4 rounded-xl bg-gamebees-accent-blue hover:bg-gamebees-medium-blue text-white text-xs font-bold disabled:opacity-50">{checkingPromo ? "Checking…" : appliedPromo ? "Remove" : "Apply"}</button>
+                    </div>
+                    {promoError && <p className="text-[10px] text-red-400">{promoError}</p>}
+                    {appliedPromo && <div className="flex justify-between text-xs text-emerald-500"><span>Discount</span><span>-₹{appliedPromo.discount}</span></div>}
+                  </div>
+
                   {/* Section 3: Formal Price Summary */}
                   <div className={`p-4 sm:p-5 rounded-2xl border space-y-3 transition-all ${
                     isLightTheme ? "bg-neutral-50 border-neutral-200 text-neutral-850" : "bg-white/[0.03] border-white/10 text-white"
@@ -1333,23 +1439,35 @@ function BookingFlow() {
                     
                     <div className="space-y-2 text-xs pt-1">
                       <div className="flex justify-between">
-                        <span className={subTextColor}>Console Rental Fee ({durationDays} days)</span>
-                        <span className="font-semibold">₹{computedTotalPrice}</span>
+                        <span className={subTextColor}>{cartMode ? `Rental Items (${durationDays} days)` : `Listing price (${durationDays} days)`}</span>
+                        <span className="font-semibold">₹{listingSubtotal}</span>
                       </div>
+                      {rentalDiscountTotal > 0 && (
+                        <div className="flex justify-between text-emerald-500">
+                          <span>Long-rental discount</span>
+                          <span className="font-bold">-₹{rentalDiscountTotal}</span>
+                        </div>
+                      )}
+                      {appliedPromo && (
+                        <div className="flex justify-between text-emerald-500">
+                          <span>Promo discount ({appliedPromo.code})</span>
+                          <span className="font-bold">-₹{appliedPromo.discount}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className={subTextColor}>Refundable Security Deposit</span>
                         <span className="text-emerald-600 font-semibold">Waived (eKYC Verified)</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className={subTextColor}>Express Delivery & Setup</span>
-                        <span className="text-emerald-600 font-semibold">FREE</span>
+                        <span className={subTextColor}>Delivery & pickup</span>
+                        <span className="font-semibold">₹100</span>
                       </div>
 
                       <div className={`h-[1px] my-2 ${separatorBg}`} />
 
                       <div className="flex justify-between items-baseline pt-1">
                         <span className={`text-xs uppercase font-extrabold ${isLightTheme ? "text-neutral-900" : "text-white"}`}>Total Payable Amount</span>
-                        <span className={`text-2xl font-black ${isLightTheme ? "text-neutral-950" : "text-[#5e9fd0]"}`}>₹{computedTotalPrice}</span>
+                        <span className={`text-2xl font-black ${isLightTheme ? "text-neutral-950" : "text-[#5e9fd0]"}`}>₹{finalTotalPrice}</span>
                       </div>
                     </div>
                   </div>
