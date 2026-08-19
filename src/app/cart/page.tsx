@@ -3,14 +3,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ShoppingCart, Trash2 } from "lucide-react";
-import { CartItem, getCart, removeFromCart, getCartPromoCode, setCartPromoCode, clearCartPromoCode } from "@/lib/cart";
+import { CartItem, getCart, removeFromCart, updateCartItemDuration, getCartPromoCode, setCartPromoCode, clearCartPromoCode } from "@/lib/cart";
 import { validateCoupon } from "@/app/actions";
 import CartButton from "@/components/CartButton";
 
-function rentalTotal(item: CartItem, days = 3) {
+function rentalTotal(item: CartItem, days?: number) {
+  const d = days ?? item.duration ?? 3;
   const base = item.price_3_days || item.price * 3;
   const extra = item.price_extra_day || item.price;
-  return days <= 3 ? base : base + (days - 3) * extra;
+  return d <= 3 ? base : base + (d - 3) * extra;
 }
 
 export default function CartPage() {
@@ -92,7 +93,7 @@ export default function CartPage() {
             <div className="mb-6">
               <p className="text-[10px] uppercase tracking-[0.25em] text-gamebees-glow-blue font-bold">Your selection</p>
               <h1 className="text-3xl sm:text-4xl font-black text-white mt-1">Rental Cart</h1>
-              <p className="text-sm text-white/45 mt-2">Combine consoles, controllers and other available gear into one checkout.</p>
+              <p className="text-sm text-white/45 mt-2">Choose duration for each gear item and checkout together.</p>
             </div>
 
             {cart.length === 0 ? (
@@ -103,18 +104,55 @@ export default function CartPage() {
                 <Link href="/dashboard" className="btn-glow-pill inline-flex mt-6 px-5 py-3 rounded-xl text-xs font-bold">Browse listings</Link>
               </div>
             ) : (
-              <div className="space-y-3">
-                {cart.map((item) => (
-                  <article key={item.id} className="card-polished p-4 sm:p-5 flex gap-4 items-center">
-                    <div className="h-20 w-24 rounded-xl bg-black/30 border border-white/5 flex items-center justify-center overflow-hidden shrink-0"><img src={item.image_url || "/ps5.png"} alt={item.name} className="h-full w-full object-contain p-2" /></div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue font-bold">{item.category || "Gaming gear"}</span>
-                      <h2 className="text-sm sm:text-base font-bold text-white truncate mt-1">{item.name}</h2>
-                      <p className="text-xs text-white/40 mt-1">3-day package · ₹{rentalTotal(item)}</p>
-                    </div>
-                    <button onClick={() => removeFromCart(item.id)} className="h-9 w-9 rounded-lg border border-red-500/15 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center"><Trash2 className="h-4 w-4" /></button>
-                  </article>
-                ))}
+              <div className="space-y-4">
+                {cart.map((item) => {
+                  const currentDays = item.duration ?? 3;
+                  return (
+                    <article key={item.id} className="card-polished p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
+                      <div className="flex gap-4 items-center min-w-0">
+                        <div className="h-20 w-24 rounded-xl bg-black/30 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
+                          <img src={item.image_url || "/ps5.png"} alt={item.name} className="h-full w-full object-contain p-2" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue font-bold">{item.category || "Gaming gear"}</span>
+                          <h2 className="text-sm sm:text-base font-bold text-white truncate mt-0.5">{item.name}</h2>
+                          <p className="text-xs text-white/50 mt-1">
+                            <span className="font-semibold text-white">₹{rentalTotal(item, currentDays)}</span>
+                            <span className="text-white/40 text-[10px]"> for {currentDays} days</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Duration selector inside cart */}
+                      <div className="flex items-center gap-3 self-end sm:self-center">
+                        <div className="flex items-center gap-1 bg-black/30 p-1 rounded-xl border border-white/5">
+                          {[3, 7, 14, 30].map((days) => (
+                            <button
+                              key={days}
+                              type="button"
+                              onClick={() => updateCartItemDuration(item.id, days)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                                currentDays === days
+                                  ? "bg-gamebees-accent-blue text-white shadow-sm"
+                                  : "text-white/50 hover:text-white hover:bg-white/5"
+                              }`}
+                            >
+                              {days}d
+                            </button>
+                          ))}
+                        </div>
+
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="h-9 w-9 rounded-lg border border-red-500/15 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors cursor-pointer"
+                          title="Remove item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -139,7 +177,7 @@ export default function CartPage() {
               </div>
 
               <div className="space-y-3 mt-4 text-xs">
-                <div className="flex justify-between text-white/50"><span>{cart.length} listing{cart.length > 1 ? "s" : ""}</span><span>3 days</span></div>
+                <div className="flex justify-between text-white/50"><span>{cart.length} listing{cart.length > 1 ? "s" : ""}</span><span>Multi-item bundle</span></div>
                 <div className="flex justify-between text-white/50"><span>Delivery & pickup</span><span className="font-bold text-white">₹100</span></div>
                 <div className="h-px bg-white/10" />
                 <div className="flex justify-between"><span className="text-white/50">Listing total</span><span className="font-semibold text-white">₹{subtotal}</span></div>

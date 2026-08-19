@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   description: "Rent next-gen consoles including PlayStation 5, Xbox Series X, Nintendo Switch, and Meta Quest 3. Low rates, instant setups, and pre-installed gaming packages.",
 };
 
+const rawClerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isRealKey = Boolean(rawClerkKey && rawClerkKey.startsWith("pk_") && !rawClerkKey.includes("...") && rawClerkKey.length > 25);
+const publishableKey = isRealKey ? rawClerkKey : undefined;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -85,11 +89,10 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-gamebees-bg selection:bg-gamebees-accent-blue selection:text-white grainy-overlay"
         suppressHydrationWarning
       >
-        <ClerkProvider>
+        <ClerkProvider publishableKey={publishableKey}>
           {children}
         </ClerkProvider>
       </body>
     </html>
   );
 }
-

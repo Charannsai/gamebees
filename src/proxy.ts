@@ -1,21 +1,26 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
+const rawKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
+const isRealKey = rawKey.startsWith('pk_') && !rawKey.includes('...') && rawKey.length > 25;
+
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 
-export const proxy = clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-  
-  // If the user is logged in and visits the root path (/), redirect to /dashboard
-  if (userId && req.nextUrl.pathname === '/') {
-    const dashboardUrl = new URL('/dashboard', req.url);
-    return NextResponse.redirect(dashboardUrl);
-  }
+export const proxy = isRealKey
+  ? clerkMiddleware(async (auth, req) => {
+      const { userId } = await auth();
+      
+      // If the user is logged in and visits the root path (/), redirect to /dashboard
+      if (userId && req.nextUrl.pathname === '/') {
+        const dashboardUrl = new URL('/dashboard', req.url);
+        return NextResponse.redirect(dashboardUrl);
+      }
 
-  if (isProtectedRoute(req)) {
-    await auth.protect();
-  }
-});
+      if (isProtectedRoute(req)) {
+        await auth.protect();
+      }
+    })
+  : () => NextResponse.next();
 
 export const config = {
   matcher: [

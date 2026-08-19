@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight, ShoppingBag, Check, ShieldCheck, MapPin, Truck, Smartphone, Terminal } from "lucide-react";
+import { ArrowRight, ShoppingBag, ShieldCheck, MapPin, Truck, Smartphone, Terminal, Star } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
-import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { fetchItems, fetchLandingGearOptions } from "@/app/actions";
+import { fetchItems } from "@/app/actions";
+import { addToCart } from "@/lib/cart";
 
 // --- Scroll Reveal ---
 function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -35,51 +35,55 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
   );
 }
 
-// --- Gear Loadout ---
-interface GearItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  required?: boolean;
-  description?: string;
-}
-
-const GEAR_OPTIONS: GearItem[] = [
-  { id: "ps5", name: "PlayStation 5 Pro Console", price: 12, image: "/ps5.png", required: true },
-  { id: "controller", name: "Extra DualSense Controller", price: 3, image: "/controller.png" },
-  { id: "headset", name: "Pulse 3D Wireless Headset", price: 2, image: "/controller.png" },
-  { id: "case", name: "Premium Travel Case", price: 1, image: "/ps5.png" }
+const DEFAULT_FALLBACK_PRODUCTS = [
+  {
+    id: "ps5-pro-bundle",
+    name: "PlayStation 5 Pro Console Bundle",
+    category: "Console",
+    price: 499,
+    image_url: "/ps5.png",
+    description: "Next-gen PS5 Pro console with ultra-high-speed SSD, preloaded PS Plus games, and 1 DualSense controller."
+  },
+  {
+    id: "dualsense-extra",
+    name: "Extra DualSense Wireless Controller",
+    category: "Controller",
+    price: 149,
+    image_url: "/controller.png",
+    description: "Haptic feedback, dynamic adaptive triggers, and built-in microphone for instant multiplayer action."
+  },
+  {
+    id: "pulse-3d-headset",
+    name: "Pulse 3D Wireless Headset",
+    category: "Audio",
+    price: 119,
+    image_url: "/controller.png",
+    description: "3D audio tailored for PS5 console gaming with dual noise-cancelling microphones and refined earpads."
+  }
 ];
 
 export default function Home() {
   const router = useRouter();
-  const [selectedGear, setSelectedGear] = useState<string[]>(["ps5"]);
   const [phoneStep, setPhoneStep] = useState(0);
   const [typingText, setTypingText] = useState("");
   const [dbProducts, setDbProducts] = useState<any[]>([]);
-  const [gearOptions, setGearOptions] = useState<GearItem[]>(GEAR_OPTIONS);
-  const [openGearDescription, setOpenGearDescription] = useState<string | null>(null);
+  const [loadingItems, setLoadingItems] = useState(true);
+  const [itemDurations, setItemDurations] = useState<Record<string, number>>({});
+  const [cartNotice, setCartNotice] = useState("");
 
   useEffect(() => {
-    Promise.all([fetchItems(), fetchLandingGearOptions()]).then(([itemsRes, gearRes]) => {
-      if (itemsRes.success && itemsRes.data) setDbProducts(itemsRes.data);
-      if (gearRes.success && gearRes.data?.length) {
-        setGearOptions(gearRes.data.map((item: any) => ({
-          id: item.id, name: item.name, price: Number(item.price) || 0,
-          image: item.image_url || "/ps5.png", required: !!item.required, description: item.description || ""
-        })));
+    fetchItems().then((itemsRes) => {
+      if (itemsRes.success && itemsRes.data && itemsRes.data.length > 0) {
+        setDbProducts(itemsRes.data);
+      } else {
+        setDbProducts(DEFAULT_FALLBACK_PRODUCTS);
       }
+      setLoadingItems(false);
+    }).catch(() => {
+      setDbProducts(DEFAULT_FALLBACK_PRODUCTS);
+      setLoadingItems(false);
     });
   }, []);
-
-  useEffect(() => {
-    const requiredIds = gearOptions.filter((item) => item.required).map((item) => item.id);
-    setSelectedGear((prev) => {
-      const valid = prev.filter((id) => gearOptions.some((item) => item.id === id));
-      return Array.from(new Set([...requiredIds, ...valid]));
-    });
-  }, [gearOptions]);
 
   useEffect(() => {
     const interval = setInterval(() => setPhoneStep((prev) => (prev + 1) % 3), 5000);
@@ -101,82 +105,53 @@ export default function Home() {
     }
   }, [phoneStep]);
 
-  const handleToggleGear = (gearId: string) => {
-    const gear = gearOptions.find((item) => item.id === gearId);
-    if (gear?.required) return;
-    setSelectedGear((prev) =>
-      prev.includes(gearId) ? prev.filter((id) => id !== gearId) : [...prev, gearId]
-    );
-  };
-
-  const calculateDailyPrice = () =>
-    gearOptions.reduce((acc, item) => (selectedGear.includes(item.id) ? acc + item.price : acc), 0);
-
-  const currentDailyTotal = calculateDailyPrice();
-
-  const { isSignedIn } = useUser();
-
-  const handleRentClick = (title: string, dailyPrice: number, itemId?: string) => {
-    const query = itemId 
-      ? `itemId=${itemId}&name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`
-      : `name=${encodeURIComponent(title)}&price=${dailyPrice}&duration=3`;
-
-    if (isSignedIn) {
-      router.push(`/book?${query}`);
-    } else {
-      window.location.href = `/sign-in?redirect_url=/book?${query}`;
-    }
+  const handleAddToCart = (prod: any) => {
+    const duration = itemDurations[prod.id] ?? 3;
+    addToCart({
+      id: prod.id,
+      name: prod.name,
+      category: prod.category,
+      price: Number(prod.price) || 0,
+      price_3_days: Number(prod.price_3_days) || undefined,
+      price_extra_day: Number(prod.price_extra_day) || undefined,
+      image_url: prod.image_url || (Array.isArray(prod.image_urls) ? prod.image_urls[0] : undefined),
+      duration,
+    });
+    setCartNotice(`${prod.name} added to cart (${duration} days)`);
+    window.setTimeout(() => setCartNotice(""), 2600);
   };
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-gamebees-bg selection:bg-gamebees-accent-blue selection:text-white relative overflow-x-hidden">
+      {cartNotice && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-2xl border border-emerald-500/30 bg-[#0f1b16]/95 px-4 py-3 shadow-2xl backdrop-blur-md text-xs text-white flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span>{cartNotice}</span>
+        </div>
+      )}
       
-      {/* ================================================================
-          SCATTERED GLOW BACKDROPS (Interpolated to target background color to eliminate banding rings)
-          ================================================================ */}
-      
-      {/* Glow Spot 1: Under the Choose Your Loadout Section */}
+      {/* Background glow effects */}
       <div 
         className="absolute w-[600px] h-[600px] left-[-200px] top-[95vh] pointer-events-none z-0"
         style={{
           background: "radial-gradient(circle, rgba(36, 101, 150, 0.16) 0%, rgba(20, 20, 20, 0) 75%)",
           filter: "blur(140px)",
         }}
-      ></div>
-
+      />
       <div 
         className="absolute w-[500px] h-[500px] right-[-100px] top-[145vh] pointer-events-none z-0"
         style={{
           background: "radial-gradient(circle, rgba(94, 159, 208, 0.12) 0%, rgba(20, 20, 20, 0) 75%)",
           filter: "blur(120px)",
         }}
-      ></div>
-
-      {/* Glow Spot 2: Behind Mobile Mockup Section */}
+      />
       <div 
         className="absolute w-[700px] h-[700px] right-[-250px] top-[225vh] pointer-events-none z-0"
         style={{
           background: "radial-gradient(circle, rgba(36, 101, 150, 0.18) 0%, rgba(20, 20, 20, 0) 80%)",
           filter: "blur(150px)",
         }}
-      ></div>
-
-      <div 
-        className="absolute w-[550px] h-[550px] left-[-150px] top-[285vh] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(94, 159, 208, 0.14) 0%, rgba(20, 20, 20, 0) 75%)",
-          filter: "blur(130px)",
-        }}
-      ></div>
-
-      {/* Glow Spot 3: Centered behind CTA Zone */}
-      <div 
-        className="absolute w-[800px] h-[500px] left-1/2 -translate-x-1/2 top-[345vh] pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(36, 101, 150, 0.22) 0%, rgba(94, 159, 208, 0.08) 40%, rgba(20, 20, 20, 0) 80%)",
-          filter: "blur(130px)",
-        }}
-      ></div>
+      />
 
       {/* Navbar & Hero */}
       <Navbar />
@@ -185,10 +160,10 @@ export default function Home() {
       <main className="flex-1 relative z-10">
 
         {/* ================================================================
-            SECTION 1: CHOOSE YOUR LOADOUT
+            SECTION 1: PRODUCT CATALOGUE (CHOOSE YOUR LOADOUT)
             ================================================================ */}
-        <section className="relative">
-          <RevealSection className="py-24 sm:py-32">
+        <section id="loadout-section" className="relative py-20 sm:py-28">
+          <RevealSection>
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               
               {/* Section Header */}
@@ -197,156 +172,39 @@ export default function Home() {
                   CHOOSE YOUR LOADOUT
                 </span>
                 <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                  Pick Your Choice
+                  Available Gear & Stations
                 </h2>
                 <p className="text-gamebees-accent-lavender/40 text-sm sm:text-base font-light max-w-lg mx-auto">
-                  Pick any of your choice of combination at reasonable prices. Custom setup made for you.
+                  Select your rental period, customize your setup, and add directly to your cart with zero security deposit.
                 </p>
               </div>
 
-              {/* Selector Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start max-w-5xl mx-auto">
-                
-                {/* Left — Gear checklist */}
-                <div className="space-y-3.5">
-                  {gearOptions.map((item) => {
-                    const isChecked = selectedGear.includes(item.id);
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => handleToggleGear(item.id)}
-                        className={`group flex items-center justify-between p-5 rounded-2xl border transition-all duration-400 cursor-pointer select-none ${
-                          isChecked
-                            ? "bg-gradient-to-r from-gamebees-dark-navy/20 to-transparent border-gamebees-accent-blue/35 shadow-[inset_0_0_12px_rgba(94,159,208,0.04)]"
-                            : "bg-white/[0.015] border-white/[0.04] opacity-50 hover:opacity-85 hover:border-white/[0.08]"
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                            isChecked
-                              ? "bg-gamebees-accent-blue border-gamebees-accent-blue text-white"
-                              : "border-white/15"
-                          }`}>
-                            {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
-                          </div>
-                          <div className="min-w-0">
-                            <button
-                              type="button"
-                              onClick={(event) => { event.stopPropagation(); setOpenGearDescription(openGearDescription === item.id ? null : item.id); }}
-                              className="text-sm font-semibold block text-white text-left hover:text-gamebees-glow-blue transition-colors cursor-pointer"
-                            >
-                              {item.name}
-                            </button>
-                            {item.required && (
-                              <span className="text-[9px] uppercase tracking-wider text-gamebees-glow-blue font-semibold">
-                                Required
-                              </span>
-                            )}
-                            {openGearDescription === item.id && (
-                              <p className="text-[10px] text-white/45 leading-relaxed mt-1.5 max-w-sm">
-                                {item.description || "View product details and rental information."}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors">₹{item.price}</span>
-                          <span className="text-[10px] text-white/25 block">/ day</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Right — Configuration summary card */}
-                <div className="card-polished p-7 sm:p-8 flex flex-col gap-5 relative">
-                  
-                  <h3 className="text-sm font-bold text-white/80 uppercase tracking-wider border-b border-white/[0.05] pb-4">
-                    Your Configuration
-                  </h3>
-
-                  <div className="space-y-3 my-1">
-                    {gearOptions.map((item) => {
-                      if (!selectedGear.includes(item.id)) return null;
-                      return (
-                        <div key={item.id} className="flex justify-between items-center text-sm">
-                          <span className="text-gamebees-accent-lavender/40 font-light">{item.name}</span>
-                          <span className="text-white font-semibold">₹{item.price}/day</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="h-px bg-gradient-to-r from-transparent via-gamebees-accent-blue/20 to-transparent"></div>
-
-                  <div className="flex justify-between items-center pt-2">
-                    <div>
-                      <span className="text-[10px] uppercase text-gamebees-accent-lavender/30 font-semibold tracking-wider block">
-                        Combined Rate
-                      </span>
-                      <div className="flex items-baseline gap-1.5 mt-1">
-                        <span className="text-3xl font-black text-gamebees-glow-blue">₹{currentDailyTotal}</span>
-                        <span className="text-xs text-white/20 font-light">/ day</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleRentClick(`Custom Loadout Bundle (${selectedGear.length} Items)`, currentDailyTotal)}
-                      className="btn-glow-pill px-6 py-3 rounded-full text-xs font-semibold flex items-center gap-2 cursor-pointer"
-                    >
-                      <span>Book Loadout</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </RevealSection>
-        </section>
-
-        {/* ================================================================
-            SECTION 1B: DYNAMIC WAREHOUSE PRODUCTS CATALOG
-            ================================================================ */}
-        {dbProducts.length > 0 && (
-          <section className="relative border-t border-white/[0.04] bg-white/[0.01]">
-            <RevealSection className="py-20 sm:py-28">
-              <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-                  <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-semibold text-gamebees-glow-blue">
-                    AVAILABLE WAREHOUSE INVENTORY
-                  </span>
-                  <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    Explore Ready Consoles & Gear
-                  </h2>
-                  <p className="text-gamebees-accent-lavender/40 text-sm font-light max-w-lg mx-auto">
-                    Live products stocked directly in our local hub with instant availability rotation.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                  {dbProducts.map((prod) => (
+              {/* Product Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+                {dbProducts.map((prod) => {
+                  const currentDays = itemDurations[prod.id] ?? 3;
+                  return (
                     <div
                       key={prod.id}
                       className="card-polished p-5 flex flex-col justify-between border border-white/[0.04] group hover:border-gamebees-accent-blue/40 transition-all duration-400 rounded-2xl"
                     >
                       <div className="space-y-4">
-                        {/* Uploaded Product Image Container */}
+                        {/* Product Image */}
                         <div className="relative w-full h-48 rounded-xl overflow-hidden bg-black/40 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={prod.image_url || (Array.isArray(prod.image_urls) && prod.image_urls[0]) || "/ps5.png"}
                             alt={prod.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/ps5.png";
                             }}
                           />
                           <div className="absolute top-2.5 left-2.5">
                             <span className="text-[9px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/85 backdrop-blur-md border border-gamebees-accent-blue/30 px-2.5 py-1 rounded-full shadow-md">
-                              {prod.category}
+                              {prod.category || "Console"}
                             </span>
                           </div>
-
                           {Array.isArray(prod.image_urls) && prod.image_urls.length > 1 && (
                             <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md text-white text-[9px] font-bold px-2.5 py-0.5 rounded-md border border-white/10 shadow-sm">
                               📷 {prod.image_urls.length} Photos
@@ -354,6 +212,7 @@ export default function Home() {
                           )}
                         </div>
 
+                        {/* Title & Price */}
                         <div className="space-y-1.5">
                           <div className="flex justify-between items-baseline gap-2">
                             <Link href={`/product/${prod.id}`} className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate hover:underline">
@@ -370,25 +229,73 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => handleRentClick(prod.name, prod.price, prod.id)}
-                        className="w-full mt-5 py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all shadow-[0_4px_14px_rgba(36,101,150,0.25)] cursor-pointer"
-                      >
-                        <span>Reserve Station</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </button>
+                      {/* Interactive Duration Selector + Add to Cart */}
+                      <div className="mt-5 space-y-3">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between items-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gamebees-glow-blue">Select Rental Duration</p>
+                            <span className="text-[9px] text-white/40">{currentDays} days selected</span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {[3, 7, 14, 30].map((days) => (
+                              <button
+                                key={days}
+                                type="button"
+                                onClick={() => setItemDurations(prev => ({ ...prev, [prod.id]: days }))}
+                                className={`py-2 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
+                                  currentDays === days
+                                    ? "bg-gamebees-accent-blue border-gamebees-accent-blue text-white shadow-sm"
+                                    : "bg-white/[0.02] border-white/5 text-white/70 hover:bg-white/5"
+                                }`}
+                              >
+                                {days}d
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-2 gap-3 pt-1">
+                          <Link
+                            href={`/product/${prod.id}`}
+                            className="w-full py-3 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-white/80 flex items-center justify-center transition-all text-center"
+                          >
+                            View Details
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(prod)}
+                            className="w-full py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_14px_rgba(36,101,150,0.25)] cursor-pointer"
+                          >
+                            <ShoppingBag className="h-3.5 w-3.5" />
+                            <span>Add to Cart</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            </RevealSection>
-          </section>
-        )}
+
+              {/* View all button if more listings */}
+              <div className="text-center mt-12">
+                <Link
+                  href="/dashboard"
+                  className="btn-glow-pill inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-xs font-bold"
+                >
+                  <span>Explore Full Warehouse Inventory</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+            </div>
+          </RevealSection>
+        </section>
 
         {/* ================================================================
             SECTION 2: QUICK & EASY BOOKING
             ================================================================ */}
-        <section className="relative">
+        <section className="relative border-t border-white/[0.04]">
           <RevealSection className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center max-w-5xl mx-auto">
@@ -413,7 +320,7 @@ export default function Home() {
                       </div>
                       <div>
                         <span className="text-sm font-semibold text-white block">1. Reserve Instantly</span>
-                        <span className="text-xs text-gamebees-accent-lavender/30 font-light leading-relaxed">Select loadout, specify dates, and book in 15 seconds.</span>
+                        <span className="text-xs text-gamebees-accent-lavender/30 font-light leading-relaxed">Select loadout, specify duration, and add to cart in seconds.</span>
                       </div>
                     </div>
                     <div className="flex gap-4 items-start group">
@@ -469,7 +376,7 @@ export default function Home() {
                               </div>
                             </div>
                             <button className="w-full py-2.5 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 rounded-lg text-[10px] font-semibold text-white mt-3 text-center">
-                              Book Gear
+                              Add to Cart
                             </button>
                           </div>
                         )}
@@ -536,7 +443,7 @@ export default function Home() {
         </section>
 
         {/* ================================================================
-            SECTION 3: CTA — BOOK NOW
+            SECTION 3: CTA — EXPLORE LISTINGS
             ================================================================ */}
         <section className="relative">
           <RevealSection className="py-24 sm:py-32">
@@ -551,25 +458,25 @@ export default function Home() {
                 <p className="max-w-md text-sm text-gamebees-accent-lavender/35 leading-relaxed font-light">
                   Rent complete PS5 Pro bundles and accessories with same-day setup. Start playing instantly.
                 </p>
-                <button
-                  onClick={() => handleRentClick("PlayStation 5 Pro Bundle", 12)}
-                  className="btn-glow-pill px-8 py-4 rounded-full text-sm font-semibold flex items-center gap-2.5 mt-2 cursor-pointer"
+                <Link
+                  href="/dashboard"
+                  className="btn-glow-pill px-8 py-4 rounded-full text-sm font-semibold flex items-center gap-2.5 mt-2"
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  <span>Book Your Rental Now</span>
-                </button>
+                  <span>Browse Available Gear</span>
+                </Link>
               </div>
             </div>
           </RevealSection>
         </section>
       </main>
 
-      {/* Footer (No border divider line, seamless page end) */}
+      {/* Footer */}
       <footer className="py-12 relative z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-gamebees-accent-lavender/30 font-light">
           <span>© {new Date().getFullYear()} GameBees Rental. All rights reserved.</span>
           <div className="flex gap-6">
-            <span className="hover:text-white/60 cursor-pointer transition-colors font-semibold" onClick={() => handleRentClick("PlayStation 5 Pro Bundle", 12)}>Rentals</span>
+            <Link href="/dashboard" className="hover:text-white/60 transition-colors font-semibold">Rentals</Link>
             <span className="text-white/10">•</span>
             <span className="hover:text-white/60 cursor-pointer transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Top</span>
           </div>

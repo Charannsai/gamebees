@@ -6,6 +6,7 @@ export interface CartItem {
   price_3_days?: number;
   price_extra_day?: number;
   image_url?: string;
+  duration?: number; // rental duration in days chosen by the customer
 }
 
 const CART_KEY = "gamebees-cart";
@@ -29,7 +30,25 @@ export function saveCart(items: CartItem[]) {
 
 export function addToCart(item: CartItem) {
   const cart = getCart();
-  if (!cart.some((entry) => entry.id === item.id)) saveCart([...cart, item]);
+  const existingIndex = cart.findIndex((entry) => entry.id === item.id);
+  if (existingIndex >= 0) {
+    // Update existing item with chosen duration
+    const updated = [...cart];
+    updated[existingIndex] = {
+      ...updated[existingIndex],
+      ...item,
+      duration: item.duration ?? updated[existingIndex].duration ?? 3,
+    };
+    saveCart(updated);
+  } else {
+    saveCart([...cart, { ...item, duration: item.duration ?? 3 }]);
+  }
+}
+
+export function updateCartItemDuration(id: string, duration: number) {
+  const cart = getCart();
+  const updated = cart.map((item) => (item.id === id ? { ...item, duration } : item));
+  saveCart(updated);
 }
 
 export function removeFromCart(id: string) {

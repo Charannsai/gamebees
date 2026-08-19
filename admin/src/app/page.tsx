@@ -19,11 +19,6 @@ import {
   adminAddCoupon,
   adminUpdateCoupon,
   adminDeleteCoupon,
-  adminFetchLandingGear,
-  adminEnsureLandingDefaults,
-  adminAddLandingGear,
-  adminUpdateLandingGear,
-  adminDeleteLandingGear,
   adminFetchRentalDiscounts,
   adminUpdateRentalDiscount
 } from "./actions";
@@ -64,17 +59,13 @@ export default function AdminPage() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<"items" | "bookings" | "kyc" | "coupons" | "landing">("bookings");
+  const [activeTab, setActiveTab] = useState<"items" | "bookings" | "kyc" | "coupons">("bookings");
 
   // Database Data State
   const [items, setItems] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [kycProfiles, setKycProfiles] = useState<any[]>([]);
   const [coupons, setCoupons] = useState<any[]>([]);
-  const [landingGear, setLandingGear] = useState<any[]>([]);
-  const [landingForm, setLandingForm] = useState({ name: "", price: "", image_url: "", description: "", required: false, is_active: true, sort_order: "0" });
-  const [editingLandingId, setEditingLandingId] = useState<string | null>(null);
-  const [savingLanding, setSavingLanding] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
   // Detail view state variables
@@ -149,26 +140,17 @@ export default function AdminPage() {
 
   const loadData = async () => {
     if (initialLoad) setLoadingData(true);
-    const [itemsRes, bookingsRes, kycRes, couponsRes, landingRes, discountRes] = await Promise.all([
+    const [itemsRes, bookingsRes, kycRes, couponsRes, discountRes] = await Promise.all([
       adminFetchItems(),
       adminFetchBookings(),
       adminFetchKycProfiles(),
       adminFetchCoupons(),
-      adminFetchLandingGear(),
       adminFetchRentalDiscounts()
     ]);
-    if (landingRes.success && (!landingRes.data || landingRes.data.length === 0)) {
-      const seeded = await adminEnsureLandingDefaults();
-      if (seeded.success && seeded.created) {
-        const refreshed = await adminFetchLandingGear();
-        if (refreshed.success) landingRes.data = refreshed.data;
-      }
-    }
     if (itemsRes.success) setItems(itemsRes.data || []);
     if (bookingsRes.success) setBookings(bookingsRes.data || []);
     if (kycRes.success) setKycProfiles(kycRes.data || []);
     if (couponsRes.success) setCoupons(couponsRes.data || []);
-    if (landingRes.success) setLandingGear(landingRes.data || []);
     if (discountRes.success) {
       const next = { 14: "10", 30: "20" };
       (discountRes.data || []).forEach((row: any) => { if (Number(row.days) === 14 || Number(row.days) === 30) next[Number(row.days) as 14 | 30] = String(row.discount_percent); });
@@ -227,35 +209,6 @@ export default function AdminPage() {
   const handleDeleteCoupon = (coupon: any) => triggerConfirm("Delete Coupon", `Delete ${coupon.code}? Existing bookings using this code will remain unchanged.`, async () => {
     const res = await adminDeleteCoupon(coupon.id);
     if (res.success) await loadData(); else triggerAlert("Delete Failed", res.error || "Unable to delete coupon.");
-  });
-
-  const resetLandingForm = () => {
-    setLandingForm({ name: "", price: "", image_url: "", description: "", required: false, is_active: true, sort_order: "0" });
-    setEditingLandingId(null);
-  };
-
-  const handleSaveLanding = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingLanding(true);
-    const payload = {
-      name: landingForm.name, price: Number(landingForm.price), image_url: landingForm.image_url || undefined,
-      description: landingForm.description, required: landingForm.required, is_active: landingForm.is_active,
-      sort_order: Number(landingForm.sort_order || 0)
-    };
-    const res = editingLandingId ? await adminUpdateLandingGear(editingLandingId, payload) : await adminAddLandingGear(payload);
-    setSavingLanding(false);
-    if (res.success) { resetLandingForm(); await loadData(); }
-    else triggerAlert("Landing Section Save Failed", res.error || "Unable to save landing option.");
-  };
-
-  const handleEditLanding = (item: any) => {
-    setEditingLandingId(item.id);
-    setLandingForm({ name: item.name || "", price: String(item.price ?? ""), image_url: item.image_url || "", description: item.description || "", required: !!item.required, is_active: item.is_active !== false, sort_order: String(item.sort_order ?? 0) });
-  };
-
-  const handleDeleteLanding = (item: any) => triggerConfirm("Delete Landing Option", `Delete ${item.name} from the Pick Your Choice section?`, async () => {
-    const res = await adminDeleteLandingGear(item.id);
-    if (res.success) await loadData(); else triggerAlert("Delete Failed", res.error || "Unable to delete landing option.");
   });
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -587,16 +540,6 @@ export default function AdminPage() {
                   {kycProfiles.filter(p => p.kyc_status === "pending").length}
                 </span>
               )}
-            </button>
-
-            <button
-              onClick={() => setActiveTab("landing")}
-              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "landing" ? "bg-[#141414] text-white" : "text-[#141414] hover:bg-[#F4F4F5]"
-              }`}
-            >
-              <HugeiconsIcon icon={PackageIcon} size={15} />
-              <span>Landing Page</span>
             </button>
 
             <button
@@ -1135,36 +1078,6 @@ export default function AdminPage() {
                   </table>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Tab: Landing Page */}
-          {activeTab === "landing" && (
-            <div className="space-y-6 animate-fadeInUp">
-              <div className="flex items-center justify-between">
-                <div><h3 className="text-xl font-black text-[#141414]">Landing Page — Pick Your Choice</h3><p className="text-xs text-neutral-500 mt-1">Add, edit, hide, reorder or delete the four products shown in the landing-page “Pick Your Choice” section.</p></div>
-                {editingLandingId && <button onClick={resetLandingForm} className="text-xs font-bold text-neutral-500 hover:text-neutral-900">Cancel edit</button>}
-              </div>
-
-              <form onSubmit={handleSaveLanding} className="card-polished p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Product name</label><input required value={landingForm.name} onChange={e => setLandingForm({...landingForm, name:e.target.value})} placeholder="Extra DualSense Controller" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
-                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Daily price (₹)</label><input required type="number" min="0" step="0.01" value={landingForm.price} onChange={e => setLandingForm({...landingForm, price:e.target.value})} placeholder="300" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
-                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Image URL</label><input value={landingForm.image_url} onChange={e => setLandingForm({...landingForm, image_url:e.target.value})} placeholder="/controller.png" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
-                <div><label className="text-[10px] font-bold text-neutral-500 uppercase">Display order</label><input type="number" value={landingForm.sort_order} onChange={e => setLandingForm({...landingForm, sort_order:e.target.value})} className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
-                <div className="md:col-span-2 lg:col-span-3"><label className="text-[10px] font-bold text-neutral-500 uppercase">Description</label><input value={landingForm.description} onChange={e => setLandingForm({...landingForm, description:e.target.value})} placeholder="Short description shown to customers" className="w-full mt-1 px-3 py-2.5 rounded-lg border border-neutral-200 text-sm" /></div>
-                <div className="flex items-end gap-4 pb-2">
-                  <label className="text-xs font-semibold flex items-center gap-2"><input type="checkbox" checked={landingForm.required} onChange={e => setLandingForm({...landingForm, required:e.target.checked})} /> Required</label>
-                  <label className="text-xs font-semibold flex items-center gap-2"><input type="checkbox" checked={landingForm.is_active} onChange={e => setLandingForm({...landingForm, is_active:e.target.checked})} /> Visible</label>
-                </div>
-                <div className="md:col-span-2 lg:col-span-4 flex justify-end"><button disabled={savingLanding} className="btn-glow-pill px-6 py-3 rounded-xl text-xs font-bold disabled:opacity-50">{savingLanding ? "Saving…" : editingLandingId ? "Update Landing Product" : "Add Landing Product"}</button></div>
-              </form>
-
-              <div className="card-polished overflow-hidden">
-                <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b border-neutral-200 text-[9px] uppercase tracking-wider text-neutral-400"><th className="p-4">Product</th><th>Price / day</th><th>Required</th><th>Visibility</th><th>Order</th><th className="p-4 text-right">Actions</th></tr></thead><tbody>
-                  {landingGear.map(item => <tr key={item.id} className="border-b border-neutral-100 last:border-0"><td className="p-4"><div className="flex items-center gap-3"><img src={item.image_url || "/ps5.png"} alt="" className="h-10 w-12 rounded object-contain bg-neutral-100" /><div><span className="font-black block">{item.name}</span><span className="text-[9px] text-neutral-400">{item.description || "No description"}</span></div></div></td><td className="font-bold">₹{item.price}</td><td>{item.required ? "Yes" : "No"}</td><td><span className={item.is_active ? "text-emerald-600 font-bold" : "text-red-500 font-bold"}>{item.is_active ? "Visible" : "Hidden"}</span></td><td>{item.sort_order}</td><td className="p-4 text-right space-x-3"><button onClick={() => handleEditLanding(item)} className="font-bold text-blue-600">Edit</button><button onClick={() => handleDeleteLanding(item)} className="font-bold text-red-500">Delete</button></td></tr>)}
-                  {landingGear.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-neutral-400">No landing products configured.</td></tr>}
-                </tbody></table></div>
-              </div>
             </div>
           )}
 
