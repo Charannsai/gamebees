@@ -18,6 +18,7 @@ import {
   adminFetchCoupons,
   adminAddCoupon,
   adminUpdateCoupon,
+  adminDeleteCoupon,
   adminFetchRentalDiscounts,
   adminUpdateRentalDiscount
 } from "./actions";
