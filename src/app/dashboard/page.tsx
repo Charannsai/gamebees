@@ -71,6 +71,8 @@ export default function UserDashboard() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [settingsSubTab, setSettingsSubTab] = useState<"profile" | "orders" | "policies">("profile");
   const [cartNotice, setCartNotice] = useState("");
+  // Per-item duration selection for the product catalogue (item.id -> days)
+  const [itemDurations, setItemDurations] = useState<Record<string, number>>({});
 
   useEffect(() => {
     // Read theme preference on mount
@@ -152,8 +154,9 @@ export default function UserDashboard() {
   };
 
   const handleAddToCart = (item: any) => {
-    addToCart({ id: item.id, name: item.name, category: item.category, price: Number(item.price) || 0, price_3_days: Number(item.price_3_days) || undefined, price_extra_day: Number(item.price_extra_day) || undefined, image_url: item.image_url || (Array.isArray(item.image_urls) ? item.image_urls[0] : undefined) });
-    setCartNotice(`${item.name} added to cart`);
+    const duration = itemDurations[item.id] ?? 3;
+    addToCart({ id: item.id, name: item.name, category: item.category, price: Number(item.price) || 0, price_3_days: Number(item.price_3_days) || undefined, price_extra_day: Number(item.price_extra_day) || undefined, image_url: item.image_url || (Array.isArray(item.image_urls) ? item.image_urls[0] : undefined), duration });
+    setCartNotice(`${item.name} added to cart (${duration} days)`);
     window.setTimeout(() => setCartNotice(""), 2600);
   };
 
@@ -642,32 +645,49 @@ export default function UserDashboard() {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3 mt-4">
-                            <button
-                              onClick={() => router.push(`/product/${item.id}`)}
-                              className={`w-full py-3 border rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center ${
-                                theme === "light"
-                                  ? "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700"
-                                  : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80"
-                              }`}
-                            >
-                              <span>View Product</span>
-                            </button>
+                          {/* Duration Selector + Add to Cart */}
+                          <div className="mt-4 space-y-3">
+                            {/* Duration selector */}
+                            <div className="space-y-1.5">
+                              <p className={`text-[9px] font-bold uppercase tracking-wider ${theme === "light" ? "text-[#246596]" : "text-gamebees-glow-blue"}`}>Rental Duration</p>
+                              <div className="grid grid-cols-4 gap-1.5">
+                                {[3, 7, 14, 30].map((days) => (
+                                  <button
+                                    key={days}
+                                    onClick={() => setItemDurations(prev => ({ ...prev, [item.id]: days }))}
+                                    className={`py-2 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
+                                      (itemDurations[item.id] ?? 3) === days
+                                        ? "bg-[#246596] border-[#246596] text-white shadow-sm"
+                                        : theme === "light"
+                                          ? "bg-neutral-50 border-neutral-200 text-neutral-700 hover:bg-neutral-100"
+                                          : "bg-white/[0.02] border-white/5 text-white/70 hover:bg-white/5"
+                                    }`}
+                                  >
+                                    {days}d
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
 
+                            {/* Action buttons */}
                             <div className="grid grid-cols-2 gap-3">
+                              <button
+                                onClick={() => router.push(`/product/${item.id}`)}
+                                className={`w-full py-3 border rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center ${
+                                  theme === "light"
+                                    ? "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700"
+                                    : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80"
+                                }`}
+                              >
+                                <span>View Product</span>
+                              </button>
+
                               <button
                                 onClick={() => handleAddToCart(item)}
                                 className="w-full py-3 rounded-xl border border-gamebees-accent-blue/60 bg-gradient-to-r from-gamebees-accent-blue/20 to-gamebees-medium-blue/15 hover:from-gamebees-accent-blue/35 hover:to-gamebees-medium-blue/25 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_14px_rgba(36,101,150,0.18)] ring-1 ring-gamebees-accent-blue/15"
                               >
                                 <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                                <span>Add Cart</span>
-                              </button>
-                              <button
-                                onClick={() => handleOpenBooking(item)}
-                                className="w-full py-3 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_12px_rgba(36,101,150,0.25)] cursor-pointer"
-                              >
-                                <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                                <span>Book Now</span>
+                                <span>Add to Cart</span>
                               </button>
                             </div>
                           </div>

@@ -8,10 +8,9 @@ import { addToCart } from "@/lib/cart";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   ArrowLeft01Icon, 
-  ShoppingBag01Icon, 
-  Shield01Icon
+  ShoppingBag01Icon
 } from "@hugeicons/core-free-icons";
-import { Star, Shield } from "lucide-react";
+import { Star } from "lucide-react";
 import { fetchItemAvailability, fetchRentalDiscountSettings } from "@/app/actions";
 import { calculateRentalPricing } from "@/lib/pricing";
 
@@ -108,13 +107,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       price_3_days: Number(item.price_3_days) || undefined,
       price_extra_day: Number(item.price_extra_day) || undefined,
       image_url: item.image_url || imageUrls[0],
+      duration: selectedDuration,
     });
-    setCartNotice(`${item.name} added to cart`);
+    setCartNotice(`${item.name} added to cart (${selectedDuration} days)`);
     window.setTimeout(() => setCartNotice(""), 2600);
-  };
-
-  const handleBookNow = () => {
-    router.push(`/book?itemId=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&duration=${selectedDuration}`);
   };
 
   return (
@@ -327,22 +323,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
             {/* CTAs */}
             <div className="space-y-3 pt-4">
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full py-4 rounded-xl border border-gamebees-accent-blue/70 bg-gradient-to-r from-gamebees-accent-blue/25 to-gamebees-medium-blue/20 hover:from-gamebees-accent-blue/40 hover:to-gamebees-medium-blue/30 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_18px_rgba(36,101,150,0.22)] ring-1 ring-gamebees-accent-blue/20"
-                >
-                  <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
-                  <span>Add to Cart</span>
-                </button>
-                <button
-                  onClick={handleBookNow}
-                  className="w-full py-4 bg-gradient-to-r from-gamebees-accent-blue/80 to-gamebees-medium-blue/60 hover:from-gamebees-accent-blue hover:to-gamebees-medium-blue border border-gamebees-accent-blue/30 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-[0_4px_16px_rgba(36,101,150,0.3)] cursor-pointer"
-                >
-                  <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
-                  <span>Book Now</span>
-                </button>
-              </div>
+              <button
+                onClick={handleAddToCart}
+                className="w-full py-4 rounded-xl border border-gamebees-accent-blue/70 bg-gradient-to-r from-gamebees-accent-blue/25 to-gamebees-medium-blue/20 hover:from-gamebees-accent-blue/40 hover:to-gamebees-medium-blue/30 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_18px_rgba(36,101,150,0.22)] ring-1 ring-gamebees-accent-blue/20"
+              >
+                <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
+                <span>Add to Cart ({selectedDuration} days)</span>
+              </button>
 
               {cartNotice && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-2xl border border-emerald-500/30 bg-[#0f1b16]/95 px-4 py-3 shadow-2xl backdrop-blur-md text-xs text-white flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
