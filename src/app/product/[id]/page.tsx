@@ -130,108 +130,108 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           ? "bg-white/90 border-neutral-200 text-neutral-900 shadow-xs"
           : "bg-[#141414]/85 border-white/[0.04] text-white"
       }`}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-3.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-11 sm:h-14 w-auto object-contain select-none" />
+            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-9 sm:h-12 w-auto object-contain select-none" />
           </Link>
           
           <div className="flex items-center gap-2">
-          <CartButton light={isLightTheme} />
-          <button 
-            onClick={() => router.push("/dashboard")}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-              isLightTheme
-                ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900"
-                : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
-            <span>Go Back</span>
-          </button>
-        </div>
+            <CartButton light={isLightTheme} />
+            <button 
+              onClick={() => router.push("/dashboard")}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                isLightTheme
+                  ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900"
+                  : "bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
+              <span className="hidden xs:inline sm:inline">Go Back</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 mt-8 sm:mt-12 relative z-10">
-        <div className={`w-full rounded-[24px] p-6 sm:p-8 md:p-12 border ${cardStyle} grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 transition-all`}>
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3.5 sm:px-6 mt-4 sm:mt-8 relative z-10">
+        <div className={`w-full rounded-[24px] p-4 sm:p-8 md:p-12 border ${cardStyle} grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12 transition-all`}>
           
           {/* LEFT COLUMN: Gallery & Specs */}
-          <div className="md:col-span-6 space-y-6">
+          <div className="md:col-span-6 space-y-4 sm:space-y-6">
             
             {/* Gallery Main Image */}
-            <div className="relative w-full aspect-video sm:aspect-square md:max-h-[460px] rounded-2xl overflow-hidden bg-black/45 border border-white/5 flex items-center justify-center">
+            <div className="relative w-full h-56 sm:h-72 md:max-h-[460px] rounded-2xl overflow-hidden bg-black/45 border border-white/5 flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activeImage}
                 alt={item.name}
-                className="w-full h-full object-contain p-0 transition-transform duration-300 hover:scale-[1.02]"
+                className="w-full h-full object-contain p-2 sm:p-0 transition-transform duration-300 hover:scale-[1.02]"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/ps5.png";
                 }}
               />
               <div className="absolute top-3 left-3">
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/80 backdrop-blur-md border border-gamebees-accent-blue/30 px-3 py-1 rounded-full">
-                  {item.category}
+                <span className="text-[10px] uppercase tracking-wider font-bold text-gamebees-glow-blue bg-gamebees-dark-navy/90 backdrop-blur-md border border-gamebees-accent-blue/40 px-3 py-1 rounded-full shadow-md">
+                  {item.category || "Console"}
                 </span>
               </div>
             </div>
 
             {/* Gallery Thumbnails */}
             {imageUrls.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-thin">
                 {imageUrls.map((url: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setActiveImage(url)}
-                    className={`relative w-20 h-20 rounded-xl overflow-hidden bg-black/30 border transition-all shrink-0 cursor-pointer ${
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black/30 border transition-all shrink-0 cursor-pointer ${
                       activeImage === url 
-                        ? "border-[#246596] ring-2 ring-[#246596]/20 scale-95" 
+                        ? "border-[#246596] ring-2 ring-[#246596]/30 scale-95" 
                         : "border-white/5 hover:border-white/20"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-contain p-1.5" />
+                    <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-contain p-1" />
                   </button>
                 ))}
               </div>
             )}
 
             {/* Product Header & Main Price Card */}
-            <div className="space-y-4 pt-2">
+            <div className="space-y-3 sm:space-y-4 pt-1">
               {/* Product Header */}
               <div>
-                <h2 className={`text-2xl sm:text-3xl font-black ${textTitle} leading-tight`}>
+                <h2 className={`text-xl sm:text-2xl md:text-3xl font-black ${textTitle} leading-tight`}>
                   {item.name}
                 </h2>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-2 mt-1.5 sm:mt-2">
                   <div className="flex text-amber-500">
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <Star className="h-3.5 w-3.5 fill-current" />
                   </div>
-                  <span className={`text-[11px] font-semibold tracking-wide px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20`}>
+                  <span className={`text-[10px] sm:text-[11px] font-semibold tracking-wide px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20`}>
                     4.9 / 5.0 Rating
                   </span>
                 </div>
               </div>
 
               {/* Main Price Card */}
-              <div className={`p-4 rounded-2xl border ${isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-black/30 border-white/5"} flex justify-between items-center`}>
+              <div className={`p-3.5 sm:p-4 rounded-2xl border ${isLightTheme ? "bg-neutral-50 border-neutral-200" : "bg-black/30 border-white/5"} flex justify-between items-center`}>
                 <div>
-                  <span className={`text-[10px] uppercase font-bold tracking-wider ${isLightTheme ? "text-neutral-400" : "text-white/35"}`}>Rental Charge</span>
+                  <span className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider ${isLightTheme ? "text-neutral-400" : "text-white/35"}`}>Rental Charge</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className={`text-3xl font-black ${isLightTheme ? "text-neutral-950" : "text-gamebees-glow-blue"}`}>₹{item.price}</span>
+                    <span className={`text-2xl sm:text-3xl font-black ${isLightTheme ? "text-neutral-950" : "text-gamebees-glow-blue"}`}>₹{item.price}</span>
                     <span className={textSub}>/ day</span>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-emerald-500 font-bold block">Security Deposit</span>
-                  <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider">Waived (eKYC)</span>
+                  <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold block">Security Deposit</span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-emerald-400 uppercase tracking-wider">Waived (eKYC)</span>
                 </div>
               </div>
             </div>
