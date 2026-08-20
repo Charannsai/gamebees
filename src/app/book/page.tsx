@@ -642,31 +642,31 @@ function BookingFlow() {
           ? "bg-white/90 border-neutral-200 text-neutral-900 shadow-xs"
           : "bg-[#141414]/85 border-white/[0.04] text-white"
       }`}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-3.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-11 sm:h-14 w-auto object-contain select-none" />
+            <img src="/gamebeeslogo.png" alt="GAMEBEES" className="h-9 sm:h-12 w-auto object-contain select-none" />
           </Link>
           
           <button 
             onClick={() => router.back()}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
               isLightTheme
                 ? "bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900"
                 : "bg-white/5 border-white/10 text-white/80 hover:text-white"
             }`}
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
-            <span>Go Back</span>
+            <span className="hidden xs:inline sm:inline">Go Back</span>
           </button>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-lg w-full mx-auto px-4 mt-8 sm:mt-12 relative z-10">
+      <main className="flex-1 max-w-lg w-full mx-auto px-3.5 sm:px-4 mt-4 sm:mt-8 relative z-10">
         
         {/* Main Card */}
-        <div className={`w-full rounded-[24px] pt-8 pb-8 px-6 sm:px-8 border transition-all ${
+        <div className={`w-full rounded-[24px] pt-6 pb-6 sm:pt-8 sm:pb-8 px-4 sm:px-8 border transition-all ${
           isLightTheme 
             ? "bg-white border-neutral-200 text-neutral-850 shadow-2xl" 
             : "card-polished border-gamebees-accent-blue/30 text-white shadow-[0_0_50px_rgba(36,101,150,0.12)]"

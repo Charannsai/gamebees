@@ -30,6 +30,7 @@ import CartButton from "@/components/CartButton";
 import { addToCart } from "@/lib/cart";
 import { useRouter } from "next/navigation";
 import { RentalAgreementContent } from "@/components/RentalAgreementContent";
+import { sortProductsConsoleFirst, filterProductsByCategory, isConsoleCategory } from "@/lib/products";
 
 type TabType = "overview" | "bookings" | "track" | "kyc" | "settings";
 
@@ -41,6 +42,7 @@ export default function UserDashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [stationCategory, setStationCategory] = useState<"all" | "consoles" | "accessories">("all");
   
   // KYC State
   const [kycVerified, setKycVerified] = useState(false);
@@ -124,7 +126,7 @@ export default function UserDashboard() {
         getKycStatus()
       ]);
 
-      if (itemsRes.success) setItems(itemsRes.data || []);
+      if (itemsRes.success) setItems(sortProductsConsoleFirst(itemsRes.data || []));
       if (bookingsRes.success) setBookings(bookingsRes.data || []);
       
       if (kycRes.success && kycRes.profile) {
@@ -586,113 +588,173 @@ export default function UserDashboard() {
               {/* Tab: Bookings */}
               {activeTab === "bookings" && (
                 <div className="space-y-6 animate-fadeInUp">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
-                      Available Gaming Stations
-                    </h3>
-                    <p className="text-white/50 text-xs mt-1 font-light">
-                      Browse available items propagated directly from our warehouse.
-                    </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-white title-glow">
+                        Available Gaming Stations
+                      </h3>
+                      <p className="text-white/50 text-xs mt-1 font-light">
+                        Consoles & setups listed first, followed by controllers and accessories.
+                      </p>
+                    </div>
+
+                    {/* Category Filter Chips */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setStationCategory("all")}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                          stationCategory === "all"
+                            ? "bg-gamebees-accent-blue border-gamebees-glow-blue text-white shadow-xs"
+                            : "bg-white/[0.03] border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        All ({items.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setStationCategory("consoles")}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                          stationCategory === "consoles"
+                            ? "bg-gamebees-accent-blue border-gamebees-glow-blue text-white shadow-xs"
+                            : "bg-white/[0.03] border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        Consoles ({items.filter(i => isConsoleCategory(i.category)).length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setStationCategory("accessories")}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                          stationCategory === "accessories"
+                            ? "bg-gamebees-accent-blue border-gamebees-glow-blue text-white shadow-xs"
+                            : "bg-white/[0.03] border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        Accessories ({items.filter(i => !isConsoleCategory(i.category)).length})
+                      </button>
+                    </div>
                   </div>
 
-                  {items.length === 0 ? (
-                    <div className="card-polished p-16 text-center space-y-3">
+                  {filterProductsByCategory(items, stationCategory).length === 0 ? (
+                    <div className="card-polished p-12 text-center space-y-3">
                       <HugeiconsIcon icon={ShoppingBag01Icon} size={40} className="text-white/10 mx-auto" />
-                      <p className="text-xs sm:text-sm text-white/50 font-light">No gear setups listed currently. Check back later!</p>
+                      <p className="text-xs sm:text-sm text-white/50 font-light">No items found for this category filter.</p>
+                      <button
+                        type="button"
+                        onClick={() => setStationCategory("all")}
+                        className="px-4 py-2 rounded-xl bg-gamebees-accent-blue text-white text-xs font-bold"
+                      >
+                        View All Items
+                      </button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                      {items.map((item) => (
-                        <div key={item.id} className="card-polished p-5 flex flex-col justify-between border border-white/[0.03] group hover:border-gamebees-accent-blue/30 transition-all rounded-2xl">
-                          <div className="space-y-3">
-                            {/* Uploaded Product Image Container */}
-                            <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/20 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"}
-                                alt={item.name}
-                                className="w-full h-full object-contain p-0 group-hover:scale-[1.02] transition-transform duration-500"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = "/ps5.png";
-                                }}
-                              />
-                              <div className="absolute top-2 left-2">
-                                <span className="text-[9px] uppercase tracking-wider font-semibold text-gamebees-glow-blue bg-gamebees-dark-navy/80 backdrop-blur-md border border-gamebees-accent-blue/30 px-2.5 py-1 rounded-full shadow-md">
-                                  {item.category}
-                                </span>
+                      {filterProductsByCategory(items, stationCategory).map((item) => {
+                        const isConsole = isConsoleCategory(item.category);
+                        return (
+                          <div
+                            key={item.id}
+                            className={`card-polished p-4 sm:p-5 flex flex-col justify-between border transition-all rounded-2xl ${
+                              isConsole
+                                ? "border-gamebees-accent-blue/30 bg-[#10324d]/10 hover:border-gamebees-accent-blue/50"
+                                : "border-white/[0.04] hover:border-white/20"
+                            }`}
+                          >
+                            <div className="space-y-3">
+                              {/* Uploaded Product Image Container */}
+                              <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/20 border border-white/5 group-hover:border-gamebees-accent-blue/30 transition-all flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={item.image_url || (Array.isArray(item.image_urls) && item.image_urls[0]) || "/ps5.png"}
+                                  alt={item.name}
+                                  className="w-full h-full object-contain p-0 group-hover:scale-[1.02] transition-transform duration-500"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/ps5.png";
+                                  }}
+                                />
+                                <div className="absolute top-2 left-2">
+                                  <span className={`text-[9px] uppercase tracking-wider font-bold backdrop-blur-md border px-2.5 py-1 rounded-full shadow-md ${
+                                    isConsole
+                                      ? "text-gamebees-glow-blue bg-gamebees-dark-navy/90 border-gamebees-accent-blue/40"
+                                      : "text-amber-300 bg-amber-950/70 border-amber-500/30"
+                                  }`}>
+                                    {item.category || (isConsole ? "Console" : "Accessory")}
+                                  </span>
+                                </div>
+
+                                {Array.isArray(item.image_urls) && item.image_urls.length > 1 && (
+                                  <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-md border border-white/10">
+                                    📷 {item.image_urls.length} Photos
+                                  </div>
+                                )}
                               </div>
 
-                              {Array.isArray(item.image_urls) && item.image_urls.length > 1 && (
-                                <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-md border border-white/10">
-                                  📷 {item.image_urls.length} Photos
+                              <div className="space-y-1">
+                                <div className="flex justify-between items-baseline gap-2">
+                                  <Link href={`/product/${item.id}`} className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate hover:underline">
+                                    {item.name}
+                                  </Link>
+                                  <div className="text-right shrink-0">
+                                    <span className="text-lg font-black text-gamebees-glow-blue">₹{item.price}</span>
+                                    <span className="text-[9px] text-white/30 block">/ day</span>
+                                  </div>
                                 </div>
-                              )}
+                                <p className="text-xs text-white/50 font-light leading-relaxed line-clamp-2">
+                                  {item.description || "Fully configured console with active game library ready for plug-and-play."}
+                                </p>
+                              </div>
                             </div>
 
-                            <div className="space-y-1">
-                              <div className="flex justify-between items-baseline gap-2">
-                                <Link href={`/product/${item.id}`} className="text-base font-bold text-white group-hover:text-gamebees-glow-blue transition-colors truncate hover:underline">
-                                  {item.name}
-                                </Link>
-                                <div className="text-right shrink-0">
-                                  <span className="text-lg font-black text-gamebees-glow-blue">₹{item.price}</span>
-                                  <span className="text-[9px] text-white/30 block">/ day</span>
+                            {/* Duration Selector + Add to Cart */}
+                            <div className="mt-4 space-y-3">
+                              {/* Duration selector */}
+                              <div className="space-y-1.5">
+                                <p className={`text-[9px] font-bold uppercase tracking-wider ${theme === "light" ? "text-[#246596]" : "text-gamebees-glow-blue"}`}>Rental Duration</p>
+                                <div className="grid grid-cols-4 gap-1.5">
+                                  {[3, 7, 14, 30].map((days) => (
+                                    <button
+                                      key={days}
+                                      onClick={() => setItemDurations(prev => ({ ...prev, [item.id]: days }))}
+                                      className={`h-9 sm:h-8 rounded-lg border text-[10px] font-bold transition-all cursor-pointer flex items-center justify-center active:scale-95 ${
+                                        (itemDurations[item.id] ?? 3) === days
+                                          ? "bg-[#246596] border-[#246596] text-white shadow-sm"
+                                          : theme === "light"
+                                            ? "bg-neutral-50 border-neutral-200 text-neutral-700 hover:bg-neutral-100"
+                                            : "bg-white/[0.02] border-white/5 text-white/70 hover:bg-white/5"
+                                      }`}
+                                    >
+                                      {days}d
+                                    </button>
+                                  ))}
                                 </div>
                               </div>
-                              <p className="text-xs text-white/50 font-light leading-relaxed line-clamp-2">
-                                {item.description || "Fully configured console with active game library ready for plug-and-play."}
-                              </p>
+
+                              {/* Action buttons */}
+                              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                                <button
+                                  onClick={() => router.push(`/product/${item.id}`)}
+                                  className={`w-full py-2.5 sm:py-3 border rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center active:scale-98 ${
+                                    theme === "light"
+                                      ? "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700"
+                                      : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80"
+                                  }`}
+                                >
+                                  <span>View Product</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleAddToCart(item)}
+                                  className="w-full py-2.5 sm:py-3 rounded-xl border border-gamebees-accent-blue/60 bg-gradient-to-r from-gamebees-accent-blue/30 to-gamebees-medium-blue/20 hover:from-gamebees-accent-blue/45 hover:to-gamebees-medium-blue/30 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_14px_rgba(36,101,150,0.18)] active:scale-98"
+                                >
+                                  <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
+                                  <span>Add to Cart</span>
+                                </button>
+                              </div>
                             </div>
                           </div>
-
-                          {/* Duration Selector + Add to Cart */}
-                          <div className="mt-4 space-y-3">
-                            {/* Duration selector */}
-                            <div className="space-y-1.5">
-                              <p className={`text-[9px] font-bold uppercase tracking-wider ${theme === "light" ? "text-[#246596]" : "text-gamebees-glow-blue"}`}>Rental Duration</p>
-                              <div className="grid grid-cols-4 gap-1.5">
-                                {[3, 7, 14, 30].map((days) => (
-                                  <button
-                                    key={days}
-                                    onClick={() => setItemDurations(prev => ({ ...prev, [item.id]: days }))}
-                                    className={`py-2 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
-                                      (itemDurations[item.id] ?? 3) === days
-                                        ? "bg-[#246596] border-[#246596] text-white shadow-sm"
-                                        : theme === "light"
-                                          ? "bg-neutral-50 border-neutral-200 text-neutral-700 hover:bg-neutral-100"
-                                          : "bg-white/[0.02] border-white/5 text-white/70 hover:bg-white/5"
-                                    }`}
-                                  >
-                                    {days}d
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Action buttons */}
-                            <div className="grid grid-cols-2 gap-3">
-                              <button
-                                onClick={() => router.push(`/product/${item.id}`)}
-                                className={`w-full py-3 border rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center ${
-                                  theme === "light"
-                                    ? "bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700"
-                                    : "bg-white/5 hover:bg-white/10 border-white/10 text-white/80"
-                                }`}
-                              >
-                                <span>View Product</span>
-                              </button>
-
-                              <button
-                                onClick={() => handleAddToCart(item)}
-                                className="w-full py-3 rounded-xl border border-gamebees-accent-blue/60 bg-gradient-to-r from-gamebees-accent-blue/20 to-gamebees-medium-blue/15 hover:from-gamebees-accent-blue/35 hover:to-gamebees-medium-blue/25 text-xs font-extrabold text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_14px_rgba(36,101,150,0.18)] ring-1 ring-gamebees-accent-blue/15"
-                              >
-                                <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
-                                <span>Add to Cart</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
